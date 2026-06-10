@@ -35,12 +35,12 @@ class CommonButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(backgroundColor ?? AppColors.teal),
-          foregroundColor: MaterialStateProperty.all(textColor ?? AppColors.white),
-          overlayColor: MaterialStateProperty.all(Colors.transparent),
-          elevation: MaterialStateProperty.all(0),
-          shadowColor: MaterialStateProperty.all(Colors.transparent),
-          shape: MaterialStateProperty.all(
+          backgroundColor: WidgetStateProperty.all(backgroundColor ?? AppColors.teal),
+          foregroundColor: WidgetStateProperty.all(textColor ?? AppColors.white),
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
+          elevation: WidgetStateProperty.all(0),
+          shadowColor: WidgetStateProperty.all(Colors.transparent),
+          shape: WidgetStateProperty.all(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius ?? 48.r), side: border ?? BorderSide.none),
           ),
         ),

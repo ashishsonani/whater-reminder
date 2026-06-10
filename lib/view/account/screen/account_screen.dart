@@ -68,7 +68,7 @@ class AccountScreen extends StatelessWidget {
                   title: AppString.notification.tr,
                   trailing: Obx(
                     () => CupertinoSwitch(
-                      activeColor: AppColors.teal,
+                      activeTrackColor: AppColors.teal,
                       value: controller.isNotificationEnabled.value,
                       onChanged: (val) => controller.toggleNotifications(val),
                     ),

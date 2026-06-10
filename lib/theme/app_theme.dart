@@ -21,8 +21,6 @@ class AppTheme {
         onSecondary: Colors.white,
         surface: AppColors.card,
         onSurface: AppColors.ink,
-        background: AppColors.paper,
-        onBackground: AppColors.ink,
         error: AppColors.accent,
         onError: Colors.white,
       ),
