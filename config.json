@@ -1,6 +1,6 @@
 {
   "ads_enabled": true,
-  "banner": true,
+  "banner": false,
   "interstitial": true,
   "app_open": true,
   "click_count": 3
