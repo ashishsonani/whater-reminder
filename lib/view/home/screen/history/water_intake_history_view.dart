@@ -112,7 +112,7 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
                   SizedBox(height: 20.h),
                   _buildStreakCard(controller),
                   SizedBox(height: 20.h),
-                  const CommonNativeAd(),
+                  const CommonBannerAd(),
                   _buildAwardsSection(controller),
                   SizedBox(height: 24.h),
                   _buildHydrationCalendar(controller),

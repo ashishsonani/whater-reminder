@@ -30,6 +30,8 @@ void main() async {
   FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
 
   await AdService.init();
+  final appLifecycleReactor = AppLifecycleReactor(appOpenAdManager: AdService.appOpenAdManager);
+  WidgetsBinding.instance.addObserver(appLifecycleReactor);
   // await IAPService.init();
   // await initializeDateFormatting('en_US', null);
   await initializeDateFormatting('tr_TR', null);

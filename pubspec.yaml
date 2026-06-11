@@ -67,6 +67,7 @@ dependencies:
   sleek_circular_slider: ^2.1.0
   build_runner: ^2.15.0
   flutter_gen_runner: ^5.14.1
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

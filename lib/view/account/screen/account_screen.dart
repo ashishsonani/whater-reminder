@@ -146,7 +146,7 @@ class AccountScreen extends StatelessWidget {
                 ),
               ]),
               SizedBox(height: 15.h),
-              const CommonNativeAd(),
+              const CommonBannerAd(),
               SizedBox(height: 10.h),
               Text(
                 "${AppString.version.tr} 1.0.3",

@@ -17,7 +17,7 @@ import 'package:water_intake/theme/app_typography.dart';
 import 'package:water_intake/view/dashboard/controller/dashboard_controller.dart';
 import 'package:water_intake/view/home/controller/home_controller.dart' hide ChartMode;
 
-import '../../../../../services/ad_service.dart' show CommonNativeAd;
+import '../../../../../services/ad_service.dart' show CommonBannerAd;
 import '../../../../../utils/app_strings.dart';
 
 class StatisticScreen extends StatefulWidget {
@@ -274,7 +274,7 @@ class _StatisticScreenState extends State<StatisticScreen> {
                       child: _buildDrinkCompletionCard(controller),
                     ),
                     SizedBox(height: 10.h),
-                    const CommonNativeAd(),
+                    const CommonBannerAd(),
 
                     SizedBox(height: 10.h),
 

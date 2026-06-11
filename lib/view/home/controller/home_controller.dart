@@ -22,6 +22,7 @@ import 'package:water_intake/view/home/widget/water_widgets.dart';
 
 import '../screen/history/water_intake_history_view.dart';
 import '../screen/home_screen.dart';
+import '../../../services/ad_service.dart';
 
 class HomeController extends GetxController with GetSingleTickerProviderStateMixin {
   var selectedCupIndex = 3.obs;
@@ -903,6 +904,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     triggerAnimation(amount);
 
     playWaterSound();
+    AdService.showInterstitialAdIfReached();
 
     final now = DateTime.now();
     final recordId = now.millisecondsSinceEpoch.toString();
