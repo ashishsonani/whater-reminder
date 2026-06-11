@@ -1,0 +1,7 @@
+{
+  "ads_enabled": true,
+  "banner": true,
+  "interstitial": true,
+  "app_open": true,
+  "click_count": 5
+}
