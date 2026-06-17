@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -50,19 +41,46 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCiaToefED2DMzhXsKPLmgrVWhD5tCtDz0',
-    appId: '1:722530497256:android:3e86146cf2f6ed1fa8cf5d',
-    messagingSenderId: '722530497256',
-    projectId: 'water-intake-2a706',
-    storageBucket: 'water-intake-2a706.firebasestorage.app',
+    apiKey: 'AIzaSyA3t-GZkw14J90irgjMMKIVgrRHD2DOrcw',
+    appId: '1:518652564691:android:fcb3abb7df6f2436cd3026',
+    messagingSenderId: '518652564691',
+    projectId: 'water-reminder-288f9',
+    storageBucket: 'water-reminder-288f9.firebasestorage.app',
+  );
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyDBRUsQzfdwVP090BvNESppLCm2aiIb8P8',
+    appId: '1:518652564691:ios:8fb8038eca609f54cd3026',
+    messagingSenderId: '518652564691',
+    projectId: 'water-reminder-288f9',
+    storageBucket: 'water-reminder-288f9.firebasestorage.app',
+    iosBundleId: 'com.water.reminder.app',
+  );
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBm8qWn2mH9hC57OVB3QP1elcc4JrKpRxE',
+    appId: '1:518652564691:web:f034c833acd38727cd3026',
+    messagingSenderId: '518652564691',
+    projectId: 'water-reminder-288f9',
+    authDomain: 'water-reminder-288f9.firebaseapp.com',
+    storageBucket: 'water-reminder-288f9.firebasestorage.app',
+    measurementId: 'G-XR6Y9ZSY3Y',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBYZHl_SnhgCsI0ZKjZMkgFY-Y0--SFmTM',
-    appId: '1:722530497256:ios:b0f8d966b690fc2fa8cf5d',
-    messagingSenderId: '722530497256',
-    projectId: 'water-intake-2a706',
-    storageBucket: 'water-intake-2a706.firebasestorage.app',
-    iosBundleId: 'com.codelineinfotech.waterintake',
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyDBRUsQzfdwVP090BvNESppLCm2aiIb8P8',
+    appId: '1:518652564691:ios:8fb8038eca609f54cd3026',
+    messagingSenderId: '518652564691',
+    projectId: 'water-reminder-288f9',
+    storageBucket: 'water-reminder-288f9.firebasestorage.app',
+    iosBundleId: 'com.water.reminder.app',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBm8qWn2mH9hC57OVB3QP1elcc4JrKpRxE',
+    appId: '1:518652564691:web:ed9c5939cdee39dbcd3026',
+    messagingSenderId: '518652564691',
+    projectId: 'water-reminder-288f9',
+    authDomain: 'water-reminder-288f9.firebaseapp.com',
+    storageBucket: 'water-reminder-288f9.firebasestorage.app',
+    measurementId: 'G-72HZYLT3M8',
   );
 }

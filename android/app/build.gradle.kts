@@ -31,7 +31,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.codelineinfotech.waterintake"
+        applicationId = "com.water.reminder.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
