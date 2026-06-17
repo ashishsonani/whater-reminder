@@ -28,7 +28,7 @@ class AppTranslations extends Translations {
       AppString.coefficient: 'Coefficient',
       AppString.amountOfAbsorbedWater: 'Amount of absorbed water',
       AppString.add: 'ADD',
-      AppString.waterIntake: 'Water Intake',
+      AppString.waterIntake: 'Water Reminder',
       AppString.tips: 'Tips',
       AppString.saveSize: 'Save size',
       AppString.historyNotFound: AppString.historyNotFound,
