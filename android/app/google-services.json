@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "518652564691",
-    "project_id": "water-reminder-288f9",
-    "storage_bucket": "water-reminder-288f9.firebasestorage.app"
+    "project_number": "10611212128",
+    "project_id": "webnova-waterintake",
+    "storage_bucket": "webnova-waterintake.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:518652564691:android:fcb3abb7df6f2436cd3026",
+        "mobilesdk_app_id": "1:10611212128:android:0a6bba291102fe275fa805",
         "android_client_info": {
-          "package_name": "com.water.reminder.app"
+          "package_name": "com.webnova.waterintake"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA3t-GZkw14J90irgjMMKIVgrRHD2DOrcw"
+          "current_key": "AIzaSyB-SprN5AXG3gBqn5Z6B5pLH9NOD0nHrTA"
         }
       ],
       "services": {

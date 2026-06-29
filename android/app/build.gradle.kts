@@ -16,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.codelineinfotech.waterintake"
+    namespace = "com.webnova.waterintake"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -31,7 +31,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.water.reminder.app"
+        applicationId = "com.webnova.waterintake"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

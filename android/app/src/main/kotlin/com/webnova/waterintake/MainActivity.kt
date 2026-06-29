@@ -1,4 +1,4 @@
-package com.codelineinfotech.waterintake
+package com.webnova.waterintake
 
 import io.flutter.embedding.android.FlutterActivity
 
