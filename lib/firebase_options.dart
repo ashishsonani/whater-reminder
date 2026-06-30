@@ -17,22 +17,16 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
         return ios;
-      case TargetPlatform.macOS:
-        return macos;
-      case TargetPlatform.windows:
-        return windows;
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -41,46 +35,18 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA3t-GZkw14J90irgjMMKIVgrRHD2DOrcw',
-    appId: '1:518652564691:android:fcb3abb7df6f2436cd3026',
-    messagingSenderId: '518652564691',
-    projectId: 'water-reminder-288f9',
-    storageBucket: 'water-reminder-288f9.firebasestorage.app',
+    apiKey: 'AIzaSyB-SprN5AXG3gBqn5Z6B5pLH9NOD0nHrTA',
+    appId: '1:10611212128:android:0a6bba291102fe275fa805',
+    messagingSenderId: '10611212128',
+    projectId: 'webnova-waterintake',
+    storageBucket: 'webnova-waterintake.firebasestorage.app',
   );
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDBRUsQzfdwVP090BvNESppLCm2aiIb8P8',
-    appId: '1:518652564691:ios:8fb8038eca609f54cd3026',
-    messagingSenderId: '518652564691',
-    projectId: 'water-reminder-288f9',
-    storageBucket: 'water-reminder-288f9.firebasestorage.app',
-    iosBundleId: 'com.water.reminder.app',
-  );
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBm8qWn2mH9hC57OVB3QP1elcc4JrKpRxE',
-    appId: '1:518652564691:web:f034c833acd38727cd3026',
-    messagingSenderId: '518652564691',
-    projectId: 'water-reminder-288f9',
-    authDomain: 'water-reminder-288f9.firebaseapp.com',
-    storageBucket: 'water-reminder-288f9.firebasestorage.app',
-    measurementId: 'G-XR6Y9ZSY3Y',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDBRUsQzfdwVP090BvNESppLCm2aiIb8P8',
-    appId: '1:518652564691:ios:8fb8038eca609f54cd3026',
-    messagingSenderId: '518652564691',
-    projectId: 'water-reminder-288f9',
-    storageBucket: 'water-reminder-288f9.firebasestorage.app',
-    iosBundleId: 'com.water.reminder.app',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBm8qWn2mH9hC57OVB3QP1elcc4JrKpRxE',
-    appId: '1:518652564691:web:ed9c5939cdee39dbcd3026',
-    messagingSenderId: '518652564691',
-    projectId: 'water-reminder-288f9',
-    authDomain: 'water-reminder-288f9.firebaseapp.com',
-    storageBucket: 'water-reminder-288f9.firebasestorage.app',
-    measurementId: 'G-72HZYLT3M8',
+    apiKey: 'AIzaSyBl40-2QWy0eIXhxou43MDF_dDEttyp0h8',
+    appId: '1:10611212128:ios:10bbda035fe0a6925fa805',
+    messagingSenderId: '10611212128',
+    projectId: 'webnova-waterintake',
+    storageBucket: 'webnova-waterintake.firebasestorage.app',
+    iosBundleId: 'com.webnova.waterintake',
   );
 }

@@ -434,7 +434,7 @@ class _StarRatingDialogState extends State<StarRatingDialog> {
 
     String url = "";
     if (GetPlatform.isAndroid) {
-      url = "https://play.google.com/store/apps/details?id=com.codelineinfotech.waterintake";
+      url = "https://play.google.com/store/apps/details?id=com.webnova.waterintake";
     } else {
       url = "https://apps.apple.com/us/app/drink-water-remainder/id6766213522";
     }

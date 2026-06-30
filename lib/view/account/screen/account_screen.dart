@@ -121,7 +121,7 @@ class AccountScreen extends StatelessWidget {
                   onTap: () async {
                     String url = "";
                     if (GetPlatform.isAndroid) {
-                      url = "https://play.google.com/store/apps/details?id=com.codelineinfotech.waterintake";
+                      url = "https://play.google.com/store/apps/details?id=com.webnova.waterintake";
                     } else {
                       url = "https://apps.apple.com/us/app/drink-water-remainder/id6766213522";
                     }
@@ -137,7 +137,7 @@ class AccountScreen extends StatelessWidget {
                   onTap: () {
                     String message = AppString.shareAppMessage.tr;
                     if (GetPlatform.isAndroid) {
-                      message += "https://play.google.com/store/apps/details?id=com.codelineinfotech.waterintake";
+                      message += "https://play.google.com/store/apps/details?id=com.webnova.waterintake";
                     } else {
                       message += "https://apps.apple.com/us/app/drink-water-remainder/id6766213522";
                     }
