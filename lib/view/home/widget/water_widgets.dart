@@ -517,7 +517,7 @@ class _StarRatingDialogState extends State<StarRatingDialog> {
             top: 50.h,
             right: 15.w,
             child: IconButton(
-              icon: Assets.images.png.exit.image(scale: 2.5, color: AppColors.grey6),
+              icon: Assets.images.png.exit.image(scale: 2.5 / 1.sp, color: AppColors.grey6),
               onPressed: () => Get.back(),
             ),
           ),
@@ -546,7 +546,7 @@ class _StarRatingDialogState extends State<StarRatingDialog> {
         break;
     }
 
-    return emojiAsset != null ? emojiAsset.image(scale: 4) : const SizedBox.shrink();
+    return emojiAsset != null ? emojiAsset.image(scale: 4 / 1.sp) : const SizedBox.shrink();
   }
 
   Widget _buildRatingPhase() {
@@ -584,7 +584,7 @@ class _StarRatingDialogState extends State<StarRatingDialog> {
               onTap: () => _handleStarSelection(index + 1),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.w),
-                child: !(index < _selectedStar) ? Assets.images.png.starNew.image(scale: 4) : Assets.images.png.starFillNew.image(scale: 4),
+                child: !(index < _selectedStar) ? Assets.images.png.starNew.image(scale: 4 / 1.sp) : Assets.images.png.starFillNew.image(scale: 4 / 1.sp),
               ),
             );
           }),
@@ -722,7 +722,7 @@ class DailyTipBottomSheet extends StatelessWidget {
             style: AppTextStyle.latoRegularBlack14.copyWith(fontSize: 15.sp, color: const Color(0xff6C757D)),
           ),
           SizedBox(height: 30.h),
-          Assets.images.png.firstAward.image(scale: 2),
+          Assets.images.png.firstAward.image(scale: 2 / 1.sp),
           SizedBox(height: 25.h),
           Text(
             title,

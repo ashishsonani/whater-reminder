@@ -77,7 +77,7 @@ class GoalScreen extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Assets.images.png.edit.image(scale: 3.5),
+                              Assets.images.png.edit.image(scale: 3.5 / 1.sp),
 
                               SizedBox(width: 8.w),
                               Text(AppString.adjust.tr, style: AppTextStyle.button.copyWith(color: AppColors.black2)),
@@ -179,7 +179,7 @@ class GoalScreen extends StatelessWidget {
                       onTap: () {
                         Get.toNamed(AppRoutes.intakeGoalInfo);
                       },
-                      child: Assets.images.png.essential.image(scale: 3.8),
+                      child: Assets.images.png.essential.image(scale: 3.8 / 1.sp),
                     ),
                   ],
                 ),
@@ -212,7 +212,7 @@ class GoalScreen extends StatelessWidget {
                           onTap: () {
                             controller.tempWaterGoal.value = controller.getRecommendedGoal();
                           },
-                          child: Assets.images.png.exchange.image(scale: 3.5),
+                          child: Assets.images.png.exchange.image(scale: 3.5 / 1.sp),
                         ),
                       ],
                     ),

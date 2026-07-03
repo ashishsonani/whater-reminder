@@ -3,5 +3,8 @@
   "banner": true,
   "interstitial": true,
   "app_open": true,
-  "click_count": 5
+  "click_count": 3,
+  "banner_id_ios": "ca-app-pub-3940256099942544/2934735716",
+  "app_open_id_ios": "ca-app-pub-3940256099942544/5575463023",
+  "interstitial_id_ios": "ca-app-pub-3940256099942544/4411468910"
 }

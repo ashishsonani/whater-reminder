@@ -23,11 +23,17 @@ class AdService {
   static String appOpenIdAndroid = 'ca-app-pub-8708457885343434/2009912786';
   static String interstitialIdAndroid = 'ca-app-pub-8708457885343434/7603694829';
 
+  // iOS ad unit IDs. Default to Google's test units until real IDs are
+  // provided via remote config (banner_id_ios / app_open_id_ios / interstitial_id_ios).
+  static String bannerIdIos = 'ca-app-pub-3940256099942544/2934735716'; // Test Banner Ad ID
+  static String appOpenIdIos = 'ca-app-pub-3940256099942544/5575463023'; // Test App Open Ad ID
+  static String interstitialIdIos = 'ca-app-pub-3940256099942544/4411468910'; // Test Interstitial Ad ID
+
   static String get bannerAdUnitId {
     if (Platform.isAndroid) {
       return bannerIdAndroid;
     } else if (Platform.isIOS) {
-      return 'ca-app-pub-3940256099942544/2934735716'; // Test Banner Ad ID
+      return bannerIdIos;
     }
     throw UnsupportedError('Unsupported platform');
   }
@@ -36,7 +42,7 @@ class AdService {
     if (Platform.isAndroid) {
       return appOpenIdAndroid;
     } else if (Platform.isIOS) {
-      return 'ca-app-pub-3940256099942544/5575463023'; // Test App Open Ad ID
+      return appOpenIdIos;
     }
     throw UnsupportedError('Unsupported platform');
   }
@@ -45,7 +51,7 @@ class AdService {
     if (Platform.isAndroid) {
       return interstitialIdAndroid;
     } else if (Platform.isIOS) {
-      return 'ca-app-pub-3940256099942544/4411468910'; // Test Interstitial Ad ID
+      return interstitialIdIos;
     }
     throw UnsupportedError('Unsupported platform');
   }
@@ -77,6 +83,10 @@ class AdService {
         bannerIdAndroid = data['banner_id_android'] ?? bannerIdAndroid;
         appOpenIdAndroid = data['app_open_id_android'] ?? appOpenIdAndroid;
         interstitialIdAndroid = data['interstitial_id_android'] ?? interstitialIdAndroid;
+
+        bannerIdIos = data['banner_id_ios'] ?? bannerIdIos;
+        appOpenIdIos = data['app_open_id_ios'] ?? appOpenIdIos;
+        interstitialIdIos = data['interstitial_id_ios'] ?? interstitialIdIos;
         
         debugPrint('Remote Ads Config loaded: adsEnabled=$adsEnabled, banner=$bannerEnabled, interstitial=$interstitialEnabled, appOpen=$appOpenEnabled, clickCount=$clickCountInterval');
 
@@ -301,11 +311,13 @@ class _CommonBannerAdState extends State<CommonBannerAd> {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      width: _bannerAd!.size.width.toDouble(),
-      height: _bannerAd!.size.height.toDouble(),
-      alignment: Alignment.center,
-      child: AdWidget(ad: _bannerAd!),
+    return Center(
+      child: Container(
+        width: _bannerAd!.size.width.toDouble(),
+        height: _bannerAd!.size.height.toDouble(),
+        alignment: Alignment.center,
+        child: AdWidget(ad: _bannerAd!),
+      ),
     );
   }
 }

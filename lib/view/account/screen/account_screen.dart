@@ -46,7 +46,7 @@ class AccountScreen extends StatelessWidget {
               SizedBox(height: 10.h),
               _buildSection([
                 _buildTile(
-                  icon: Assets.images.png.location.image(scale: 3.5, color: const Color(0xff475467)),
+                  icon: Assets.images.png.location.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.language.tr,
                   trailing: Obx(
                     () => Row(
@@ -64,7 +64,7 @@ class AccountScreen extends StatelessWidget {
                   onTap: () => _showLanguageBottomSheet(context, controller),
                 ),
                 _buildTile(
-                  icon: Assets.images.png.bell.image(scale: 3.5, color: const Color(0xff475467)),
+                  icon: Assets.images.png.bell.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.notification.tr,
                   trailing: Obx(
                     () => CupertinoSwitch(
@@ -75,7 +75,7 @@ class AccountScreen extends StatelessWidget {
                   ),
                 ),
                 _buildTile(
-                  icon: Assets.images.png.king.image(scale: 3.5, color: const Color(0xff475467)),
+                  icon: Assets.images.png.king.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.upgradeToPremium.tr,
                   onTap: () => Get.toNamed(AppRoutes.premium),
                 ),
@@ -83,12 +83,12 @@ class AccountScreen extends StatelessWidget {
               SizedBox(height: 20.h),
               _buildSection([
                 _buildTile(
-                  icon: Assets.images.png.time.image(scale: 3.5, color: const Color(0xff475467)),
+                  icon: Assets.images.png.time.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.drinkReminder.tr,
                   onTap: () => Get.toNamed(AppRoutes.drinkReminders),
                 ),
                 _buildTile(
-                  icon: Assets.images.png.setting.image(scale: 3.5, color: const Color(0xff475467)),
+                  icon: Assets.images.png.setting.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.preferences.tr,
                   onTap: () => Get.toNamed(AppRoutes.preferences),
                 ),
@@ -96,12 +96,12 @@ class AccountScreen extends StatelessWidget {
               SizedBox(height: 20.h),
               _buildSection([
                 _buildTile(
-                  icon: Assets.images.png.money.image(scale: 3.5, color: const Color(0xff475467)),
+                  icon: Assets.images.png.money.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.termsAndConditions.tr,
                   onTap: () => Get.toNamed(AppRoutes.termsAndConditions),
                 ),
                 _buildTile(
-                  icon: Assets.images.png.privercy.image(scale: 3.5, color: const Color(0xff475467)),
+                  icon: Assets.images.png.privercy.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.privacyPolicy.tr,
                   onTap: () => Get.toNamed(AppRoutes.privacyPolicy),
                 ),
@@ -109,14 +109,14 @@ class AccountScreen extends StatelessWidget {
               SizedBox(height: 20.h),
               _buildSection([
                 _buildTile(
-                  icon: Assets.images.png.emailMessage.image(scale: 3.5, color: const Color(0xff475467)),
+                  icon: Assets.images.png.emailMessage.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.sendFeedback.tr,
                   onTap: () {
                     Get.dialog(const StarRatingDialog(), barrierColor: Colors.black.withOpacity(0.5), barrierDismissible: false);
                   },
                 ),
                 _buildTile(
-                  icon: Assets.images.png.star.image(scale: 3.5, color: const Color(0xff475467)),
+                  icon: Assets.images.png.star.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.rateUs.tr,
                   onTap: () async {
                     String url = "";
@@ -132,7 +132,7 @@ class AccountScreen extends StatelessWidget {
                   },
                 ),
                 _buildTile(
-                  icon: Assets.images.png.share.image(scale: 3.5, color: const Color(0xff475467)),
+                  icon: Assets.images.png.share.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.shareApp.tr,
                   onTap: () {
                     String message = AppString.shareAppMessage.tr;

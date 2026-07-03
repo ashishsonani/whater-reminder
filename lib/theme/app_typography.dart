@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
@@ -18,7 +19,7 @@ class AppTypography {
     FontStyle style = FontStyle.normal,
   }) =>
       GoogleFonts.fraunces(
-        fontSize: size,
+        fontSize: size.sp,
         fontWeight: weight,
         color: color,
         letterSpacing: letterSpacing,
@@ -34,7 +35,7 @@ class AppTypography {
     double? height,
   }) =>
       GoogleFonts.interTight(
-        fontSize: size,
+        fontSize: size.sp,
         fontWeight: weight,
         color: color,
         letterSpacing: letterSpacing,

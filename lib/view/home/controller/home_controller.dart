@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
@@ -135,36 +136,36 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
 
   Map<String, List> get allType => {
     AppString.categoryWater.tr: [
-      Assets.images.png.plainWater.image(scale: 5.5),
-      Assets.images.png.mineralWater.image(scale: 5.5),
-      Assets.images.png.sportDrink.image(scale: 5.5),
-      Assets.images.png.enrgyDrink.image(scale: 5.5),
-      Assets.images.png.zeroSportDrink.image(scale: 5.5),
-      Assets.images.png.riceDrink.image(scale: 5.5),
-      Assets.images.png.barleyDrink.image(scale: 5.5),
-      Assets.images.png.sparklingWater.image(scale: 5.5),
+      Assets.images.png.plainWater.image(scale: 5.5 / 1.sp),
+      Assets.images.png.mineralWater.image(scale: 5.5 / 1.sp),
+      Assets.images.png.sportDrink.image(scale: 5.5 / 1.sp),
+      Assets.images.png.enrgyDrink.image(scale: 5.5 / 1.sp),
+      Assets.images.png.zeroSportDrink.image(scale: 5.5 / 1.sp),
+      Assets.images.png.riceDrink.image(scale: 5.5 / 1.sp),
+      Assets.images.png.barleyDrink.image(scale: 5.5 / 1.sp),
+      Assets.images.png.sparklingWater.image(scale: 5.5 / 1.sp),
     ],
     AppString.categoryTea.tr: [
-      Assets.images.png.tea.image(scale: 5.5),
-      Assets.images.png.milkTea.image(scale: 5.5),
-      Assets.images.png.blackTea.image(scale: 5.5),
-      Assets.images.png.greenTea.image(scale: 5.5),
+      Assets.images.png.tea.image(scale: 5.5 / 1.sp),
+      Assets.images.png.milkTea.image(scale: 5.5 / 1.sp),
+      Assets.images.png.blackTea.image(scale: 5.5 / 1.sp),
+      Assets.images.png.greenTea.image(scale: 5.5 / 1.sp),
     ],
-    AppString.categoryCoffee.tr: [Assets.images.png.cappacuinoCoffie.image(scale: 5.5), Assets.images.png.mochaCoffee.image(scale: 5.5)],
-    AppString.categoryMilk.tr: [Assets.images.png.lowFatMilk.image(scale: 5.5)],
+    AppString.categoryCoffee.tr: [Assets.images.png.cappacuinoCoffie.image(scale: 5.5 / 1.sp), Assets.images.png.mochaCoffee.image(scale: 5.5 / 1.sp)],
+    AppString.categoryMilk.tr: [Assets.images.png.lowFatMilk.image(scale: 5.5 / 1.sp)],
     AppString.categoryJuice.tr: [
-      Assets.images.png.orangeJuice.image(scale: 5.5),
-      Assets.images.png.lemonJuice.image(scale: 5.5),
-      Assets.images.png.pineappleJuice.image(scale: 5.5),
-      Assets.images.png.watermelonJuice.image(scale: 5.5),
-      Assets.images.png.peachJuice.image(scale: 5.5),
-      Assets.images.png.strawberryJuice.image(scale: 5.5),
-      Assets.images.png.coconutJuice.image(scale: 5.5),
-      Assets.images.png.appleJuice.image(scale: 5.5),
-      Assets.images.png.carrotJuice.image(scale: 5.5),
+      Assets.images.png.orangeJuice.image(scale: 5.5 / 1.sp),
+      Assets.images.png.lemonJuice.image(scale: 5.5 / 1.sp),
+      Assets.images.png.pineappleJuice.image(scale: 5.5 / 1.sp),
+      Assets.images.png.watermelonJuice.image(scale: 5.5 / 1.sp),
+      Assets.images.png.peachJuice.image(scale: 5.5 / 1.sp),
+      Assets.images.png.strawberryJuice.image(scale: 5.5 / 1.sp),
+      Assets.images.png.coconutJuice.image(scale: 5.5 / 1.sp),
+      Assets.images.png.appleJuice.image(scale: 5.5 / 1.sp),
+      Assets.images.png.carrotJuice.image(scale: 5.5 / 1.sp),
     ],
-    AppString.myDrink.tr: [Assets.images.png.cupFill1.image(scale: 5.5)],
-    AppString.categoryMore.tr: [Assets.images.png.more.image(scale: 3.3)],
+    AppString.myDrink.tr: [Assets.images.png.cupFill1.image(scale: 5.5 / 1.sp)],
+    AppString.categoryMore.tr: [Assets.images.png.more.image(scale: 3.3 / 1.sp)],
   };
 
   void updateSelectedCup(int amount, int index) {

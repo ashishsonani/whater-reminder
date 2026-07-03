@@ -191,7 +191,7 @@ class _StatisticScreenState extends State<StatisticScreen> {
                                               curve: Curves.easeOut,
                                               style: AppTypography.actionLabel.copyWith(
                                                 color: active ? Colors.white : AppColors.inkMute,
-                                                fontSize: 12,
+                                                fontSize: 12.sp,
                                                 letterSpacing: 0.6,
                                                 fontWeight: active ? FontWeight.w700 : FontWeight.w600,
                                               ),
@@ -249,7 +249,7 @@ class _StatisticScreenState extends State<StatisticScreen> {
                                       ),
                                     );
                                   },
-                                  child: Text(label, key: ValueKey(label), style: AppTypography.streakNum.copyWith(fontSize: 14)),
+                                  child: Text(label, key: ValueKey(label), style: AppTypography.streakNum.copyWith(fontSize: 14.sp)),
                                 ),
                               ),
                             ),
@@ -429,7 +429,7 @@ class _StatisticScreenState extends State<StatisticScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: AppTypography.sectionTitle.copyWith(fontSize: 16)),
+              Text(title, style: AppTypography.sectionTitle.copyWith(fontSize: 16.sp)),
               _buildToggleSwitch(activeIndex: chartType, onChange: onToggle),
             ],
           ),
@@ -767,7 +767,7 @@ class _StatisticScreenState extends State<StatisticScreen> {
                 child: _buildStreakBox(
                   title: AppString.longestStreak.tr,
                   value: "$longestStreak",
-                  icon: const Icon(Icons.emoji_events_rounded, color: AppColors.gold, size: 20),
+                  icon: Icon(Icons.emoji_events_rounded, color: AppColors.gold, size: 20.sp),
                   label: AppString.days.tr.toLowerCase(),
                 ),
               ),
@@ -1031,7 +1031,7 @@ class _NavBtn extends StatelessWidget {
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onTap,
-        child: SizedBox(width: 28, height: 28, child: Icon(icon, size: 16, color: AppColors.teal)),
+        child: SizedBox(width: 28.r, height: 28.r, child: Icon(icon, size: 16.sp, color: AppColors.teal)),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'chart_point.dart';
 import 'animated_bar_chart.dart';
@@ -54,7 +55,7 @@ class ChartCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: AppTypography.sectionTitle.copyWith(fontSize: 16),
+                  style: AppTypography.sectionTitle.copyWith(fontSize: 16.sp),
                 ),
               ),
               _ModeToggle(mode: mode, onChange: onModeChange),
@@ -202,7 +203,7 @@ class _IconSlot extends StatelessWidget {
           child: Icon(
             icon,
             key: ValueKey(selected),
-            size: 16,
+            size: 16.sp,
             color: selected ? Colors.white : AppColors.inkMute,
           ),
         ),

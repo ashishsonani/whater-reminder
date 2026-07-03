@@ -110,8 +110,35 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      // Phone portrait: standard design size — untouched, pixel-identical.
+      // Tablet (shortestSide >= 600): one UNIFORM scale for width, height and
+      // text, identical in both orientations. This keeps every proportion
+      // exactly as designed on the phone (padding:text:icon ratios, nav bar),
+      // just ~1.7x bigger; landscape simply scrolls more vertically.
+      // Phone landscape: clamps to 1.0 so it renders at phone-portrait sizes.
+      // The LayoutBuilder also guarantees ScreenUtil re-inits on rotation.
+      Size designSize = const Size(360, 690);
+      final double shortest = constraints.biggest.shortestSide;
+      final double longest = constraints.biggest.longestSide;
+      final bool isTablet = shortest >= 600;
+      final bool isLandscape = constraints.maxWidth > constraints.maxHeight;
+      if (isTablet) {
+        final double byWidth = shortest / 360;
+        final double byHeight = longest / 690;
+        final double scale = byWidth < byHeight ? byWidth : byHeight;
+        designSize = Size(constraints.maxWidth / scale, constraints.maxHeight / scale);
+      } else if (isLandscape) {
+        final double scale = (constraints.maxHeight / 690).clamp(1.0, double.infinity);
+        designSize = Size(constraints.maxWidth / scale, constraints.maxHeight / scale);
+      }
+      return _buildApp(designSize);
+    });
+  }
+
+  Widget _buildApp(Size designSize) {
     return ScreenUtilInit(
-      designSize: const Size(360, 690),
+      designSize: designSize,
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (_, child) {

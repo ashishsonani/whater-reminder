@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'chart_point.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_typography.dart';
@@ -95,7 +96,7 @@ class _YAxisLabels extends StatelessWidget {
         children: values
             .map((v) => Text(
           format(v),
-          style: AppTypography.statSmall.copyWith(fontSize: 10),
+          style: AppTypography.statSmall.copyWith(fontSize: 10.sp),
         ))
             .toList(),
       ),
@@ -192,7 +193,7 @@ class _LinePainter extends CustomPainter {
         canvas,
         text: points[i].label,
         position: Offset(coords[i].dx, chartH + 12),
-        style: AppTypography.statSmall.copyWith(fontSize: 10),
+        style: AppTypography.statSmall.copyWith(fontSize: 10.sp),
       );
     }
 
@@ -286,7 +287,7 @@ class _LinePainter extends CustomPainter {
         text: label,
         style: AppTypography.actionLabel.copyWith(
           color: Colors.white.withOpacity(opacity),
-          fontSize: 10,
+          fontSize: 10.sp,
           letterSpacing: 0.3,
         ),
       ),

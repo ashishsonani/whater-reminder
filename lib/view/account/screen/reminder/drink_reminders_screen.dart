@@ -153,7 +153,7 @@ class DrinkRemindersScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Assets.images.png.time.image(scale: 3.1, color: Color(0xff333B47)),
+          Assets.images.png.time.image(scale: 3.1 / 1.sp, color: Color(0xff333B47)),
           SizedBox(height: 2.h),
           Text(
             AppString.noReminderSet.tr,
@@ -626,7 +626,7 @@ class _ReminderItemState extends State<ReminderItem> {
             padding: EdgeInsets.only(right: 4.w),
             child: GestureDetector(
               onTap: widget.onDelete,
-              child: Assets.images.png.delete1.image(scale: 3.5),
+              child: Assets.images.png.delete1.image(scale: 3.5 / 1.sp),
             ),
           ),
           AnimatedContainer(

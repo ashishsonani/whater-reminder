@@ -106,7 +106,7 @@ class WaterIntakeGoalScreen extends StatelessWidget {
                   children: [
                     Obx(
                       () => _buildInfoTile(
-                        icon: Assets.images.png.profileUser.image(scale: 3.5),
+                        icon: Assets.images.png.profileUser.image(scale: 3.5 / 1.sp),
                         title: AppString.gender.tr,
                         value: controller.gender.value.tr,
                         onTap: () {
@@ -152,7 +152,7 @@ class WaterIntakeGoalScreen extends StatelessWidget {
 
                     Obx(
                       () => _buildInfoTile(
-                        icon: Assets.images.png.growthStar.image(scale: 3.5),
+                        icon: Assets.images.png.growthStar.image(scale: 3.5 / 1.sp),
                         title: AppString.weight.tr,
                         value: '${controller.weightValue.value} ${controller.weightUnit.value.tr}',
                         onTap: () {
@@ -163,7 +163,7 @@ class WaterIntakeGoalScreen extends StatelessWidget {
 
                     Obx(
                       () => _buildInfoTile(
-                        icon: Assets.images.png.activity.image(scale: 3.5),
+                        icon: Assets.images.png.activity.image(scale: 3.5 / 1.sp),
                         title: AppString.activityLevel.tr,
                         value: controller.activityLevel.value.tr,
                         onTap: () {
@@ -185,10 +185,10 @@ class WaterIntakeGoalScreen extends StatelessWidget {
                             currentValue: controller.activityLevel.value,
                             onSave: (val) => controller.updateActivityLevel(val),
                             icons: [
-                              Assets.images.png.sedentry.image(scale: 3.5),
-                              Assets.images.png.lightActivity.image(scale: 3.5),
-                              Assets.images.png.modrate.image(scale: 3.5),
-                              Assets.images.png.veryActive.image(scale: 3.5),
+                              Assets.images.png.sedentry.image(scale: 3.5 / 1.sp),
+                              Assets.images.png.lightActivity.image(scale: 3.5 / 1.sp),
+                              Assets.images.png.modrate.image(scale: 3.5 / 1.sp),
+                              Assets.images.png.veryActive.image(scale: 3.5 / 1.sp),
                             ],
                           );
                         },
@@ -197,7 +197,7 @@ class WaterIntakeGoalScreen extends StatelessWidget {
 
                     Obx(
                       () => _buildInfoTile(
-                        icon: Assets.images.png.weather3.image(scale: 3.5),
+                        icon: Assets.images.png.weather3.image(scale: 3.5 / 1.sp),
                         title: AppString.climate.tr,
                         value: controller.climate.value.tr,
                         onTap: () {
@@ -208,9 +208,9 @@ class WaterIntakeGoalScreen extends StatelessWidget {
                             currentValue: controller.climate.value,
                             onSave: (val) => controller.updateClimate(val),
                             icons: [
-                              Assets.images.png.hot.image(scale: 3.5),
-                              Assets.images.png.temp.image(scale: 3.5),
-                              Assets.images.png.cold.image(scale: 3.5),
+                              Assets.images.png.hot.image(scale: 3.5 / 1.sp),
+                              Assets.images.png.temp.image(scale: 3.5 / 1.sp),
+                              Assets.images.png.cold.image(scale: 3.5 / 1.sp),
                             ],
                           );
                         },
@@ -278,7 +278,7 @@ class WaterIntakeGoalScreen extends StatelessWidget {
 
                         Get.toNamed(AppRoutes.intakeGoalInfo);
                       },
-                      child: Assets.images.png.essential.image(scale: 3.8),
+                      child: Assets.images.png.essential.image(scale: 3.8 / 1.sp),
                     ),
                   ],
                 ),
@@ -312,7 +312,7 @@ class WaterIntakeGoalScreen extends StatelessWidget {
                           onTap: () {
                             tempGoal.value = controller.getRecommendedGoal();
                           },
-                          child: Assets.images.png.exchange.image(scale: 3.5),
+                          child: Assets.images.png.exchange.image(scale: 3.5 / 1.sp),
                         ),
                       ],
                     ),

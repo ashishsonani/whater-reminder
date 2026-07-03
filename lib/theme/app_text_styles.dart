@@ -28,44 +28,44 @@ class AppTextStyle {
   );
 
   static TextStyle mediumWhite12 = TextStyle(
-    fontSize: 12,
+    fontSize: 12.sp,
     color: AppColors.white,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
   );
-  static TextStyle mediumAppColor12 = const TextStyle(
-    fontSize: 12,
+  static TextStyle mediumAppColor12 = TextStyle(
+    fontSize: 12.sp,
     color: AppColors.primary,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
   );
   static TextStyle mediumWhite16 = TextStyle(
-    fontSize: 16,
+    fontSize: 16.sp,
     color: AppColors.white,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
   );
   static TextStyle mediumBlack18 = TextStyle(
-    fontSize: 18,
+    fontSize: 18.sp,
     color: AppColors.black,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
   );
   static TextStyle regularBlack18 = TextStyle(
-    fontSize: 18,
+    fontSize: 18.sp,
     color: AppColors.black,
     fontWeight: AppFontWeight.REGULAR,
     fontFamily: fontFamily,
   );
-  static TextStyle boldBlack18 = TextStyle(fontSize: 18, color: AppColors.black, fontWeight: AppFontWeight.BOLD, fontFamily: fontFamily);
+  static TextStyle boldBlack18 = TextStyle(fontSize: 18.sp, color: AppColors.black, fontWeight: AppFontWeight.BOLD, fontFamily: fontFamily);
   static TextStyle mediumPink18 = TextStyle(
-    fontSize: 18,
+    fontSize: 18.sp,
     color: AppColors.pinkDarkColor,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
   );
   static TextStyle boldPrimary22Intel = TextStyle(
-    fontSize: 22,
+    fontSize: 22.sp,
     color: AppColors.primary,
     fontWeight: AppFontWeight.BOLD,
     fontFamily: fontFamily,
@@ -75,7 +75,7 @@ class AppTextStyle {
   /// Product Sans
 
   static TextStyle regularBlack14ProductSans = TextStyle(
-    fontSize: 14,
+    fontSize: 14.sp,
     color: AppColors.black,
     fontWeight: AppFontWeight.REGULAR,
     fontFamily: fontFamily,
@@ -84,25 +84,25 @@ class AppTextStyle {
   /// poppins
 
   static TextStyle mediumBlack18Poppins = TextStyle(
-    fontSize: 18,
+    fontSize: 18.sp,
     color: AppColors.black,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
   );
   static TextStyle boldBlack18Poppins = TextStyle(
-    fontSize: 18,
+    fontSize: 18.sp,
     color: AppColors.black,
     fontWeight: AppFontWeight.BOLD,
     fontFamily: fontFamily,
   );
   static TextStyle white14w600Poppins = TextStyle(
-    fontSize: 14,
+    fontSize: 14.sp,
     color: AppColors.white,
     fontWeight: AppFontWeight.W600,
     fontFamily: fontFamily,
   );
   static TextStyle white16BoldPoppins = TextStyle(
-    fontSize: 16,
+    fontSize: 16.sp,
     color: AppColors.white,
     fontWeight: AppFontWeight.BOLD,
     fontFamily: fontFamily,
@@ -113,7 +113,7 @@ class AppTextStyle {
 
   /// FOR TITLES AND HEADERS
   static TextStyle primary20AvenirBold = TextStyle(
-    fontSize: 20,
+    fontSize: 20.sp,
     color: AppColors.primary,
     fontWeight: AppFontWeight.EXTRA_BOLD,
     fontFamily: fontFamily,
@@ -122,7 +122,7 @@ class AppTextStyle {
     letterSpacing: 0.25,
   );
   static TextStyle primary18AvenirBold = TextStyle(
-    fontSize: 18,
+    fontSize: 18.sp,
     color: AppColors.primary,
     fontWeight: AppFontWeight.EXTRA_BOLD,
     fontFamily: fontFamily,
@@ -131,7 +131,7 @@ class AppTextStyle {
     letterSpacing: 0.25,
   );
   static TextStyle primary16AvenirMedium = TextStyle(
-    fontSize: 16,
+    fontSize: 16.sp,
     color: AppColors.primary,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
@@ -140,7 +140,7 @@ class AppTextStyle {
     letterSpacing: 0.25,
   );
   static TextStyle primary14AvenirMedium = TextStyle(
-    fontSize: 14,
+    fontSize: 14.sp,
     color: AppColors.primary,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
@@ -150,7 +150,7 @@ class AppTextStyle {
   );
 
   static TextStyle white18AvenirMedium = TextStyle(
-    fontSize: 16,
+    fontSize: 16.sp,
     color: AppColors.white,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
@@ -159,7 +159,7 @@ class AppTextStyle {
     // letterSpacing: 0.25,
   );
   static TextStyle white18AvenirBold = TextStyle(
-    fontSize: 18,
+    fontSize: 18.sp,
     color: AppColors.white,
     fontWeight: AppFontWeight.BOLD,
     fontFamily: fontFamily,
@@ -170,7 +170,7 @@ class AppTextStyle {
 
   /// FOR REGULAR TEXT
   static TextStyle black14AvenirMedium = TextStyle(
-    fontSize: 14,
+    fontSize: 14.sp,
     color: AppColors.black,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
@@ -179,7 +179,7 @@ class AppTextStyle {
     letterSpacing: 0.50,
   );
   static TextStyle black16AvenirMedium = TextStyle(
-    fontSize: 16,
+    fontSize: 16.sp,
     color: AppColors.black,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
@@ -188,7 +188,7 @@ class AppTextStyle {
     letterSpacing: 0.50,
   );
   static TextStyle black18AvenirMedium = TextStyle(
-    fontSize: 18,
+    fontSize: 18.sp,
     color: AppColors.black,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
@@ -198,7 +198,7 @@ class AppTextStyle {
   );
 
   static TextStyle grey14AvenirMedium = TextStyle(
-    fontSize: 14,
+    fontSize: 14.sp,
     color: AppColors.greyFontColor,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
@@ -207,7 +207,7 @@ class AppTextStyle {
     letterSpacing: 0.50,
   );
   static TextStyle grey16AvenirMedium = TextStyle(
-    fontSize: 16,
+    fontSize: 16.sp,
     color: AppColors.greyFontColor,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
@@ -216,7 +216,7 @@ class AppTextStyle {
     letterSpacing: 0.50,
   );
   static TextStyle grey18AvenirMedium = TextStyle(
-    fontSize: 18,
+    fontSize: 18.sp,
     color: AppColors.greyFontColor,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
@@ -226,7 +226,7 @@ class AppTextStyle {
   );
 
   static TextStyle grey20AvenirMedium = TextStyle(
-    fontSize: 20,
+    fontSize: 20.sp,
     color: AppColors.greyFontColor,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,
@@ -236,7 +236,7 @@ class AppTextStyle {
   );
 
   static TextStyle pink20AvenirMedium = TextStyle(
-    fontSize: 18,
+    fontSize: 18.sp,
     color: AppColors.pinkDarkColor,
     fontWeight: AppFontWeight.MEDIUM,
     fontFamily: fontFamily,

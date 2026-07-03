@@ -1,5 +1,5 @@
-import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
-import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
+import 'package:water_intake/common/curved_nav/curved_navigation_bar.dart';
+import 'package:water_intake/common/curved_nav/curved_navigation_bar_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -53,7 +53,9 @@ class DashboardScreen extends StatelessWidget {
             ),
             child: CurvedNavigationBar(
               index: controller.selectedIndex.value,
-              height: 60.h,
+              // Package geometry (floating button, notch curve) is calibrated
+              // for heights <= ~75, so don't let tablet scaling exceed that.
+              height: 60.h.clamp(60.0, 75.0),
               backgroundColor:Colors.transparent,
               color: Colors.white,
               buttonBackgroundColor: Colors.white,
@@ -66,8 +68,8 @@ class DashboardScreen extends StatelessWidget {
                 CurvedNavigationBarItem(
                   child: SvgPicture.asset(
                     'assets/images/svg/house.svg',
-                    width: 22.sp,
-                    height: 22.sp,
+                    width: 22.sp.clamp(22.0, 28.0),
+                    height: 22.sp.clamp(22.0, 28.0),
                     colorFilter: ColorFilter.mode(
                       controller.selectedIndex.value == 0
                           ? AppColors.teal // Dark grey/black when selected
@@ -78,7 +80,7 @@ class DashboardScreen extends StatelessWidget {
                   label: AppString.home.tr,
                   labelStyle: TextStyle(
                     fontFamily: 'Inter Tight',
-                    fontSize: 10.sp,
+                    fontSize: 10.sp.clamp(10.0, 12.0),
                     fontWeight: controller.selectedIndex.value == 0
                         ? FontWeight.w600
                         : FontWeight.w500,
@@ -91,8 +93,8 @@ class DashboardScreen extends StatelessWidget {
                 CurvedNavigationBarItem(
                   child: SvgPicture.asset(
                     'assets/images/svg/file-text.svg',
-                    width: 22.sp,
-                    height: 22.sp,
+                    width: 22.sp.clamp(22.0, 28.0),
+                    height: 22.sp.clamp(22.0, 28.0),
                     colorFilter: ColorFilter.mode(
                       controller.selectedIndex.value == 1
                           ? AppColors.teal
@@ -103,7 +105,7 @@ class DashboardScreen extends StatelessWidget {
                   label: AppString.history.tr,
                   labelStyle: TextStyle(
                     fontFamily: 'Inter Tight',
-                    fontSize: 10.sp,
+                    fontSize: 10.sp.clamp(10.0, 12.0),
                     fontWeight: controller.selectedIndex.value == 1
                         ? FontWeight.w600
                         : FontWeight.w500,
@@ -116,8 +118,8 @@ class DashboardScreen extends StatelessWidget {
                 CurvedNavigationBarItem(
                   child: SvgPicture.asset(
                     'assets/images/svg/chart.svg',
-                    width: 22.sp,
-                    height: 22.sp,
+                    width: 22.sp.clamp(22.0, 28.0),
+                    height: 22.sp.clamp(22.0, 28.0),
                     colorFilter: ColorFilter.mode(
                       controller.selectedIndex.value == 2
                           ? AppColors.teal
@@ -128,7 +130,7 @@ class DashboardScreen extends StatelessWidget {
                   label: AppString.statistics.tr,
                   labelStyle: TextStyle(
                     fontFamily: 'Inter Tight',
-                    fontSize: 10.sp,
+                    fontSize: 10.sp.clamp(10.0, 12.0),
                     fontWeight: controller.selectedIndex.value == 2
                         ? FontWeight.w600
                         : FontWeight.w500,
@@ -141,8 +143,8 @@ class DashboardScreen extends StatelessWidget {
                 CurvedNavigationBarItem(
                   child: SvgPicture.asset(
                     'assets/images/svg/circle-user.svg',
-                    width: 22.sp,
-                    height: 22.sp,
+                    width: 22.sp.clamp(22.0, 28.0),
+                    height: 22.sp.clamp(22.0, 28.0),
                     colorFilter: ColorFilter.mode(
                       controller.selectedIndex.value == 3
                           ? AppColors.teal
@@ -153,7 +155,7 @@ class DashboardScreen extends StatelessWidget {
                   label: AppString.account.tr,
                   labelStyle: TextStyle(
                     fontFamily: 'Inter Tight',
-                    fontSize: 10.sp,
+                    fontSize: 10.sp.clamp(10.0, 12.0),
                     fontWeight: controller.selectedIndex.value == 3
                         ? FontWeight.w600
                         : FontWeight.w500,

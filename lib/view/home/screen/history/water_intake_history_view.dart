@@ -142,7 +142,7 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Assets.images.png.content.image(scale: 3, color: AppColors.grey4),
+          Assets.images.png.content.image(scale: 3 / 1.sp, color: AppColors.grey4),
           SizedBox(height: 10.h),
           Text(
             AppString.noHistoryYet.tr, // Or a separate past-date string if available
@@ -279,10 +279,10 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
                             color: const Color(0xffFDECE2), // soft peach
                           ),
                           alignment: Alignment.center,
-                          child: const Icon(
+                          child: Icon(
                             Icons.local_fire_department_rounded,
                             color: Color(0xffE36B4C), // coral-red flame
-                            size: 24,
+                            size: 24.sp,
                           ),
                         ),
                         SizedBox(width: 12.w),
@@ -325,10 +325,10 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.emoji_events_rounded,
                                     color: Color(0xFFC8A04A), // gold
-                                    size: 16,
+                                    size: 16.sp,
                                   ),
                                   SizedBox(width: 6.w),
                                   Text(
@@ -376,10 +376,10 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.local_drink_rounded,
                                       color: Color(0xFF0EA5E9), // brand teal
-                                      size: 16,
+                                      size: 16.sp,
                                     ),
                                     SizedBox(width: 6.w),
                                     Text(
@@ -971,7 +971,7 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
               children: [
                 TextSpan(
                   text: '$dailyTotal',
-                  style: AppTypography.historyAmount.copyWith(fontSize: 13, color: AppColors.inkMute),
+                  style: AppTypography.historyAmount.copyWith(fontSize: 13.sp, color: AppColors.inkMute),
                 ),
                 const TextSpan(text: ' '),
                 TextSpan(
@@ -1258,7 +1258,7 @@ class AwardBottomSheet extends StatelessWidget {
             style: AppTextStyle.latoRegularBlack14.copyWith(fontSize: 14.sp, color: const Color(0xff6C757D)),
           ),
           SizedBox(height: 22.h),
-          icon.image(scale: 1.2, height: 120.h),
+          icon.image(scale: 1.2 / 1.sp, height: 120.h),
           SizedBox(height: 22.h),
           Text(
             title,
@@ -1352,11 +1352,11 @@ class _MonthPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.event_note_rounded, size: 14, color: AppColors.teal),
+          Icon(Icons.event_note_rounded, size: 14.sp, color: AppColors.teal),
           const SizedBox(width: 6),
           Text(
             '${DateFormat('MMM', Get.locale?.toString() ?? 'en_US').format(month)} ${month.year}',
-            style: AppTypography.streakNum.copyWith(fontSize: 13),
+            style: AppTypography.streakNum.copyWith(fontSize: 13.sp),
           ),
         ],
       ),

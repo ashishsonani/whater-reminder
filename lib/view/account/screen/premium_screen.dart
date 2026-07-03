@@ -25,10 +25,10 @@ class PremiumScreen extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.close,
                     color: Color(0xff8596AB),
-                    size: 24,
+                    size: 24.sp,
                   ),
                   onPressed: () => Get.back(),
                 ),
@@ -44,7 +44,7 @@ class PremiumScreen extends StatelessWidget {
                           color: AppColors.teal.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Assets.images.png.king.image(scale: 14),
+                        child: Assets.images.png.king.image(scale: 14 / 1.sp),
                       ),
                       SizedBox(height: 16.h),
                       Text(

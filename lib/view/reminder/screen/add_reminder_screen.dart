@@ -42,7 +42,7 @@ class AddReminderScreen extends StatelessWidget {
           style: AppTextStyle.h2.copyWith(fontSize: 16.sp, color: AppColors.black1),
         ),
         actions: [
-          GestureDetector(onTap: () => _showAddReminderBottomSheet(context, controller), child: Assets.images.png.plus.image(scale: 4.2)),
+          GestureDetector(onTap: () => _showAddReminderBottomSheet(context, controller), child: Assets.images.png.plus.image(scale: 4.2 / 1.sp)),
           SizedBox(width: 20.w),
         ],
       ),
@@ -112,7 +112,7 @@ class AddReminderScreen extends StatelessWidget {
                                     SizedBox(width: 12.w),
                                     GestureDetector(
                                       onTap: () => controller.deleteReminder(index),
-                                      child: Assets.images.png.delete1.image(scale: 3.5),
+                                      child: Assets.images.png.delete1.image(scale: 3.5 / 1.sp),
                                     ),
                                   ],
                                 ],

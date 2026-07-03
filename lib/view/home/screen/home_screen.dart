@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.local_fire_department_rounded, size: 14, color: AppColors.accent),
+                              Icon(Icons.local_fire_department_rounded, size: 14.sp, color: AppColors.accent),
                               const SizedBox(width: 6),
                               Text('$streak', style: AppTypography.streakNum),
                               const SizedBox(width: 4),
@@ -422,7 +422,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: Obx(() {
               return _buildSecondaryActionButton(
-                customIcon: controller.selectedDrinkAsset.value.image(scale: 6.5),
+                customIcon: controller.selectedDrinkAsset.value.image(scale: 6.5 / 1.sp),
                 showBadge: true,
                 label: AppString.drinkType.tr,
                 onTap: () => _showDrinkTypeBottomSheet(context, controller),
@@ -516,7 +516,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             SizedBox(width: 15.w),
-                            Assets.images.png.menuOrder.image(scale: 2.5),
+                            Assets.images.png.menuOrder.image(scale: 2.5 / 1.sp),
                           ],
                         ),
                       );
@@ -1003,7 +1003,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   IconButton(
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    icon: const Icon(Icons.close, color: Color(0xff8596AB), size: 22),
+                    icon: Icon(Icons.close, color: Color(0xff8596AB), size: 22.sp),
                     onPressed: () => Get.back(),
                   ),
                 ],
@@ -1025,7 +1025,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       decoration: InputDecoration(
                         hintText: AppString.search.tr,
                         hintStyle: TextStyle(color: AppColors.grey6, fontSize: 14.sp),
-                        prefixIcon: Assets.images.png.search.image(scale: 4),
+                        prefixIcon: Assets.images.png.search.image(scale: 4 / 1.sp),
                         border: OutlineInputBorder(
                           borderSide: const BorderSide(color: AppColors.grey3),
                           borderRadius: BorderRadius.circular(8.r),
@@ -1246,7 +1246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ? controller.customDrinks[originalIndex]
                                           : drinks[originalIndex] as CustomDrink;
 
-                                      drinkImage = Assets.images.png.cupFill1.image(scale: 5.5);
+                                      drinkImage = Assets.images.png.cupFill1.image(scale: 5.5 / 1.sp);
                                       filename = "my_drink_${customDrink.name.replaceAll(' ', '_').toLowerCase()}";
                                       displayName = customDrink.name;
                                       factor = customDrink.coefficient;
@@ -1839,9 +1839,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  SizedBox(child: (isSelected ? fillAsset : itemAsset).image(scale: 5)),
+                                  SizedBox(child: (isSelected ? fillAsset : itemAsset).image(scale: 5 / 1.sp)),
                                   SizedBox(height: 2.h),
-                                  if (isSelected) Assets.images.png.shade.image(scale: 3.5),
+                                  if (isSelected) Assets.images.png.shade.image(scale: 3.5 / 1.sp),
                                 ],
                               ),
                             ),
@@ -1912,7 +1912,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: BoxDecoration(color: const Color(0xffFEE2E2), borderRadius: BorderRadius.circular(48.r)),
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                          child: Assets.images.png.delete1.image(scale: 3.5, color: const Color(0xffE41E3F)),
+                          child: Assets.images.png.delete1.image(scale: 3.5 / 1.sp, color: const Color(0xffE41E3F)),
                         ),
                       ),
                     );
@@ -2031,7 +2031,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 IconButton(
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  icon: const Icon(Icons.close, color: Color(0xff8596AB), size: 22),
+                  icon: Icon(Icons.close, color: Color(0xff8596AB), size: 22.sp),
                   onPressed: () => Get.back(),
                 ),
               ],
@@ -2206,7 +2206,7 @@ class _HomeScreenState extends State<HomeScreen> {
               (isSelected && fillAsset != null ? fillAsset : asset).image(color: isSelected ? null : color, scale: 4.5),
 
               // SizedBox(height: 6.h),
-              if (isSelected) Assets.images.png.shade.image(scale: 3.5),
+              if (isSelected) Assets.images.png.shade.image(scale: 3.5 / 1.sp),
               if (!isSelected) SizedBox(height: 6.h), // Placeholder
               // SizedBox(height: 5.h),
               Text(
@@ -2225,7 +2225,7 @@ class _HomeScreenState extends State<HomeScreen> {
               behavior: HitTestBehavior.opaque,
               child: Container(
                 padding: EdgeInsets.all(8.w), // Increase hit area
-                child: Assets.images.png.close.image(scale: 5, color: AppColors.grey4),
+                child: Assets.images.png.close.image(scale: 5 / 1.sp, color: AppColors.grey4),
               ),
             ),
           ),
@@ -2277,7 +2277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       border: Border.all(color: AppColors.cardEdge, width: 1.5),
                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
                     ),
-                    child: Center(child: Assets.images.png.exchange.image(scale: 4.5, color: AppColors.teal)),
+                    child: Center(child: Assets.images.png.exchange.image(scale: 4.5 / 1.sp, color: AppColors.teal)),
                   ),
                 ),
             ],
@@ -2354,8 +2354,8 @@ class _HomeScreenState extends State<HomeScreen> {
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOut,
           child: Container(
-            width: 90,
-            height: 90,
+            width: 90.r,
+            height: 90.r,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
@@ -2377,11 +2377,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(isGoalAchieved ? Icons.check_circle_outline_rounded : Icons.add_rounded, color: Colors.white, size: 22),
-                    const SizedBox(height: 3),
+                    Icon(isGoalAchieved ? Icons.check_circle_outline_rounded : Icons.add_rounded, color: Colors.white, size: 22.sp),
+                    SizedBox(height: 3.h),
                     Text(isGoalAchieved ? AppString.completedUpper.tr : AppString.logDrink.tr, style: AppTypography.drinkBtnLabel),
                     if (!isGoalAchieved) ...[
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2.h),
                       Text('+${controller.selectedCup.value} ${controller.isMl.value ? "ml" : "oz"}', style: AppTypography.drinkBtnMl),
                     ],
                   ],
@@ -2497,7 +2497,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       border: Border.all(color: AppColors.grey3, width: 2),
                       boxShadow: [BoxShadow(color: const Color(0xff212529).withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))],
                     ),
-                    child: Center(child: Assets.images.png.exchange.image(scale: 3.5, color: AppColors.primary)),
+                    child: Center(child: Assets.images.png.exchange.image(scale: 3.5 / 1.sp, color: AppColors.primary)),
                   ),
                 ),
               ),
@@ -2598,7 +2598,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         // mainAxisSize: MainAxisSize.min,
         children: [
-          Assets.images.png.dropletHalf.image(scale: 2, color: AppColors.grey4),
+          Assets.images.png.dropletHalf.image(scale: 2 / 1.sp, color: AppColors.grey4),
           SizedBox(height: 10.h),
           Text(
             AppString.noRecords.tr,
@@ -2813,7 +2813,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 28,
               height: 28,
               decoration: const BoxDecoration(color: AppColors.paperWarm, shape: BoxShape.circle),
-              child: const Icon(Icons.delete_outline_rounded, size: 14, color: AppColors.inkMute),
+              child: Icon(Icons.delete_outline_rounded, size: 14.sp, color: AppColors.inkMute),
             ),
           ),
         ],
@@ -2895,7 +2895,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Get.back();
                         Get.toNamed(AppRoutes.intakeGoalInfo);
                       },
-                      child: Assets.images.png.profileInfo.image(scale: 4.5, color: const Color(0xff8596AB)),
+                      child: Assets.images.png.profileInfo.image(scale: 4.5 / 1.sp, color: const Color(0xff8596AB)),
                     ),
                   ],
                 ),
@@ -3072,7 +3072,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                             padding: EdgeInsets.zero,
                           ),
-                          child: Text(AppString.cancel.tr, style: AppTypography.actionLabel.copyWith(fontSize: 15, letterSpacing: 0.3)),
+                          child: Text(AppString.cancel.tr, style: AppTypography.actionLabel.copyWith(fontSize: 15.sp, letterSpacing: 0.3)),
                         ),
                       ),
                     ),
@@ -3106,7 +3106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(width: 8),
                                   Text(
                                     AppString.saveGoal.tr,
-                                    style: AppTypography.actionLabel.copyWith(color: Colors.white, fontSize: 15, letterSpacing: 0.3),
+                                    style: AppTypography.actionLabel.copyWith(color: Colors.white, fontSize: 15.sp, letterSpacing: 0.3),
                                   ),
                                 ],
                               ),
