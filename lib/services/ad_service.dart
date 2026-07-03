@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
@@ -56,7 +58,77 @@ class AdService {
     throw UnsupportedError('Unsupported platform');
   }
 
-  static Future<void> init() async {
+  /// True once the UMP consent flow allows requesting ads.
+  /// Every ad load must check this in addition to the remote-config flags.
+  static bool consentAllowsAds = false;
+  static bool _mobileAdsInitialized = false;
+
+  /// Gathers the required consents, then starts the Mobile Ads SDK.
+  ///
+  /// Order (per Google's guidance):
+  ///  1. UMP consent info update + consent form (GDPR form in the EEA and,
+  ///     if configured in the AdMob console, the iOS IDFA explainer).
+  ///  2. The iOS App Tracking Transparency system prompt (no-op elsewhere,
+  ///     or if the user already answered it).
+  ///  3. MobileAds.initialize() — only if UMP says ads may be requested.
+  ///
+  /// Must be called when app UI is already on screen (dialogs need a view),
+  /// i.e. from the splash screen, not from main().
+  static Future<void> gatherConsentAndInit() async {
+    final consentDone = Completer<void>();
+    ConsentInformation.instance.requestConsentInfoUpdate(
+      ConsentRequestParameters(),
+      () async {
+        try {
+          await _loadAndShowConsentFormIfRequired();
+        } finally {
+          if (!consentDone.isCompleted) consentDone.complete();
+        }
+      },
+      (FormError error) {
+        debugPrint('UMP consent info update failed: ${error.message}');
+        if (!consentDone.isCompleted) consentDone.complete();
+      },
+    );
+    await consentDone.future;
+
+    await _requestTrackingAuthorization();
+
+    consentAllowsAds = await ConsentInformation.instance.canRequestAds();
+    debugPrint('Consent flow finished: canRequestAds=$consentAllowsAds');
+    if (consentAllowsAds) {
+      await _initMobileAds();
+    }
+  }
+
+  static Future<void> _loadAndShowConsentFormIfRequired() {
+    final completer = Completer<void>();
+    ConsentForm.loadAndShowConsentFormIfRequired((FormError? error) {
+      if (error != null) {
+        debugPrint('UMP consent form error: ${error.message}');
+      }
+      if (!completer.isCompleted) completer.complete();
+    });
+    return completer.future;
+  }
+
+  static Future<void> _requestTrackingAuthorization() async {
+    if (!Platform.isIOS) return;
+    try {
+      final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+      if (status == TrackingStatus.notDetermined) {
+        // Small pause so the system dialog attaches to the visible scene.
+        await Future.delayed(const Duration(milliseconds: 300));
+        await AppTrackingTransparency.requestTrackingAuthorization();
+      }
+    } catch (e) {
+      debugPrint('ATT request failed: $e');
+    }
+  }
+
+  static Future<void> _initMobileAds() async {
+    if (_mobileAdsInitialized) return;
+    _mobileAdsInitialized = true;
     await MobileAds.instance.initialize();
   }
 
@@ -118,7 +190,7 @@ class AdService {
 
   /// Load Interstitial Ad
   static void loadInterstitialAd() {
-    if (!adsEnabled || !interstitialEnabled || _isInterstitialLoading || _interstitialAd != null) {
+    if (!consentAllowsAds || !adsEnabled || !interstitialEnabled || _isInterstitialLoading || _interstitialAd != null) {
       return;
     }
     _isInterstitialLoading = true;
@@ -178,7 +250,7 @@ class AppOpenAdManager {
 
   /// Load an AppOpenAd.
   void loadAd() {
-    if (!AdService.adsEnabled || !AdService.appOpenEnabled) return;
+    if (!AdService.consentAllowsAds || !AdService.adsEnabled || !AdService.appOpenEnabled) return;
 
     AppOpenAd.load(
       adUnitId: AdService.appOpenAdUnitId,
@@ -267,7 +339,7 @@ class _CommonBannerAdState extends State<CommonBannerAd> {
   @override
   void initState() {
     super.initState();
-    if (AdService.adsEnabled && AdService.bannerEnabled) {
+    if (AdService.consentAllowsAds && AdService.adsEnabled && AdService.bannerEnabled) {
       _loadAd();
     }
   }
@@ -307,7 +379,7 @@ class _CommonBannerAdState extends State<CommonBannerAd> {
 
   @override
   Widget build(BuildContext context) {
-    if (!AdService.adsEnabled || !AdService.bannerEnabled || !_isLoaded || _bannerAd == null) {
+    if (!AdService.consentAllowsAds || !AdService.adsEnabled || !AdService.bannerEnabled || !_isLoaded || _bannerAd == null) {
       return const SizedBox.shrink();
     }
 

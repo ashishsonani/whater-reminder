@@ -29,7 +29,8 @@ void main() async {
   await notificationService.init();
   FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
 
-  await AdService.init();
+  // Ads SDK init happens on the splash screen (AdService.gatherConsentAndInit)
+  // because the UMP/ATT consent dialogs require visible UI.
   final appLifecycleReactor = AppLifecycleReactor(appOpenAdManager: AdService.appOpenAdManager);
   WidgetsBinding.instance.addObserver(appLifecycleReactor);
   // await IAPService.init();

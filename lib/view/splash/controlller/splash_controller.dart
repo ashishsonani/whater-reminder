@@ -12,6 +12,10 @@ class SplashController extends GetxController {
   }
 
   void _navigateToNext() async {
+    // Consent first (UMP/GDPR form + iOS ATT prompt): blocks until answered
+    // on first launch, instant on later launches. Ads SDK starts inside.
+    await AdService.gatherConsentAndInit();
+
     // Fetch remote ads config in parallel with the delay
     await Future.wait([
       Future.delayed(const Duration(seconds: 3)),

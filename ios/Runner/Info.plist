@@ -28,6 +28,8 @@
 	<string>ca-app-pub-3940256099942544~1458002511</string>
 	<key>GADNativeAdValidatorEnabled</key>
 	<false/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Your data will be used to deliver personalized ads and measure ad performance, which helps keep this app free.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

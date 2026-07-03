@@ -38,6 +38,7 @@ dependencies:
   url_launcher: ^6.3.2
   package_info_plus: ^10.1.0
   in_app_purchase: ^3.2.3
+  app_tracking_transparency: ^2.0.6
   firebase_analytics: ^12.4.0
   google_fonts: ^8.1.0
   water_drop_nav_bar: ^2.2.2
