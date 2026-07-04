@@ -153,8 +153,8 @@ class _LinePainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          AppColors.tealBright.withOpacity(0.32),
-          AppColors.tealBright.withOpacity(0.0),
+          AppColors.tealBright.withValues(alpha: 0.32),
+          AppColors.tealBright.withValues(alpha: 0.0),
         ],
       ).createShader(chartRect);
     canvas.drawPath(fillPath, fillPaint);
@@ -286,7 +286,7 @@ class _LinePainter extends CustomPainter {
       text: TextSpan(
         text: label,
         style: AppTypography.actionLabel.copyWith(
-          color: Colors.white.withOpacity(opacity),
+          color: Colors.white.withValues(alpha: opacity),
           fontSize: 10.sp,
           letterSpacing: 0.3,
         ),
@@ -296,7 +296,7 @@ class _LinePainter extends CustomPainter {
     final w = tp.width + 12;
     final h = tp.height + 6;
     final rect = Rect.fromCenter(center: center, width: w, height: h);
-    final paint = Paint()..color = AppColors.teal.withOpacity(opacity);
+    final paint = Paint()..color = AppColors.teal.withValues(alpha: opacity);
     canvas.drawRRect(
       RRect.fromRectAndRadius(rect, const Radius.circular(6)),
       paint,

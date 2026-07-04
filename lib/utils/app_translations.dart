@@ -458,7 +458,6 @@ class AppTranslations extends Translations {
       AppString.editBedtime: 'Edit Bedtime',
       AppString.editWakeUpTime: 'Edit Wake up Time',
 
-      AppString.everyXMinutes: 'Every {minutes} minutes',
 
       AppString.week: 'week',
       AppString.month: 'month',
@@ -1601,7 +1600,6 @@ class AppTranslations extends Translations {
 
       AppString.defaultTimeRange: '8 AM – 10 PM',
       AppString.everyTwoHours: 'Cada 2 horas',
-      AppString.everyXMinutes: 'Cada {minutes} minutos',
       AppString.premiumSubtitle: 'Controla mejor tu hidratación con\nfunciones avanzadas y mantente saludable',
       AppString.moreDrinkTypes: 'Más tipos de bebidas',
       AppString.moreDrinkTypesDesc: 'Agrega múltiples tipos de bebidas para obtener resultados de hidratación más precisos.',
@@ -2172,7 +2170,6 @@ class AppTranslations extends Translations {
       AppString.termsSection13Content: 'Wenn du Fragen zu diesen Bedingungen hast, kontaktiere uns bitte:\n📧 **info@mutluanne.app**',
       AppString.defaultTimeRange: '8 Uhr – 22 Uhr',
       AppString.everyTwoHours: 'Alle 2 Stunden',
-      AppString.everyXMinutes: 'Alle {minutes} Minuten',
       AppString.upgradeToPremium: 'Auf Premium upgraden',
       AppString.premiumSubtitle: 'Verfolge deine Hydration besser mit\nfortschrittlichen Funktionen und bleibe gesund',
       AppString.moreDrinkTypes: 'Mehr Getränketypen',
@@ -2750,7 +2747,6 @@ class AppTranslations extends Translations {
           'Si vous avez des questions concernant ces Conditions, veuillez nous contacter :\n📧 **info@mutluanne.app**',
       AppString.defaultTimeRange: '8 h – 22 h',
       AppString.everyTwoHours: 'Toutes les 2 heures',
-      AppString.everyXMinutes: 'Toutes les {minutes} minutes',
       AppString.upgradeToPremium: 'Passer à Premium',
       AppString.premiumSubtitle: 'Suivez mieux votre hydratation avec\ndes fonctionnalités avancées et restez en bonne santé',
       AppString.moreDrinkTypes: 'Plus de types de boissons',
@@ -3337,7 +3333,6 @@ class AppTranslations extends Translations {
 
       AppString.defaultTimeRange: 'सुबह 8 बजे – रात 10 बजे',
       AppString.everyTwoHours: 'हर 2 घंटे में',
-      AppString.everyXMinutes: 'हर {minutes} मिनट',
 
       AppString.upgradeToPremium: 'प्रीमियम में अपग्रेड करें',
       AppString.premiumSubtitle: 'उन्नत सुविधाओं के साथ अपने हाइड्रेशन को बेहतर ट्रैक करें\nऔर स्वस्थ रहें',
@@ -3912,7 +3907,6 @@ class AppTranslations extends Translations {
       AppString.termsSection13Content: 'اگر درباره این شرایط سؤالی دارید، لطفاً با ما تماس بگیرید:\n📧 **info@mutluanne.app**',
       AppString.defaultTimeRange: '8 صبح تا 10 شب',
       AppString.everyTwoHours: 'هر 2 ساعت',
-      AppString.everyXMinutes: 'هر {minutes} دقیقه',
       AppString.upgradeToPremium: 'ارتقا به پریمیوم',
       AppString.premiumSubtitle: 'با ویژگی‌های پیشرفته، هیدراتاسیون خود را بهتر پیگیری کنید\nو سالم بمانید',
       AppString.moreDrinkTypes: 'انواع بیشتر نوشیدنی',
@@ -4444,7 +4438,6 @@ class AppTranslations extends Translations {
 
       AppString.defaultTimeRange: '8 صباحًا – 10 مساءً',
       AppString.everyTwoHours: 'كل ساعتين',
-      AppString.everyXMinutes: 'كل {minutes} دقيقة',
       AppString.upgradeToPremium: 'الترقية إلى Premium',
       AppString.premiumSubtitle: 'تابع ترطيبك بشكل أفضل مع\nالميزات المتقدمة وابقَ بصحة جيدة',
       AppString.moreDrinkTypes: 'أنواع مشروبات أكثر',
@@ -5005,7 +4998,6 @@ class AppTranslations extends Translations {
       AppString.termsSection13Content: 'اگر آپ کے ان شرائط سے متعلق کوئی سوالات ہیں تو ہم سے رابطہ کریں:\n📧 **info@mutluanne.app**',
       AppString.defaultTimeRange: 'صبح 8 بجے – رات 10 بجے',
       AppString.everyTwoHours: 'ہر 2 گھنٹے بعد',
-      AppString.everyXMinutes: 'ہر {minutes} منٹ',
       AppString.upgradeToPremium: 'Premium میں اپگریڈ کریں',
       AppString.premiumSubtitle: 'جدید فیچرز کے ساتھ اپنی ہائیڈریشن کو بہتر طریقے سے ٹریک کریں\nاور صحت مند رہیں',
       AppString.moreDrinkTypes: 'مزید مشروبات کی اقسام',

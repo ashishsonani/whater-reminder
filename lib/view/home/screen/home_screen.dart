@@ -122,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 160.w,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: RadialGradient(colors: [AppColors.tealSoft.withOpacity(0.4), AppColors.tealSoft.withOpacity(0.0)]),
+                          gradient: RadialGradient(colors: [AppColors.tealSoft.withValues(alpha: 0.4), AppColors.tealSoft.withValues(alpha: 0.0)]),
                         ),
                       ),
                     ),
@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: AppColors.good,
-                                      boxShadow: [BoxShadow(color: AppColors.good.withOpacity(0.18), blurRadius: 0, spreadRadius: 3)],
+                                      boxShadow: [BoxShadow(color: AppColors.good.withValues(alpha: 0.18), blurRadius: 0, spreadRadius: 3)],
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -329,7 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: AppColors.paper,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 4))],
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 4))],
                   ),
                   child: Center(
                     child: DynamicDropletWaveWidget(percentage: animatedPercentage, size: 16.w),
@@ -345,7 +345,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: AppColors.paper,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 4))],
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 4))],
                   ),
                   child: Center(
                     child: DynamicHeartWaveWidget(percentage: animatedPercentage, size: 16.w),
@@ -532,14 +532,12 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ElevatedButton(
                 onPressed: () {
                   Get.back(); // Close the bottom sheet
-                  if (false) {
-                    _showAddDrinkDialog(context);
-                  } else {
-                    Get.toNamed(AppRoutes.premium);
-                  }
+                  // Custom drinks are premium-gated until IAP ships
+                  // (was: _showAddDrinkDialog(context) for premium users).
+                  Get.toNamed(AppRoutes.premium);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: false ? AppColors.primary : const Color(0xffB4BBC4),
+                  backgroundColor: const Color(0xffB4BBC4),
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.r)),
                 ),
@@ -789,183 +787,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget _buildTableCell(String text, {bool isHeader = false}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 12.sp, fontWeight: isHeader ? FontWeight.w600 : FontWeight.normal, color: const Color(0xff8596AB)),
-      ),
-    );
-  }
-
-  void _showAddDrinkDialog(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController coefController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              final String drinkName = nameController.text.isEmpty ? AppString.egLemonSoda.tr : nameController.text;
-              final double coef = double.tryParse(coefController.text) ?? -1.3;
-              final int absorbed = (200 * coef).round();
-
-              return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppString.addDrink.tr,
-                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: const Color(0xff212529)),
-                      ),
-                      const Divider(color: Color(0xffE6E6E6)),
-                      SizedBox(height: 14.h),
-                      Text(
-                        AppString.enterDrinkName.tr,
-                        style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: const Color(0xff212529)),
-                      ),
-                      SizedBox(height: 8.h),
-                      TextField(
-                        controller: nameController,
-                        onChanged: (_) => setState(() {}),
-                        decoration: InputDecoration(
-                          hintText: AppString.egLemonSoda.tr,
-                          hintStyle: TextStyle(color: AppColors.grey6, fontSize: 14.sp),
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.grey3),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.grey3),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.grey3),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
-                      Text(
-                        AppString.waterAbsorptionExplanation.tr,
-                        style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColors.black1),
-                      ),
-                      SizedBox(height: 8.h),
-                      TextField(
-                        controller: coefController,
-                        onChanged: (_) => setState(() {}),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                        decoration: InputDecoration(
-                          hintText: AppString.egCoefficient.tr,
-                          hintStyle: TextStyle(color: AppColors.grey6, fontSize: 14.sp),
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.grey3),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.grey3),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.grey3),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
-                        ),
-                      ),
-                      SizedBox(height: 12.h),
-                      Text(
-                        AppString.coefficientExplanationDetails.tr,
-                        style: TextStyle(fontSize: 12.sp, color: const Color(0xff6C757D)),
-                      ),
-                      SizedBox(height: 12.h),
-                      Text(
-                        AppString.example.tr,
-                        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: AppColors.black1),
-                      ),
-                      SizedBox(height: 8.h),
-                      Table(
-                        border: TableBorder.all(color: const Color(0xffE9ECEF), width: 1),
-                        children: [
-                          TableRow(children: [_buildTableCell(AppString.drinkName.tr, isHeader: true), _buildTableCell(drinkName)]),
-                          TableRow(
-                            children: [_buildTableCell(AppString.amount.tr, isHeader: true), _buildTableCell("200 ${AppString.ml.tr}")],
-                          ),
-                          TableRow(
-                            children: [
-                              _buildTableCell(AppString.coefficient.tr, isHeader: true),
-                              _buildTableCell(coefController.text.isEmpty ? "-1.3" : coefController.text),
-                            ],
-                          ),
-                          TableRow(
-                            children: [
-                              _buildTableCell(AppString.amountOfAbsorbedWater.tr, isHeader: true),
-                              _buildTableCell("$absorbed ${AppString.ml.tr}"),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 24.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () => Navigator.of(context).pop(),
-                            child: Text(
-                              AppString.cancel.tr.toUpperCase(),
-                              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: const Color(0xff6C757D)),
-                            ),
-                          ),
-                          SizedBox(width: 16.w),
-                          GestureDetector(
-                            onTap: () {
-                              final String name = nameController.text.trim();
-                              final double? coef = double.tryParse(coefController.text.trim());
-                              if (name.isNotEmpty && coef != null) {
-                                final HomeController controller = Get.find<HomeController>();
-                                controller.addCustomDrink(name, coef);
-                                Navigator.of(context).pop();
-                              } else {
-                                Get.snackbar(
-                                  "Error",
-                                  "Please enter a valid drink name and coefficient",
-                                  snackPosition: SnackPosition.BOTTOM,
-                                );
-                              }
-                            },
-                            child: Text(
-                              AppString.add.tr.toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
-                                color: nameController.text.trim().isNotEmpty && double.tryParse(coefController.text.trim()) != null
-                                    ? AppColors.primary
-                                    : Color(0xffB0BBC9),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
   void _showDrinkTypeBottomSheet(BuildContext context, HomeController controller) {
     final RxString selectedCategory = (controller.allType.keys.isNotEmpty ? controller.allType.keys.first : AppString.categoryWater.tr).obs;
     final TextEditingController searchController = TextEditingController();
@@ -1055,12 +876,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (controller.favoriteDrinks.isNotEmpty) {
                           categories.add(AppString.favorite.tr);
                         }
-                        // final isPremium = IAPService.to.isPremium.value;
-                        final isPremium = true;
+                        // All categories shown; gate "My Drink" here again
+                        // when IAP premium status returns (IAPService.isPremium).
                         for (final key in controller.allType.keys) {
-                          if (key == "My Drink" && !isPremium) {
-                            continue;
-                          }
                           categories.add(key);
                         }
 
@@ -1811,11 +1629,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     bool isInputField = index == 8;
                     bool isSelected = dialogSelectedIndex.value == index;
                     if (!isInputField) {
-                      int? amount;
-                      if (index < controller.availableCups.length) {
-                        amount = controller.availableCups[index];
-                      }
-
                       AssetGenImage itemAsset = index < controller.cupDesignAssets.length
                           ? controller.cupDesignAssets[index]
                           : Assets.images.png.cup;
@@ -1870,7 +1683,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   decoration: InputDecoration(
                                     isDense: true,
                                     contentPadding: EdgeInsets.zero,
-                                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary.withOpacity(0.4))),
+                                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.4))),
                                     focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
                                   ),
                                 ),
@@ -2275,7 +2088,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       shape: BoxShape.circle,
                       color: Colors.white,
                       border: Border.all(color: AppColors.cardEdge, width: 1.5),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
+                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
                     ),
                     child: Center(child: Assets.images.png.exchange.image(scale: 4.5 / 1.sp, color: AppColors.teal)),
                   ),
@@ -2303,7 +2116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   AppString.goalAchieved.tr,
                   AppString.goalAchievedDesc.tr,
                   snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: AppColors.tealDeep.withOpacity(0.95),
+                  backgroundColor: AppColors.tealDeep.withValues(alpha: 0.95),
                   colorText: Colors.white,
                   margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
                   borderRadius: 16.r,
@@ -2341,7 +2154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         .replaceAll('@unit', unit)
                         .replaceAll('@amount', amount.toString()),
                     snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: AppColors.tealDeep.withOpacity(0.95),
+                    backgroundColor: AppColors.tealDeep.withValues(alpha: 0.95),
                     colorText: Colors.white,
                     margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
                     borderRadius: 16.r,
@@ -2365,14 +2178,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 stops: [0.0, 0.6, 1.0],
               ),
               boxShadow: isGoalAchieved ? [] : AppShadows.drinkButton,
-              border: Border.all(color: Colors.white.withOpacity(0.18), width: 1),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.18), width: 1),
             ),
             child: Stack(
               alignment: Alignment.center,
               children: [
                 if (!isGoalAchieved)
                   Positioned.fill(
-                    child: CustomPaint(painter: _DashedRingPainter(color: AppColors.teal.withOpacity(0.25), inset: -8)),
+                    child: CustomPaint(painter: _DashedRingPainter(color: AppColors.teal.withValues(alpha: 0.25), inset: -8)),
                   ),
                 Column(
                   mainAxisSize: MainAxisSize.min,
@@ -2447,7 +2260,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(color: isSelected ? const Color(0xFF0EA5E9) : const Color(0xFFE2E8F0)),
           boxShadow: isSelected
-              ? [BoxShadow(color: const Color(0xFF0EA5E9).withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 2))]
+              ? [BoxShadow(color: const Color(0xFF0EA5E9).withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 2))]
               : [],
         ),
         child: Center(
@@ -2464,127 +2277,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSmallButton({required Widget asset, required String label, required VoidCallback onTap, required bool isLeft}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                height: 50.w,
-                width: 50.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  border: Border.all(color: const Color(0xffE6E6E6)),
-                  boxShadow: [BoxShadow(color: const Color(0xff212529).withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 4))],
-                ),
-                child: Center(child: asset),
-              ),
-              Positioned(
-                bottom: -10,
-                left: isLeft ? null : 28.w,
-                right: isLeft ? 28.w : null,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.all(4.w),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      border: Border.all(color: AppColors.grey3, width: 2),
-                      boxShadow: [BoxShadow(color: const Color(0xff212529).withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))],
-                    ),
-                    child: Center(child: Assets.images.png.exchange.image(scale: 3.5 / 1.sp, color: AppColors.primary)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 11.h),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: AppTextStyle.h1.copyWith(fontSize: 10.sp, color: AppColors.primary),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLargeDrinkButton(HomeController controller) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            int amount = controller.selectedCup.value;
-            String type = "Cup";
-            if (controller.selectedCupIndex.value < controller.availableCupTypes.length) {
-              type = controller.availableCupTypes[controller.selectedCupIndex.value];
-              if (!type.contains('#')) {
-                type = "$type#${controller.selectedCupIndex.value}";
-              }
-            }
-            String drinkType = _getFilenameFromAsset(controller.selectedDrinkAsset.value);
-            controller.addWater(amount, type, drinkType: drinkType);
-          },
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: 70.w,
-                height: 70.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primary,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xff212529).withOpacity(0.15),
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: 60.w,
-                height: 60.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xffE6E6E6), width: 1),
-                ),
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.add, color: Colors.white, size: 24.sp),
-                  Text(
-                    AppString.drinkText.tr,
-                    style: AppTextStyle.body.copyWith(fontSize: 10.sp, color: AppColors.white),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 9.h),
-        Text(
-          AppString.tapToDrink.tr,
-          style: AppTextStyle.h2.copyWith(fontSize: 10.sp, fontWeight: FontWeight.bold, color: AppColors.primary),
-        ),
-        Obx(
-          () => Text(
-            "${controller.selectedCup.value} ${controller.isMl.value ? AppString.ml.tr : AppString.oz.tr}",
-            style: AppTextStyle.body.copyWith(fontSize: 10.sp, color: AppColors.primary, fontWeight: FontWeight.w900),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildEmptyState({bool hasPadding = true}) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: hasPadding ? 20.w : 0),
@@ -2593,7 +2285,7 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 10))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 10))],
       ),
       child: Column(
         // mainAxisSize: MainAxisSize.min,
@@ -3088,7 +2780,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             end: Alignment.bottomRight,
                             colors: [AppColors.tealBright, AppColors.tealDeep],
                           ),
-                          boxShadow: [BoxShadow(color: AppColors.teal.withOpacity(0.32), blurRadius: 18, offset: const Offset(0, 8))],
+                          boxShadow: [BoxShadow(color: AppColors.teal.withValues(alpha: 0.32), blurRadius: 18, offset: const Offset(0, 8))],
                         ),
                         child: Material(
                           color: Colors.transparent,

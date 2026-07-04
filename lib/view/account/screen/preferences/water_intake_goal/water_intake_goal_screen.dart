@@ -52,7 +52,7 @@ class WaterIntakeGoalScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12.r),border: Border.all(color: AppColors.cardEdge),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
                 ),
                 child: Column(
                   children: [
@@ -100,7 +100,7 @@ class WaterIntakeGoalScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12.r),border: Border.all(color: AppColors.cardEdge),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
                 ),
                 child: Column(
                   children: [
@@ -328,7 +328,7 @@ class WaterIntakeGoalScreen extends StatelessWidget {
                       activeTrackColor: AppColors.primary,
                       inactiveTrackColor: AppColors.grey3,
                       thumbColor: AppColors.primary,
-                      overlayColor: AppColors.primary.withOpacity(0.2),
+                      overlayColor: AppColors.primary.withValues(alpha: 0.2),
                       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.w),
                     ),
                     child: Slider(

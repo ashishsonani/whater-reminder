@@ -14,6 +14,7 @@ import 'package:water_intake/firebase_options.dart';
 import 'package:water_intake/route/route.dart';
 import 'package:water_intake/services/ad_service.dart';
 import 'package:water_intake/services/notification_service.dart';
+import 'package:water_intake/services/widget_service.dart';
 import 'package:water_intake/utils/app_translations.dart';
 import 'package:water_intake/utils/local_storage.dart';
 
@@ -22,6 +23,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await LocalStorage.init();
+  await WidgetService.init();
 
   // Initialize Firebase Messaging background handler
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);

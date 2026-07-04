@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:water_intake/services/widget_service.dart';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -481,6 +482,11 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     _initAudio();
     tabController = TabController(length: 2, vsync: this);
 
+    // Keep the home-screen widget in sync with today's progress.
+    // Debounced so bursts of quick logs cost one widget reload.
+    debounce(currentIntake, (_) => _pushWidgetUpdate(), time: const Duration(milliseconds: 500));
+    debounce(targetIntake, (_) => _pushWidgetUpdate(), time: const Duration(milliseconds: 500));
+
     // Initialize background sync for history and stats
     allRecordsStream.listen((data) {
       log("Global history stream updated: ${data.length} records");
@@ -489,6 +495,14 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     // Removed todayRecordsStream listener to prevent Firestore cache from causing progress bar to bounce/crash to 0 during rapid additions or deletions.
 
     fetchStats();
+  }
+
+  void _pushWidgetUpdate() {
+    WidgetService.updateProgress(
+      current: currentIntake.value,
+      goal: targetIntake.value,
+      isMl: isMl.value,
+    );
   }
 
   void showDailyTip() {
@@ -812,7 +826,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   }
 
   void showFeedbackPrompt({bool isRating = false}) {
-    Get.dialog(const StarRatingDialog(), barrierColor: Colors.black.withOpacity(0.5), barrierDismissible: false);
+    Get.dialog(const StarRatingDialog(), barrierColor: Colors.black.withValues(alpha: 0.5), barrierDismissible: false);
   }
 
   giveFeedback() async {
@@ -874,26 +888,6 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     await LocalStorage.setLastFeedbackVersion(packageInfo.version);
   }
 
-  Future<bool> _checkFeedbackEligibility() async {
-    bool feedbackGiven = await LocalStorage.isFeedbackGiven();
-    if (feedbackGiven) {
-      // Check if version has changed (Major Update Rule)
-      final packageInfo = await PackageInfo.fromPlatform();
-      String? lastVersion = await LocalStorage.getLastFeedbackVersion();
-      if (lastVersion != null && lastVersion != packageInfo.version) {
-        return true; // New version, allow prompt
-      }
-
-      // 60-Day Rule
-      int lastTimestamp = await LocalStorage.getLastFeedbackTimestamp();
-      int now = DateTime.now().millisecondsSinceEpoch;
-      if (now - lastTimestamp < 5184000000) {
-        // 60 days
-        return false;
-      }
-    }
-    return true;
-  }
 
   Future<void> addWater(int amount, String type, {String? drinkType}) async {
     if (isProcessingAnimation) return;
@@ -1011,19 +1005,6 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     }
   }
 
-  Future<void> _syncCurrentIntakeToFirestore(int sum) async {
-    try {
-      String? uid = await FirebaseService().getUserId();
-      if (uid != null) {
-        String todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        await FirebaseService().firestore.collection('users').doc(uid).collection('water_records').doc(todayStr).set({
-          'currentIntakeValue': sum,
-        }, SetOptions(merge: true));
-      }
-    } catch (e) {
-      log("Error syncing current intake to Firestore: $e");
-    }
-  }
 
   Stream<UserModel?>? _userStream;
   Stream<UserModel?> get userStream {
@@ -1304,35 +1285,27 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     switch (type.split('#').first) {
       case 'Small Cup':
       case 'Küçük Bardak':
-      case AppString.smallCup:
         return Assets.images.png.cupFill1;
       case 'Cup':
       case 'Bardak':
-      case AppString.cup:
         return Assets.images.png.cupFill2;
       case 'Big Cup':
       case 'Büyük Bardak':
-      case AppString.bigCup:
         return Assets.images.png.cupFill3;
       case 'Glass':
       case 'Su Bardağı':
-      case AppString.glass:
         return Assets.images.png.cupFill4;
       case 'Coffee Cup':
       case 'Kahve Fincanı':
-      case AppString.coffeeCup:
         return Assets.images.png.cupFill5;
       case 'Mug':
       case 'Kupa':
-      case AppString.mug:
         return Assets.images.png.cupFill6;
       case 'Bottle':
       case 'Şişe':
-      case AppString.bottle:
         return Assets.images.png.cupFill8;
       case 'Jug':
       case 'Sürahi':
-      case AppString.jug:
         return Assets.images.png.cupFill8;
       default:
         return Assets.images.png.cupFill1;

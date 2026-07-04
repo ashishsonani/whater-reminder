@@ -209,7 +209,7 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
                   decoration: BoxDecoration(
                     gradient: RadialGradient(
                       colors: [
-                        const Color(0xffFF8D4D).withOpacity(0.08), // very soft orange/peach
+                        const Color(0xffFF8D4D).withValues(alpha: 0.08), // very soft orange/peach
                         Colors.transparent,
                       ],
                       center: Alignment.topLeft,
@@ -246,9 +246,9 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                           decoration: BoxDecoration(
-                            color: const Color(0xff4A7C59).withOpacity(0.08), // sage-teal tint
+                            color: const Color(0xff4A7C59).withValues(alpha: 0.08), // sage-teal tint
                             borderRadius: BorderRadius.circular(20.r),
-                            border: Border.all(color: const Color(0xff4A7C59).withOpacity(0.15)),
+                            border: Border.all(color: const Color(0xff4A7C59).withValues(alpha: 0.15)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -312,7 +312,7 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
                     SizedBox(height: 14.h),
 
                     // Thin Divider line
-                    Container(height: 1, width: double.infinity, color: const Color(0xFFF1F5F9).withOpacity(0.7)),
+                    Container(height: 1, width: double.infinity, color: const Color(0xFFF1F5F9).withValues(alpha: 0.7)),
                     SizedBox(height: 14.h),
 
                     // Bottom Section: PB & All-Time Stats
@@ -365,7 +365,7 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
                         ),
 
                         // Vertical Divider
-                        Container(width: 1, height: 32.h, color: const Color(0xFFF1F5F9).withOpacity(0.7)),
+                        Container(width: 1, height: 32.h, color: const Color(0xFFF1F5F9).withValues(alpha: 0.7)),
 
                         // Column 2: All Time
                         Expanded(
@@ -437,9 +437,8 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
     return Obx(() {
       bool isUnlocked = controller.unlockedAwards.contains(id);
 
-      Color cardColor = Colors.white;
       Color titleColor = isUnlocked ? const Color(0xFF0F172A) : const Color(0xff969593);
-      Color descColor = isUnlocked ? const Color(0xFF64748B) : const Color(0xff969593).withOpacity(0.7);
+      Color descColor = isUnlocked ? const Color(0xFF64748B) : const Color(0xff969593).withValues(alpha: 0.7);
 
       return Container(
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
@@ -466,8 +465,8 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
                         colors: [AppColors.tealBright, AppColors.teal, AppColors.tealDeep],
                         stops: [0.0, 0.65, 1.0],
                       ),
-                      boxShadow: [BoxShadow(color: AppColors.teal.withOpacity(0.30), blurRadius: 14, offset: const Offset(0, 5))],
-                      border: Border.all(color: Colors.white.withOpacity(0.22)),
+                      boxShadow: [BoxShadow(color: AppColors.teal.withValues(alpha: 0.30), blurRadius: 14, offset: const Offset(0, 5))],
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
                     )
                   : BoxDecoration(
                       shape: BoxShape.circle,
@@ -821,7 +820,7 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
                   },
                 ),
                 SizedBox(height: 20.h),
-                Container(height: 1, width: double.infinity, color: const Color(0xFFF1F5F9).withOpacity(0.7)),
+                Container(height: 1, width: double.infinity, color: const Color(0xFFF1F5F9).withValues(alpha: 0.7)),
                 SizedBox(height: 16.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,

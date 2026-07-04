@@ -137,7 +137,7 @@ class GoalScreen extends StatelessWidget {
             color: isSelected ? AppColors.teal : AppColors.white,
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(color: isSelected ? AppColors.teal : AppColors.cardEdge),
-            boxShadow: isSelected ? null : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+            boxShadow: isSelected ? null : [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
           ),
           child: Center(
             child: Text(
@@ -227,7 +227,7 @@ class GoalScreen extends StatelessWidget {
                       activeTrackColor: AppColors.teal,
                       inactiveTrackColor: AppColors.grey3,
                       thumbColor: AppColors.teal,
-                      overlayColor: AppColors.teal.withOpacity(0.2),
+                      overlayColor: AppColors.teal.withValues(alpha: 0.2),
                       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.w),
                     ),
                     child: Slider(

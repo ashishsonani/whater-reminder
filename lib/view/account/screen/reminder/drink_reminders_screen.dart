@@ -52,7 +52,7 @@ class DrinkRemindersScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -93,7 +93,7 @@ class DrinkRemindersScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -441,7 +441,7 @@ class DrinkRemindersScreen extends StatelessWidget {
               border: Border.all(color: AppColors.cardEdge),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -455,7 +455,7 @@ class DrinkRemindersScreen extends StatelessWidget {
             fontSize: 22.sp,
             color: isSelected
                 ? AppColors.teal
-                : const Color(0xff212529).withOpacity(0.5),
+                : const Color(0xff212529).withValues(alpha: 0.5),
             fontWeight: FontWeight.w600,
             fontFamily: AppFonts.lato,
           ),
@@ -485,7 +485,7 @@ class DrinkRemindersScreen extends StatelessWidget {
                 ? null
                 : [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),

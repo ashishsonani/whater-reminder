@@ -526,7 +526,6 @@ class AppString {
   static const String shareWithFriends = 'Share with Friends';
   // Terms and Conditions
 
-  static const String everyXMinutes = 'Every {minutes} minutes';
 
   static const String week = 'week';
   static const String month = 'month';

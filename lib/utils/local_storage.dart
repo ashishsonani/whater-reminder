@@ -21,7 +21,6 @@ class LocalStorage {
   static const String _isSetupCompleteKey = 'isSetupComplete';
   static const String _lastFeedbackPromptTimestampKey = 'lastFeedbackPromptTimestamp';
 
-  static const String _lastLogDateKey = 'lastLogDate';
   static const String _customCupsKey = 'customCups';
   static const String _customTypesKey = 'customTypes';
   static const String _appOpenCountKey = 'appOpenCount';

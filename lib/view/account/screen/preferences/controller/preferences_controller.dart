@@ -354,7 +354,7 @@ class PreferencesController extends GetxController {
       AppString.success.tr,
       AppString.resetData.tr,
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: AppColors.primary.withOpacity(0.1),
+      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
       colorText: AppColors.primary,
     );
     // } catch (e) {

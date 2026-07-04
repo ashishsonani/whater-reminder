@@ -112,7 +112,7 @@ class AccountScreen extends StatelessWidget {
                   icon: Assets.images.png.emailMessage.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.sendFeedback.tr,
                   onTap: () {
-                    Get.dialog(const StarRatingDialog(), barrierColor: Colors.black.withOpacity(0.5), barrierDismissible: false);
+                    Get.dialog(const StarRatingDialog(), barrierColor: Colors.black.withValues(alpha: 0.5), barrierDismissible: false);
                   },
                 ),
                 _buildTile(
@@ -166,7 +166,7 @@ class AccountScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(color: AppColors.cardEdge),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Column(children: children),

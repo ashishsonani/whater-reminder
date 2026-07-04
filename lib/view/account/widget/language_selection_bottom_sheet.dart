@@ -64,7 +64,7 @@ class LanguageSelectionBottomSheet extends StatelessWidget {
                 color: AppColors.card,
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(color: AppColors.cardEdge, width: 1),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))],
               ),
               padding: EdgeInsets.symmetric(horizontal: 14.w),
               child: Row(
@@ -107,7 +107,7 @@ class LanguageSelectionBottomSheet extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.card,
                   borderRadius: BorderRadius.circular(20.r),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 20, offset: const Offset(0, 10))],
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 20, offset: const Offset(0, 10))],
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20.r),

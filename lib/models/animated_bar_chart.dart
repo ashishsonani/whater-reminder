@@ -162,7 +162,7 @@ class _BarChartPainter extends CustomPainter {
           end: Alignment.bottomCenter,
           colors: [
             AppColors.tealBright,
-            AppColors.teal.withOpacity(0.92),
+            AppColors.teal.withValues(alpha: 0.92),
           ],
         ).createShader(rect);
       canvas.drawRRect(rrect, barPaint);
@@ -244,7 +244,7 @@ class _BarChartPainter extends CustomPainter {
       text: TextSpan(
         text: label,
         style: AppTypography.actionLabel.copyWith(
-          color: Colors.white.withOpacity(opacity),
+          color: Colors.white.withValues(alpha: opacity),
           fontSize: 10.sp,
           letterSpacing: 0.3,
         ),
@@ -254,7 +254,7 @@ class _BarChartPainter extends CustomPainter {
     final w = tp.width + 12;
     final h = tp.height + 6;
     final rect = Rect.fromCenter(center: center, width: w, height: h);
-    final paint = Paint()..color = AppColors.teal.withOpacity(opacity);
+    final paint = Paint()..color = AppColors.teal.withValues(alpha: opacity);
     canvas.drawRRect(
       RRect.fromRectAndRadius(rect, const Radius.circular(6)),
       paint,

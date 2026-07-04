@@ -7,7 +7,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:water_intake/models/chart_card.dart';
+import 'package:water_intake/models/chart_point.dart';
 import 'package:water_intake/models/chart_datum.dart';
 import 'package:water_intake/models/water_record.dart';
 import 'package:water_intake/models/weekly_completion.dart';
@@ -170,7 +171,7 @@ class _StatisticScreenState extends State<StatisticScreen> {
                                         ),
                                         borderRadius: BorderRadius.circular(14),
                                         boxShadow: [
-                                          BoxShadow(color: AppColors.teal.withOpacity(0.24), blurRadius: 12, offset: const Offset(0, 4)),
+                                          BoxShadow(color: AppColors.teal.withValues(alpha: 0.24), blurRadius: 12, offset: const Offset(0, 4)),
                                         ],
                                       ),
                                     ),
@@ -309,15 +310,15 @@ class _StatisticScreenState extends State<StatisticScreen> {
     return Obx(() {
       final allData = controller.statsData.value?.data?.chartData ?? [];
       List<_ChartData> bars = _getProcessedBars(controller, allData, controller.statisticsTabPeriod.value, true);
-      return _buildChartCard(
-        controller,
+      final points = bars.map((b) => ChartPoint(label: b.date, value: b.height * 100)).toList();
+      return ChartCard(
         title: AppString.drinkCompletion.tr,
-        bars: bars,
-        chartType: controller.drinkChartType.value,
-        onToggle: (idx) => controller.drinkChartType.value = idx,
-        selectedIndex: controller.selectedDrinkChartIndex,
-        isPercentage: true,
-        play: playAnimation.value,
+        points: points,
+        maxY: 100,
+        yLabel: (v) => '${v.toInt()}%',
+        valueLabel: (v) => '${v.toInt()}%',
+        mode: controller.drinkChartType.value == 0 ? ChartMode.bar : ChartMode.line,
+        onModeChange: (m) => controller.drinkChartType.value = m == ChartMode.bar ? 0 : 1,
       );
     });
   }
@@ -326,287 +327,21 @@ class _StatisticScreenState extends State<StatisticScreen> {
     return Obx(() {
       final allData = controller.statsData.value?.data?.chartData ?? [];
       List<_ChartData> bars = _getProcessedBars(controller, allData, controller.statisticsTabPeriod.value, false);
-      return _buildChartCard(
-        controller,
+      final bool isMl = controller.isMl.value;
+      final points = bars.map((b) => ChartPoint(label: b.date, value: b.height * (isMl ? 5.0 : 170.0))).toList();
+      return ChartCard(
         title: AppString.hydrate.tr,
-        bars: bars,
-        chartType: controller.hydrateChartType.value,
-        onToggle: (idx) => controller.hydrateChartType.value = idx,
-        selectedIndex: controller.selectedHydrateChartIndex,
-        isPercentage: false,
-        play: playAnimation.value,
+        points: points,
+        maxY: isMl ? 5.0 : 170.0,
+        yLabel: (v) => isMl ? '${v.toStringAsFixed(1)}L' : '${v.toInt()}oz',
+        valueLabel: (v) => isMl ? '${v.toStringAsFixed(1)}L' : '${v.toInt()} oz',
+        mode: controller.hydrateChartType.value == 0 ? ChartMode.bar : ChartMode.line,
+        onModeChange: (m) => controller.hydrateChartType.value = m == ChartMode.bar ? 0 : 1,
       );
     });
   }
 
-  Widget _buildToggleSwitch({required int activeIndex, required ValueChanged<int> onChange}) {
-    return Container(
-      width: 70.w,
-      height: 30.h,
-      padding: EdgeInsets.all(3.r),
-      decoration: BoxDecoration(color: AppColors.paperWarm, borderRadius: BorderRadius.circular(10.r)),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          final itemWidth = width / 2;
-          return Stack(
-            children: [
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 280),
-                curve: Curves.easeOutCubic,
-                left: activeIndex * itemWidth,
-                top: 0,
-                bottom: 0,
-                width: itemWidth,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [AppColors.tealBright, AppColors.teal],
-                    ),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                ),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        onChange(0);
-                      },
-                      child: Center(
-                        child: Icon(Icons.bar_chart_rounded, size: 16.sp, color: activeIndex == 0 ? Colors.white : AppColors.inkMute),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        onChange(1);
-                      },
-                      child: Center(
-                        child: Icon(Icons.show_chart_rounded, size: 16.sp, color: activeIndex == 1 ? Colors.white : AppColors.inkMute),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
 
-  Widget _buildChartCard(
-    HomeController controller, {
-    required String title,
-    required List<_ChartData> bars,
-    required int chartType, // 0: Bar, 1: Line
-    required ValueChanged<int> onToggle,
-    required RxInt selectedIndex,
-    bool isPercentage = true,
-    required bool play,
-  }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        border: Border.all(color: AppColors.cardEdge),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: AppShadows.level1,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(title, style: AppTypography.sectionTitle.copyWith(fontSize: 16.sp)),
-              _buildToggleSwitch(activeIndex: chartType, onChange: onToggle),
-            ],
-          ),
-          SizedBox(height: 5.h),
-          Divider(color: AppColors.cardEdge, height: 1),
-          SizedBox(height: 10.h),
-          SizedBox(
-            height: 160.h,
-            child: Obx(() {
-              selectedIndex.value; // register reactive dependency
-              return SfCartesianChart(
-                key: ValueKey("${title}_${chartType}_$play"),
-                margin: EdgeInsets.only(top: 2.h, left: 5.w, right: 5.w, bottom: 5.h),
-                plotAreaBorderWidth: 0,
-                zoomPanBehavior: ZoomPanBehavior(enablePanning: true, enablePinching: true, zoomMode: ZoomMode.x),
-                primaryXAxis: CategoryAxis(
-                  majorGridLines: const MajorGridLines(width: 0),
-                  axisLine: const AxisLine(width: 0),
-                  majorTickLines: const MajorTickLines(size: 0),
-                  autoScrollingDelta: controller.statisticsTabPeriod.value == 0 ? 7 : (controller.statisticsTabPeriod.value == 1 ? 4 : 6),
-                  autoScrollingMode: AutoScrollingMode.start,
-                  labelStyle: GoogleFonts.interTight(color: AppColors.inkMute, fontSize: 10.sp, fontWeight: FontWeight.w500),
-                ),
-                primaryYAxis: NumericAxis(
-                  minimum: 0,
-                  maximum: isPercentage ? 100 : (controller.isMl.value ? 5.0 : 170.0),
-                  interval: isPercentage ? 20 : (controller.isMl.value ? 1 : 34),
-                  numberFormat: isPercentage ? null : (controller.isMl.value ? NumberFormat('0.0') : null),
-                  labelFormat: isPercentage ? '{value}%' : (controller.isMl.value ? '{value}L' : '{value}oz'),
-                  axisLine: const AxisLine(width: 0),
-                  majorTickLines: const MajorTickLines(size: 0),
-                  majorGridLines: const MajorGridLines(width: 1, color: AppColors.cardEdge, dashArray: [4, 4]),
-                  labelStyle: GoogleFonts.interTight(color: AppColors.inkMute, fontSize: 10.sp, fontWeight: FontWeight.w500),
-                ),
-                series: chartType == 0
-                    ? <CartesianSeries<_ChartData, String>>[
-                        ColumnSeries<_ChartData, String>(
-                          dataSource: bars,
-                          animationDuration: 1200,
-                          xValueMapper: (_ChartData data, _) => data.date,
-                          yValueMapper: (_ChartData data, _) =>
-                              isPercentage ? (data.height * 100) : (controller.isMl.value ? (data.height * 5) : (data.height * 170)),
-                          onPointTap: (ChartPointDetails details) {
-                            if (selectedIndex.value == details.pointIndex) {
-                              selectedIndex.value = -1;
-                            } else {
-                              selectedIndex.value = details.pointIndex ?? -1;
-                            }
-                          },
-                          color: AppColors.teal,
-                          width: controller.statisticsTabPeriod.value == 0
-                              ? 0.35
-                              : (controller.statisticsTabPeriod.value == 1 ? 0.45 : 0.4),
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-                          dataLabelSettings: DataLabelSettings(
-                            isVisible: true,
-                            labelAlignment: ChartDataLabelAlignment.top,
-                            overflowMode: OverflowMode.none,
-                            builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
-                              final chartData = data as _ChartData;
-                              final bool isSelected = selectedIndex.value == pointIndex;
-                              final bool shouldShowTooltip = isSelected;
-                              final percentage = double.tryParse(chartData.tooltip!.replaceAll('%', '').replaceAll('up', '').trim()) ?? 0;
-                              if (shouldShowTooltip && chartData.tooltip != null) {
-                                return Transform.translate(
-                                  offset: Offset(0, -22.h),
-                                  child: Padding(
-                                    padding: percentage >= 100 ? EdgeInsets.only(top: 10.h) : EdgeInsets.zero,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.tealDeep,
-                                            borderRadius: BorderRadius.circular(24.r),
-                                            boxShadow: [
-                                              BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 4, offset: const Offset(0, 2)),
-                                            ],
-                                          ),
-                                          child: Text(
-                                            chartData.tooltip!,
-                                            style: GoogleFonts.interTight(fontSize: 8.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                        CustomPaint(
-                                          size: Size(8.w, 4.h),
-                                          painter: _TooltipArrowPainter(color: AppColors.tealDeep),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                        ),
-                      ]
-                    : <CartesianSeries<_ChartData, String>>[
-                        SplineAreaSeries<_ChartData, String>(
-                          dataSource: bars,
-                          animationDuration: 1200,
-                          xValueMapper: (_ChartData data, _) => data.date,
-                          yValueMapper: (_ChartData data, _) =>
-                              isPercentage ? (data.height * 100) : (controller.isMl.value ? (data.height * 5) : (data.height * 170)),
-                          onPointTap: (ChartPointDetails details) {
-                            if (selectedIndex.value == details.pointIndex) {
-                              selectedIndex.value = -1;
-                            } else {
-                              selectedIndex.value = details.pointIndex ?? -1;
-                            }
-                          },
-                          color: AppColors.teal.withOpacity(0.1),
-                          borderColor: AppColors.teal,
-                          borderWidth: 2,
-                          markerSettings: const MarkerSettings(
-                            isVisible: true,
-                            height: 8,
-                            width: 8,
-                            shape: DataMarkerType.circle,
-                            color: AppColors.teal,
-                            borderColor: Colors.white,
-                            borderWidth: 2,
-                          ),
-                          dataLabelSettings: DataLabelSettings(
-                            isVisible: true,
-                            labelAlignment: ChartDataLabelAlignment.middle,
-                            overflowMode: OverflowMode.none,
-                            builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
-                              final chartData = data as _ChartData;
-                              final bool isSelected = selectedIndex.value == pointIndex;
-                              final bool shouldShowTooltip = isSelected;
-                              final percentage = double.tryParse(chartData.tooltip!.replaceAll('%', '').replaceAll('up', '').trim()) ?? 0;
-                              if (shouldShowTooltip && chartData.tooltip != null) {
-                                return Transform.translate(
-                                  offset: Offset(0, -18.h),
-                                  child: Padding(
-                                    padding: percentage >= 100 ? EdgeInsets.only(top: 12.h) : EdgeInsets.zero,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.tealDeep,
-                                            borderRadius: BorderRadius.circular(24.r),
-                                            boxShadow: [
-                                              BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 4, offset: const Offset(0, 2)),
-                                            ],
-                                          ),
-                                          child: Text(
-                                            chartData.tooltip!,
-                                            style: GoogleFonts.interTight(fontSize: 8.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                        CustomPaint(
-                                          size: Size(8.w, 4.h),
-                                          painter: _TooltipArrowPainter(color: AppColors.tealDeep),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                        ),
-                      ],
-              );
-            }),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildWeeklyCompletionSection(HomeController controller) {
     final focused = controller.statsFocusedDay.value;
@@ -669,7 +404,7 @@ class _StatisticScreenState extends State<StatisticScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(24.r),
             border: Border.all(color: AppColors.cardEdge),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -720,7 +455,7 @@ class _StatisticScreenState extends State<StatisticScreen> {
                       decoration: BoxDecoration(
                         color: Colors.transparent,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.cardEdge.withOpacity(0.6), width: 1.5),
+                        border: Border.all(color: AppColors.cardEdge.withValues(alpha: 0.6), width: 1.5),
                       ),
                       child: Center(
                         child: Text(
@@ -785,7 +520,7 @@ class _StatisticScreenState extends State<StatisticScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: AppColors.cardEdge),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -1074,26 +809,6 @@ class _RotatingDottedCircleState extends State<RotatingDottedCircle> with Single
   }
 }
 
-class _TooltipArrowPainter extends CustomPainter {
-  final Color color;
-  _TooltipArrowPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-    final path = Path()
-      ..moveTo(0, 0)
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width / 2, size.height)
-      ..close();
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
 
 class FadeSlideUpTransition extends StatefulWidget {
   final Widget child;

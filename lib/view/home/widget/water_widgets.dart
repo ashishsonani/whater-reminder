@@ -145,7 +145,7 @@ class PremiumProgressPainter extends CustomPainter {
 
       // Add a subtle shadow to the knob to make it premium
       final shadowPaint = Paint()
-        ..color = Colors.black.withOpacity(0.2)
+        ..color = Colors.black.withValues(alpha: 0.2)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2)
         ..style = PaintingStyle.fill;
 
@@ -232,7 +232,7 @@ class _WaterWaveWidgetState extends State<WaterWaveWidget> with SingleTickerProv
           children: [
             ClipPath(
               clipper: LiquidWaveClipper(percentage: widget.percentage, phase: _controller.value * 2 * math.pi),
-              child: Container(color: widget.color.withOpacity(0.4)),
+              child: Container(color: widget.color.withValues(alpha: 0.4)),
             ),
             ClipPath(
               clipper: LiquidWaveClipper(percentage: widget.percentage, phase: -_controller.value * 2 * math.pi),
@@ -241,7 +241,7 @@ class _WaterWaveWidgetState extends State<WaterWaveWidget> with SingleTickerProv
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [widget.color, widget.color.withOpacity(0.8)],
+                    colors: [widget.color, widget.color.withValues(alpha: 0.8)],
                   ),
                 ),
               ),
@@ -368,7 +368,7 @@ class FeedbackBottomSheet extends StatelessWidget {
             isBold: true,
             onTap: () {
               Get.back();
-              Get.dialog(const StarRatingDialog(), barrierColor: Colors.black.withOpacity(0.5), barrierDismissible: false);
+              Get.dialog(const StarRatingDialog(), barrierColor: Colors.black.withValues(alpha: 0.5), barrierDismissible: false);
             },
           ),
           SizedBox(height: 5),
@@ -593,7 +593,7 @@ class _StarRatingDialogState extends State<StarRatingDialog> {
         CommonButton(
           text: _selectedStar == 5 ? (Platform.isIOS ? AppString.rateUsAppStore.tr : AppString.rateUsGooglePlay.tr) : AppString.rate.tr,
           onPressed: isSelected ? _onRateClicked : null,
-          backgroundColor: isSelected ? AppColors.teal : const Color(0xffADB5BD).withOpacity(0.5),
+          backgroundColor: isSelected ? AppColors.teal : const Color(0xffADB5BD).withValues(alpha: 0.5),
           textColor: Colors.white,
         ),
       ],
@@ -918,7 +918,7 @@ class _DropletWaterWaveWidgetState extends State<DropletWaterWaveWidget> with Si
             // Background wave (low opacity)
             ClipPath(
               clipper: DropletWaveClipper(percentage: widget.percentage, phase: _controller.value * 2 * math.pi),
-              child: Container(color: widget.color.withOpacity(0.35)),
+              child: Container(color: widget.color.withValues(alpha: 0.35)),
             ),
             // Foreground wave (gradient)
             ClipPath(
@@ -928,7 +928,7 @@ class _DropletWaterWaveWidgetState extends State<DropletWaterWaveWidget> with Si
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [widget.color, widget.color.withOpacity(0.85)],
+                    colors: [widget.color, widget.color.withValues(alpha: 0.85)],
                   ),
                 ),
               ),

@@ -36,7 +36,7 @@ class AppShadows {
   // Bold elevation for the central drink button.
   static List<BoxShadow> drinkButton = [
     BoxShadow(
-      color: AppColors.teal.withOpacity(0.35),
+      color: AppColors.teal.withValues(alpha: 0.35),
       blurRadius: 48,
       offset: const Offset(0, 20),
     ),

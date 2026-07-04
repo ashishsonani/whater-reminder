@@ -196,7 +196,7 @@ class PremiumScreen extends StatelessWidget {
                                   style: AppTextStyle.latoRegularBlack14
                                       .copyWith(
                                         fontSize: 11.sp,
-                                        color: Colors.white.withOpacity(0.9),
+                                        color: Colors.white.withValues(alpha: 0.9),
                                       ),
                                 );
                               }),
@@ -291,16 +291,8 @@ class PremiumScreen extends StatelessWidget {
       bool isSelected = controller.selectedPlan.value == index;
 
       // Get real price from IAPService
-      String productId = '';
-      if (index == 0) {
-        productId = 'water_premium_weekly';
-      } else if (index == 1) {
-        productId = 'water_premium_monthly';
-      } else if (index == 2) {
-        productId = 'water_premium_yearly';
-      }
-
-      // final product = IAPService.to.products.where((p) => p.id == productId).firstOrNull;
+      // Product IDs (water_premium_weekly/monthly/yearly) come back with
+      // IAPService: final product = IAPService.to.products.where(...).firstOrNull;
 
       return GestureDetector(
         onTap: () {
@@ -333,7 +325,7 @@ class PremiumScreen extends StatelessWidget {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.02),
+                          color: Colors.black.withValues(alpha: 0.02),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),

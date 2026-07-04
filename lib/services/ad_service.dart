@@ -6,6 +6,7 @@ import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdService {
   // Remote Config State
@@ -132,53 +133,105 @@ class AdService {
     await MobileAds.instance.initialize();
   }
 
-  /// Fetch Ads Configuration from GitHub JSON
+  static const String _configCacheKey = 'cached_ads_config_json';
+
+  /// Fetch Ads Configuration from GitHub JSON.
+  ///
+  /// Resilience chain — a transient failure must never kill ads revenue:
+  ///  1. GitHub API (instant updates, but 60 req/hour/IP unauthenticated)
+  ///  2. raw.githubusercontent.com (CDN-cached ~5 min, effectively unlimited)
+  ///  3. last successfully fetched config, cached on device
+  ///  4. everything disabled (true first launch with no network only)
   static Future<void> fetchRemoteConfig() async {
-    try {
-      // Use GitHub API for instant updates (bypasses the 5-minute CDN cache)
-      final response = await http.get(
-        Uri.parse('https://api.github.com/repos/ashishsonani/whater-reminder/contents/config.json'),
-        headers: {
-          'Accept': 'application/vnd.github.v3.raw',
-          'Cache-Control': 'no-cache',
-        },
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        debugPrint('Remote Ads Config raw JSON: ${response.body}');
-        adsEnabled = data['ads_enabled'] ?? false;
-        bannerEnabled = data['banner'] ?? false;
-        interstitialEnabled = data['interstitial'] ?? false;
-        appOpenEnabled = data['app_open'] ?? false;
-        clickCountInterval = data['click_count'] ?? 3;
-        
-        bannerIdAndroid = data['banner_id_android'] ?? bannerIdAndroid;
-        appOpenIdAndroid = data['app_open_id_android'] ?? appOpenIdAndroid;
-        interstitialIdAndroid = data['interstitial_id_android'] ?? interstitialIdAndroid;
+    final String? body = await _fetchConfigBody(
+          'https://api.github.com/repos/ashishsonani/whater-reminder/contents/config.json',
+          headers: {
+            'Accept': 'application/vnd.github.v3.raw',
+            'Cache-Control': 'no-cache',
+          },
+        ) ??
+        await _fetchConfigBody(
+          'https://raw.githubusercontent.com/ashishsonani/whater-reminder/main/config.json',
+        );
 
-        bannerIdIos = data['banner_id_ios'] ?? bannerIdIos;
-        appOpenIdIos = data['app_open_id_ios'] ?? appOpenIdIos;
-        interstitialIdIos = data['interstitial_id_ios'] ?? interstitialIdIos;
-        
+    if (body != null) {
+      try {
+        _applyConfig(json.decode(body));
+        _cacheConfig(body);
         debugPrint('Remote Ads Config loaded: adsEnabled=$adsEnabled, banner=$bannerEnabled, interstitial=$interstitialEnabled, appOpen=$appOpenEnabled, clickCount=$clickCountInterval');
-
-        // Preload interstitial if enabled
-        if (adsEnabled && interstitialEnabled) {
-          loadInterstitialAd();
-        }
-        
-        // Preload App Open Ad if enabled
-        if (adsEnabled && appOpenEnabled) {
-          appOpenAdManager.loadAd();
-        }
-      } else {
-        debugPrint('Failed to load remote config, status code: ${response.statusCode}');
-        _setFallbackConfig();
+        _preloadAds();
+        return;
+      } catch (e) {
+        debugPrint('Remote config JSON invalid: $e');
       }
-    } catch (e) {
-      debugPrint('Error fetching remote config: $e');
+    }
+
+    // Network/parse failure: reuse the last config that worked.
+    final cached = await _loadCachedConfig();
+    if (cached != null) {
+      _applyConfig(cached);
+      debugPrint('Remote config unavailable, using cached config: adsEnabled=$adsEnabled');
+      _preloadAds();
+    } else {
+      debugPrint('Remote config unavailable and no cache, ads disabled');
       _setFallbackConfig();
     }
+  }
+
+  static Future<String?> _fetchConfigBody(String url, {Map<String, String>? headers}) async {
+    try {
+      final response = await http.get(Uri.parse(url), headers: headers).timeout(const Duration(seconds: 8));
+      if (response.statusCode == 200) return response.body;
+      debugPrint('Config fetch $url failed, status: ${response.statusCode}');
+    } catch (e) {
+      debugPrint('Config fetch $url error: $e');
+    }
+    return null;
+  }
+
+  static void _applyConfig(dynamic data) {
+    adsEnabled = data['ads_enabled'] ?? false;
+    bannerEnabled = data['banner'] ?? false;
+    interstitialEnabled = data['interstitial'] ?? false;
+    appOpenEnabled = data['app_open'] ?? false;
+    clickCountInterval = data['click_count'] ?? 3;
+
+    bannerIdAndroid = data['banner_id_android'] ?? bannerIdAndroid;
+    appOpenIdAndroid = data['app_open_id_android'] ?? appOpenIdAndroid;
+    interstitialIdAndroid = data['interstitial_id_android'] ?? interstitialIdAndroid;
+
+    bannerIdIos = data['banner_id_ios'] ?? bannerIdIos;
+    appOpenIdIos = data['app_open_id_ios'] ?? appOpenIdIos;
+    interstitialIdIos = data['interstitial_id_ios'] ?? interstitialIdIos;
+  }
+
+  static void _preloadAds() {
+    if (adsEnabled && interstitialEnabled) {
+      loadInterstitialAd();
+    }
+    if (adsEnabled && appOpenEnabled) {
+      appOpenAdManager.loadAd();
+    }
+  }
+
+  static Future<void> _cacheConfig(String body) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_configCacheKey, body);
+    } catch (e) {
+      debugPrint('Failed to cache ads config: $e');
+    }
+  }
+
+  static Future<dynamic> _loadCachedConfig() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final body = prefs.getString(_configCacheKey);
+      if (body != null) return json.decode(body);
+    } catch (e) {
+      debugPrint('Failed to read cached ads config: $e');
+    }
+    return null;
   }
 
   static void _setFallbackConfig() {

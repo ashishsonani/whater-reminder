@@ -627,7 +627,7 @@ class PreferencesBottomSheets {
           text,
           style: TextStyle(
             fontSize: 22.sp,
-            color: isSelected ? AppColors.teal : const Color(0xff212529).withOpacity(0.5),
+            color: isSelected ? AppColors.teal : const Color(0xff212529).withValues(alpha: 0.5),
             fontWeight: FontWeight.w600,
             fontFamily: AppFonts.lato,
           ),
@@ -651,7 +651,7 @@ class PreferencesBottomSheets {
               ? null
               : [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

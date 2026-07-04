@@ -103,7 +103,7 @@ class FeedbackDetailScreen extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.white,
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.white,
           borderRadius: BorderRadius.circular(8.r),
           border: Border.all(color: isSelected ? AppColors.primary : const Color(0xffE6E6E6), width: 1),
         ),
@@ -174,7 +174,7 @@ class FeedbackDetailScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 21.w, vertical: 16.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), offset: const Offset(0, -4), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), offset: const Offset(0, -4), blurRadius: 10)],
       ),
       child: Obx(() {
         final isTopicSelected = controller.selectedTopic.value.isNotEmpty;
