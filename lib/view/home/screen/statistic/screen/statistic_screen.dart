@@ -743,7 +743,7 @@ class _TodayPill extends StatelessWidget {
             tween: Tween(begin: 0, end: percent.toDouble()),
             duration: const Duration(milliseconds: 600),
             curve: Curves.easeOutCubic,
-            builder: (_, v, __) => Text('${v.round()}%', style: AppTypography.streakNum),
+            builder: (_, v, _) => Text('${v.round()}%', style: AppTypography.streakNum),
           ),
           const SizedBox(width: 4),
           Text(AppString.today.tr.toUpperCase(), style: AppTypography.streakLabel),

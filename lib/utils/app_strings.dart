@@ -506,7 +506,7 @@ class AppString {
 
   //new
   static const String shareAppMessage =
-      'Hey! Check out this awesome Water Reminder app I\'m using. It\’s perfect for staying on top of your daily water intake. 💧\n\n';
+      'Hey! Check out this awesome Water Reminder app I\'m using. It’s perfect for staying on top of your daily water intake. 💧\n\n';
 
   static const String search = 'Search';
 

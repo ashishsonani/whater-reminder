@@ -205,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: listToShow.length,
-            separatorBuilder: (_, __) => SizedBox(width: 8.w),
+            separatorBuilder: (_, _) => SizedBox(width: 8.w),
             itemBuilder: (context, index) {
               final String filename = listToShow[index];
               final String label = _getDrinkName(filename.toLowerCase());
@@ -354,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 
               // Inside content (static during animation)
-              if (child != null) child,
+              ?child,
             ],
           );
         },

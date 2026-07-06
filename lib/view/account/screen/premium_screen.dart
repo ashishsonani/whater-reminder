@@ -185,9 +185,9 @@ class PremiumScreen extends StatelessWidget {
                               Obx(() {
                                 int selected = controller.selectedPlan.value;
                                 String sub = "";
-                                if (selected == 0)
+                                if (selected == 0) {
                                   sub = AppString.first3dFree.tr;
-                                else if (selected == 1)
+                                } else if (selected == 1)
                                   sub = AppString.first7dFree.tr;
                                 else if (selected == 2)
                                   sub = AppString.first15dFree.tr;

@@ -254,7 +254,7 @@ class GoalScreen extends StatelessWidget {
                         controller.tempWaterGoal.value = controller.getRecommendedGoal();
                       },
                       child: Text(
-                        "${AppString.recommended.tr}",
+                        AppString.recommended.tr,
                         style: AppTextStyle.button.copyWith(fontSize: 10.sp, color: AppColors.teal, fontWeight: FontWeight.bold),
                       ),
                     ),

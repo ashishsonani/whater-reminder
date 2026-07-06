@@ -61,7 +61,7 @@ class _AnimatedLineChartState extends State<AnimatedLineChart>
             Expanded(
               child: AnimatedBuilder(
                 animation: _ctrl,
-                builder: (_, __) => CustomPaint(
+                builder: (_, _) => CustomPaint(
                   painter: _LinePainter(
                     points: widget.points,
                     maxY: widget.maxY,

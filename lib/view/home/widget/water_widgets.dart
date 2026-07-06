@@ -254,7 +254,7 @@ class _WaterWaveWidgetState extends State<WaterWaveWidget> with SingleTickerProv
 }
 
 class DrinkAnimationWidget extends StatefulWidget {
-  const DrinkAnimationWidget({Key? key}) : super(key: key);
+  const DrinkAnimationWidget({super.key});
 
   @override
   DrinkAnimationState createState() => DrinkAnimationState();
@@ -404,7 +404,7 @@ class StarRatingDialog extends StatefulWidget {
 
 class _StarRatingDialogState extends State<StarRatingDialog> {
   int _selectedStar = 0;
-  RatingPhase _phase = RatingPhase.rating;
+  final RatingPhase _phase = RatingPhase.rating;
   final TextEditingController _commentController = TextEditingController();
   bool _isSubmitting = false;
 

@@ -62,7 +62,7 @@ class _AnimatedBarChartState extends State<AnimatedBarChart>
             Expanded(
               child: AnimatedBuilder(
                 animation: _ctrl,
-                builder: (_, __) => CustomPaint(
+                builder: (_, _) => CustomPaint(
                   painter: _BarChartPainter(
                     points: widget.points,
                     maxY: widget.maxY,

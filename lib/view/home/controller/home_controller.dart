@@ -829,7 +829,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     Get.dialog(const StarRatingDialog(), barrierColor: Colors.black.withValues(alpha: 0.5), barrierDismissible: false);
   }
 
-  giveFeedback() async {
+  Future<void> giveFeedback() async {
     bool feedbackGiven = await LocalStorage.isFeedbackGiven();
     if (feedbackGiven) return;
 

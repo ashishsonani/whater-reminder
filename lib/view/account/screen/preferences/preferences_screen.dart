@@ -502,7 +502,7 @@ class PreferencesScreen extends StatelessWidget {
                         color: const Color(0xff969593),
                       ),
                     ),
-                  if (trailing != null) trailing,
+                  ?trailing,
                   if (trailing == null) ...[
                     SizedBox(width: 8.w),
                     Icon(
