@@ -1,4 +1,4 @@
-package com.webnova.waterintake
+package com.sarang.reminder
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager

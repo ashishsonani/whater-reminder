@@ -35,18 +35,18 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB-SprN5AXG3gBqn5Z6B5pLH9NOD0nHrTA',
-    appId: '1:10611212128:android:0a6bba291102fe275fa805',
-    messagingSenderId: '10611212128',
-    projectId: 'webnova-waterintake',
-    storageBucket: 'webnova-waterintake.firebasestorage.app',
+    apiKey: 'AIzaSyA3t-GZkw14J90irgjMMKIVgrRHD2DOrcw',
+    appId: '1:518652564691:android:7d60cab557c780adcd3026',
+    messagingSenderId: '518652564691',
+    projectId: 'water-reminder-288f9',
+    storageBucket: 'water-reminder-288f9.firebasestorage.app',
   );
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBl40-2QWy0eIXhxou43MDF_dDEttyp0h8',
-    appId: '1:10611212128:ios:10bbda035fe0a6925fa805',
-    messagingSenderId: '10611212128',
-    projectId: 'webnova-waterintake',
-    storageBucket: 'webnova-waterintake.firebasestorage.app',
-    iosBundleId: 'com.webnova.waterintake',
+    apiKey: 'AIzaSyDBRUsQzfdwVP090BvNESppLCm2aiIb8P8',
+    appId: '1:518652564691:ios:7de6ae325cf6c23ecd3026',
+    messagingSenderId: '518652564691',
+    projectId: 'water-reminder-288f9',
+    storageBucket: 'water-reminder-288f9.firebasestorage.app',
+    iosBundleId: 'com.sarang.reminder',
   );
 }
