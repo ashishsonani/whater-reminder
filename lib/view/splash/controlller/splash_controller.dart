@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../route/route.dart' show AppRoutes;
 import '../../../services/ad_service.dart';
 import '../../../utils/local_storage.dart';
+import '../../../services/notification_service.dart';
 
 class SplashController extends GetxController {
   @override
@@ -15,6 +16,9 @@ class SplashController extends GetxController {
     // Consent first (UMP/GDPR form + iOS ATT prompt): blocks until answered
     // on first launch, instant on later launches. Ads SDK starts inside.
     await AdService.gatherConsentAndInit();
+
+    // Request notification permissions after UI is drawn and consent is gathered
+    await NotificationService().requestPermissions();
 
     // Fetch remote ads config in parallel with the delay
     await Future.wait([

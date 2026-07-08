@@ -44,32 +44,7 @@ class NotificationService {
       } catch (_) {}
     }
 
-    // 2. Request permission
-    NotificationSettings settings = await _firebaseMessaging.requestPermission(alert: true, badge: true, sound: true);
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      log('User granted permission');
-    } else {
-      log('User declined or has not accepted permission');
-    }
-
-    // Request Android 13+ local notification permission
-    try {
-      await _localNotificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-          ?.requestNotificationsPermission();
-    } catch (e) {
-      log('Error requesting Android local notification permission: $e');
-    }
-
-    // Request exact alarm permission for Android 14+
-    try {
-      if (await Permission.scheduleExactAlarm.isDenied) {
-        await Permission.scheduleExactAlarm.request();
-      }
-    } catch (e) {
-      log('Error requesting exact alarm permission: $e');
-    }
+    // Permissions are now requested via requestPermissions() method
 
     // 2. Initialize local notifications for foreground messages
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -121,6 +96,35 @@ class NotificationService {
         _cancelRemindersListener();
       }
     });
+  }
+
+  Future<void> requestPermissions() async {
+    // 1. Request FCM permission
+    NotificationSettings settings = await _firebaseMessaging.requestPermission(alert: true, badge: true, sound: true);
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      log('User granted permission');
+    } else {
+      log('User declined or has not accepted permission');
+    }
+
+    // 2. Request Android 13+ local notification permission
+    try {
+      await _localNotificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+    } catch (e) {
+      log('Error requesting Android local notification permission: $e');
+    }
+
+    // 3. Request exact alarm permission for Android 14+
+    try {
+      if (await Permission.scheduleExactAlarm.isDenied) {
+        await Permission.scheduleExactAlarm.request();
+      }
+    } catch (e) {
+      log('Error requesting exact alarm permission: $e');
+    }
   }
 
   Future<void> _handleDrinkAction() async {
