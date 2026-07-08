@@ -20,7 +20,13 @@ import 'package:water_intake/utils/local_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Initialize Firebase without blocking the main thread (prevents ANR)
+  Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform).then((_) {
+    // Non-blocking initialization AFTER runApp to ensure fast first frame
+    _initPostRunApp();
+  }).catchError((e) {
+    debugPrint('Firebase init error: $e');
+  });
 
   await LocalStorage.init();
   SystemChrome.setSystemUIOverlayStyle(
