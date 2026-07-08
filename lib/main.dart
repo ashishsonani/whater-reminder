@@ -23,27 +23,10 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await LocalStorage.init();
-  await WidgetService.init();
-
-  // Initialize Firebase Messaging background handler
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  final notificationService = NotificationService();
-  await notificationService.init();
-  FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
-
-  // Ads SDK init happens on the splash screen (AdService.gatherConsentAndInit)
-  // because the UMP/ATT consent dialogs require visible UI.
-  final appLifecycleReactor = AppLifecycleReactor(appOpenAdManager: AdService.appOpenAdManager);
-  WidgetsBinding.instance.addObserver(appLifecycleReactor);
-  // await IAPService.init();
-  // await initializeDateFormatting('en_US', null);
-  await initializeDateFormatting('tr_TR', null);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      // systemNavigationBarColor: Colors.blue, // navigation bar color
-      statusBarColor: Colors.white, //
-      statusBarIconBrightness: Brightness.dark, // For Android (dark icons)
-      // status bar color
+      statusBarColor: Colors.white,
+      statusBarIconBrightness: Brightness.dark,
     ),
   );
 
@@ -105,6 +88,28 @@ void main() async {
   }
 
   runApp(MyApp(initialLocale: initialLocale));
+
+  // Non-blocking initialization AFTER runApp to ensure fast first frame
+  _initPostRunApp();
+}
+
+void _initPostRunApp() async {
+  try {
+    await WidgetService.init();
+
+    // Initialize Firebase Messaging background handler
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    final notificationService = NotificationService();
+    await notificationService.init();
+    FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+
+    final appLifecycleReactor = AppLifecycleReactor(appOpenAdManager: AdService.appOpenAdManager);
+    WidgetsBinding.instance.addObserver(appLifecycleReactor);
+
+    await initializeDateFormatting('tr_TR', null);
+  } catch (e) {
+    debugPrint('Error in post-runApp initialization: $e');
+  }
 }
 
 class MyApp extends StatelessWidget {

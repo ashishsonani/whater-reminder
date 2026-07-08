@@ -75,16 +75,15 @@ class NotificationService {
       _showLocalNotification(message);
     });
 
-    // 5. Get token and store in Firestore
-    try {
-      String? token = await _firebaseMessaging.getToken();
+    // 5. Get token and store in Firestore (Fire and forget to avoid blocking main thread)
+    _firebaseMessaging.getToken().then((token) {
       if (token != null) {
         log('FCM Token: $token');
-        await FirebaseService().updateFcmToken(token);
+        FirebaseService().updateFcmToken(token);
       }
-    } catch (e) {
+    }).catchError((e) {
       log('Error getting FCM token: $e');
-    }
+    });
 
     // 6. Listen to Auth state changes to setup Firestore listeners for reminders
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
