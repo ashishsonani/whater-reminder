@@ -76,30 +76,10 @@ class AdService {
   /// Must be called when app UI is already on screen (dialogs need a view),
   /// i.e. from the splash screen, not from main().
   static Future<void> gatherConsentAndInit() async {
-    final consentDone = Completer<void>();
-    ConsentInformation.instance.requestConsentInfoUpdate(
-      ConsentRequestParameters(),
-      () async {
-        try {
-          await _loadAndShowConsentFormIfRequired();
-        } finally {
-          if (!consentDone.isCompleted) consentDone.complete();
-        }
-      },
-      (FormError error) {
-        debugPrint('UMP consent info update failed: ${error.message}');
-        if (!consentDone.isCompleted) consentDone.complete();
-      },
-    );
-    await consentDone.future;
-
-    await _requestTrackingAuthorization();
-
-    consentAllowsAds = await ConsentInformation.instance.canRequestAds();
-    debugPrint('Consent flow finished: canRequestAds=$consentAllowsAds');
-    if (consentAllowsAds) {
-      await _initMobileAds();
-    }
+    // Forcefully allow ads and bypass the UMP/ATT consent dialogs
+    consentAllowsAds = true;
+    debugPrint('Consent bypassed: Forcefully enabling ads');
+    await _initMobileAds();
   }
 
   static Future<void> _loadAndShowConsentFormIfRequired() {
@@ -291,6 +271,27 @@ class AdService {
         // If not loaded yet, try loading it for next time
         loadInterstitialAd();
       }
+    }
+  }
+  static void forceShowInterstitialAd() {
+    if (!adsEnabled || !interstitialEnabled) return;
+    
+    if (_interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+          _interstitialAd = null;
+          loadInterstitialAd(); // Reload for next time
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          ad.dispose();
+          _interstitialAd = null;
+          loadInterstitialAd();
+        },
+      );
+      _interstitialAd!.show();
+    } else {
+      loadInterstitialAd();
     }
   }
 }

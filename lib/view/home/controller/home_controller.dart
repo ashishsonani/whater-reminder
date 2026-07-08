@@ -659,7 +659,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   void playWaterSound() async {
     try {
       if (_audioPlayer.playing) {
-        await _audioPlayer.stop();
+        await _audioPlayer.pause();
       }
       await _audioPlayer.seek(Duration.zero);
       _audioPlayer.play();
@@ -896,11 +896,6 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
       isProcessingAnimation = false;
     });
 
-    triggerAnimation(amount);
-
-    playWaterSound();
-    AdService.showInterstitialAdIfReached();
-
     final now = DateTime.now();
     final recordId = now.millisecondsSinceEpoch.toString();
 
@@ -927,6 +922,8 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     // Update streak logic: Only increment if goal reached for the first time today
     String todayStr = DateFormat('yyyy-MM-dd').format(now);
 
+    triggerAnimation(amount);
+    
     // Check if streak needs to be reset first (if they missed yesterday)
     await _checkAndResetStreak(uid);
 
@@ -938,6 +935,13 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
       }
       lastStreakDate = todayStr;
       goalMetJustNow = true;
+    }
+
+    if (goalMetJustNow) {
+      showGoalCompletionDialog();
+    } else {
+      playWaterSound();
+      AdService.showInterstitialAdIfReached();
     }
 
     // Sync to Firestore
@@ -1417,6 +1421,80 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   void setPeriod(StatsPeriod newPeriod) {
     statisticsTabPeriod.value = newPeriod.index;
     fetchStats();
+  }
+
+  void showGoalCompletionDialog() {
+    playWaterSound();
+
+    Get.dialog(
+      TweenAnimationBuilder(
+        duration: const Duration(milliseconds: 800),
+        tween: Tween<double>(begin: 0.0, end: 1.0),
+        curve: Curves.elasticOut,
+        builder: (context, double scale, child) {
+          return Transform.scale(
+            scale: scale,
+            child: AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Assets.images.png.firstAward.image(width: 120.w, height: 120.h),
+                  SizedBox(height: 16.h),
+                  Text(
+                    'Goal Completed!',
+                    style: TextStyle(
+                      fontFamily: 'Inter Tight',
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF006666),
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Great job! You reached your daily hydration goal.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Inter Tight',
+                      fontSize: 14.sp,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF006666),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                    ),
+                    onPressed: () {
+                      Get.back();
+                      AdService.forceShowInterstitialAd();
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                      child: Text(
+                        'Awesome',
+                        style: TextStyle(
+                          fontFamily: 'Inter Tight',
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+      barrierDismissible: false,
+    );
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:water_intake/common/curved_nav/curved_navigation_bar.dart';
 import 'package:water_intake/common/curved_nav/curved_navigation_bar_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -27,14 +28,22 @@ class DashboardScreen extends StatelessWidget {
       const AccountScreen(),
     ];
 
-    return Scaffold(
-      backgroundColor: AppColors.paper,
-      body: Obx(
-            () => IndexedStack(
-          index: controller.selectedIndex.value,
-          children: screens,
+    return WillPopScope(
+      onWillPop: () async {
+        final bool shouldPop = await _showExitDialog(context) ?? false;
+        if (shouldPop) {
+          SystemNavigator.pop();
+        }
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.paper,
+        body: Obx(
+              () => IndexedStack(
+            index: controller.selectedIndex.value,
+            children: screens,
+          ),
         ),
-      ),
       bottomNavigationBar: Obx(
         () => SafeArea(
           top: false,
@@ -169,6 +178,68 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    ),
+  );
+}
+
+  Future<bool?> _showExitDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+        title: Text(
+          'Exit App?',
+          style: TextStyle(
+            fontFamily: 'Inter Tight',
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+            color: AppColors.tealDeep,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to close the app?',
+          style: TextStyle(
+            fontFamily: 'Inter Tight',
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+            color: AppColors.black2,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                fontFamily: 'Inter Tight',
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.inkMute,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.teal,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              'Exit',
+              style: TextStyle(
+                fontFamily: 'Inter Tight',
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
