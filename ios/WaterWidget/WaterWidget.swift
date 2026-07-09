@@ -1,7 +1,7 @@
 import WidgetKit
 import SwiftUI
 
-private let appGroupId = "group.com.webnova.waterintake"
+private let appGroupId = "group.com.sarang.reminder"
 
 struct WaterEntry: TimelineEntry {
     let date: Date

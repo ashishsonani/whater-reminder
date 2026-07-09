@@ -4,7 +4,10 @@
   "interstitial": true,
   "app_open": true,
   "click_count": 3,
-  "banner_id_ios": "ca-app-pub-8708457885343434/5812063019",
-  "app_open_id_ios": "ca-app-pub-8708457885343434/9366376208",
-  "interstitial_id_ios": "ca-app-pub-8708457885343434/1471538923"
+  "banner_id_android": "ca-app-pub-8708457885343434/2858546284",
+  "app_open_id_android": "ca-app-pub-8708457885343434/2420361348",
+  "interstitial_id_android": "ca-app-pub-8708457885343434/6940014680",
+  "banner_id_ios": "ca-app-pub-8708457885343434/3980056269",
+  "app_open_id_ios": "ca-app-pub-8708457885343434/1061002044",
+  "interstitial_id_ios": "ca-app-pub-8708457885343434/1663637270"
 }

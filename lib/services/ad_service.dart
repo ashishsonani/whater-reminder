@@ -22,15 +22,15 @@ class AdService {
   
   static final AppOpenAdManager appOpenAdManager = AppOpenAdManager();
 
-  static String bannerIdAndroid = 'ca-app-pub-8708457885343434/3322994452';
-  static String appOpenIdAndroid = 'ca-app-pub-8708457885343434/2009912786';
-  static String interstitialIdAndroid = 'ca-app-pub-8708457885343434/7603694829';
+  static String bannerIdAndroid = 'ca-app-pub-8708457885343434/2858546284';
+  static String appOpenIdAndroid = 'ca-app-pub-8708457885343434/2420361348';
+  static String interstitialIdAndroid = 'ca-app-pub-8708457885343434/6940014680';
 
   // iOS ad unit IDs. Default to Google's test units until real IDs are
   // provided via remote config (banner_id_ios / app_open_id_ios / interstitial_id_ios).
-  static String bannerIdIos = 'ca-app-pub-3940256099942544/2934735716'; // Test Banner Ad ID
-  static String appOpenIdIos = 'ca-app-pub-3940256099942544/5575463023'; // Test App Open Ad ID
-  static String interstitialIdIos = 'ca-app-pub-3940256099942544/4411468910'; // Test Interstitial Ad ID
+  static String bannerIdIos = 'ca-app-pub-8708457885343434/3980056269'; 
+  static String appOpenIdIos = 'ca-app-pub-8708457885343434/1061002044'; 
+  static String interstitialIdIos = 'ca-app-pub-8708457885343434/1663637270';
 
   static String get bannerAdUnitId {
     if (Platform.isAndroid) {
