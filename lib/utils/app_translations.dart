@@ -329,7 +329,7 @@ class AppTranslations extends Translations {
           'This app is intended for general wellness purposes only.\n\n• It does **not provide medical advice**\n• It is **not a substitute for professional healthcare**\n• Always consult a qualified healthcare provider for medical concerns\n\nWe do not guarantee the accuracy or completeness of any health-related information provided in the app.',
       AppString.contactUsTitle: 'Contact Us',
       AppString.contactUsContent:
-          'If you have any questions or suggestions regarding this Privacy Policy, please contact us:\n📧 **info@mutluanne.app**',
+          'If you have any questions or suggestions regarding this Privacy Policy, please contact us:\n📧 **support@sarang.app**',
       AppString.termsIntro:
           'These Terms and Conditions govern your use of the **Drink Water Reminder** mobile application (“App”, “Service”), operated by **East West Consulting** (“we”, “our”, “us”).\n\nBy downloading or using the app, you agree to these Terms. If you do not agree, please do not use the app.',
       AppString.termsSection1Title: '1. Use of the App',
@@ -366,7 +366,7 @@ class AppTranslations extends Translations {
       AppString.termsSection12Title: '12. Governing Law',
       AppString.termsSection12Content: 'These Terms shall be governed by and interpreted in accordance with applicable laws.',
       AppString.termsSection13Title: '13. Contact Us',
-      AppString.termsSection13Content: 'If you have any questions about these Terms, please contact us:\n📧 **info@mutluanne.app**',
+      AppString.termsSection13Content: 'If you have any questions about these Terms, please contact us:\n📧 **support@sarang.app**',
       AppString.defaultTimeRange: '8 AM – 10 PM',
       AppString.everyTwoHours: 'Every 2 hours',
       AppString.upgradeToPremium: AppString.upgradeToPremium,
@@ -940,7 +940,7 @@ class AppTranslations extends Translations {
           'Bu uygulama yalnızca genel sağlık amaçlıdır.\n\n• **Tıbbi tavsiye sağlamaz**\n• **Profesyonel sağlık hizmetinin yerini tutmaz**\n• Tıbbi sorunlarınız için daima kalifiye bir sağlık uzmanına danışın\n\nUygulamada sağlanan sağlıkla ilgili bilgilerin doğruluğunu veya eksiksizliğini garanti etmiyoruz.',
       AppString.contactUsTitle: 'Bize Ulaşın',
       AppString.contactUsContent:
-          'Bu Gizlilik Politikası ile ilgili herhangi bir sorunuz veya öneriniz varsa, lütfen bizimle iletişime geçin:\n📧 **info@mutluanne.app**',
+          'Bu Gizlilik Politikası ile ilgili herhangi bir sorunuz veya öneriniz varsa, lütfen bizimle iletişime geçin:\n📧 **support@sarang.app**',
       AppString.termsIntro:
           'Bu Şartlar ve Koşullar, **East West Consulting** ("biz", "bizim", "bize") tarafından işletilen **Drink Water Reminder** mobil uygulamasını ("Uygulama", "Hizmet") kullanımınızı yönetir.\n\nUygulamayı indirerek veya kullanarak bu Şartları kabul etmiş olursunuz. Kabul etmiyorsanız lütfen uygulamayı kullanmayın.',
       AppString.termsSection1Title: '1. Uygulamanın Kullanımı',
@@ -979,7 +979,7 @@ class AppTranslations extends Translations {
       AppString.termsSection12Content: 'Bu Şartlar, geçerli yasalara göre yönetilecek ve yorumlanacaktır.',
       AppString.termsSection13Title: '13. Bize Ulaşın',
       AppString.termsSection13Content:
-          'Bu Şartlar hakkında herhangi bir sorunuz varsa, lütfen bizimle iletişime geçin:\n📧 **info@mutluanne.app**',
+          'Bu Şartlar hakkında herhangi bir sorunuz varsa, lütfen bizimle iletişime geçin:\n📧 **support@sarang.app**',
       AppString.defaultTimeRange: '08:00 – 22:00',
       AppString.everyTwoHours: 'Her 2 saatte bir',
       AppString.upgradeToPremium: 'Premium\'a Yükselt',
@@ -1553,7 +1553,7 @@ class AppTranslations extends Translations {
           'Esta app está destinada únicamente a fines generales de bienestar.\n\n• No proporciona asesoramiento médico\n• No sustituye la atención médica profesional\n• Consulta siempre a un profesional de la salud calificado para cualquier inquietud médica\n\nNo garantizamos la precisión o integridad de ninguna información relacionada con la salud proporcionada en la app.',
       AppString.contactUsTitle: 'Contáctanos',
       AppString.contactUsContent:
-          'Si tienes preguntas o sugerencias sobre esta Política de Privacidad, contáctanos:\n📧 **info@mutluanne.app**',
+          'Si tienes preguntas o sugerencias sobre esta Política de Privacidad, contáctanos:\n📧 **support@sarang.app**',
       AppString.termsIntro:
           'Estos Términos y Condiciones regulan el uso de la aplicación móvil **Drink Water Reminder** (“App”, “Servicio”), operada por **East West Consulting** (“nosotros”, “nuestro”).\n\nAl descargar o utilizar la app, aceptas estos Términos. Si no estás de acuerdo, por favor no uses la app.',
       AppString.termsSection1Title: '1. Uso de la App',
@@ -1596,7 +1596,7 @@ class AppTranslations extends Translations {
       AppString.termsSection12Content: 'Estos Términos se regirán e interpretarán de acuerdo con las leyes aplicables.',
 
       AppString.termsSection13Title: '13. Contáctanos',
-      AppString.termsSection13Content: 'Si tienes alguna pregunta sobre estos Términos, por favor contáctanos:\n📧 **info@mutluanne.app**',
+      AppString.termsSection13Content: 'Si tienes alguna pregunta sobre estos Términos, por favor contáctanos:\n📧 **support@sarang.app**',
 
       AppString.defaultTimeRange: '8 AM – 10 PM',
       AppString.everyTwoHours: 'Cada 2 horas',
@@ -2129,7 +2129,7 @@ class AppTranslations extends Translations {
           'Diese App dient ausschließlich allgemeinen Wellness-Zwecken.\n\n• Sie bietet keine medizinische Beratung\n• Sie ersetzt keine professionelle Gesundheitsversorgung\n• Konsultiere immer einen qualifizierten Gesundheitsdienstleister bei medizinischen Anliegen\n\nWir garantieren nicht die Genauigkeit oder Vollständigkeit gesundheitsbezogener Informationen in der App.',
       AppString.contactUsTitle: 'Kontaktiere uns',
       AppString.contactUsContent:
-          'Wenn du Fragen oder Vorschläge zu dieser Datenschutzrichtlinie hast, kontaktiere uns bitte:\n📧 **info@mutluanne.app**',
+          'Wenn du Fragen oder Vorschläge zu dieser Datenschutzrichtlinie hast, kontaktiere uns bitte:\n📧 **support@sarang.app**',
       AppString.termsIntro:
           'Diese Allgemeinen Geschäftsbedingungen regeln deine Nutzung der mobilen Anwendung **Drink Water Reminder** („App“, „Dienst“), betrieben von **East West Consulting** („wir“, „uns“, „unser“).\n\nDurch das Herunterladen oder die Nutzung der App stimmst du diesen Bedingungen zu. Wenn du nicht zustimmst, nutze die App bitte nicht.',
       AppString.termsSection1Title: '1. Nutzung der App',
@@ -2167,7 +2167,7 @@ class AppTranslations extends Translations {
       AppString.termsSection12Title: '12. Geltendes Recht',
       AppString.termsSection12Content: 'Diese Bedingungen unterliegen den geltenden Gesetzen und werden entsprechend ausgelegt.',
       AppString.termsSection13Title: '13. Kontaktiere uns',
-      AppString.termsSection13Content: 'Wenn du Fragen zu diesen Bedingungen hast, kontaktiere uns bitte:\n📧 **info@mutluanne.app**',
+      AppString.termsSection13Content: 'Wenn du Fragen zu diesen Bedingungen hast, kontaktiere uns bitte:\n📧 **support@sarang.app**',
       AppString.defaultTimeRange: '8 Uhr – 22 Uhr',
       AppString.everyTwoHours: 'Alle 2 Stunden',
       AppString.upgradeToPremium: 'Auf Premium upgraden',
@@ -2705,7 +2705,7 @@ class AppTranslations extends Translations {
           'Cette application est destinée uniquement au bien-être général.\n\n• Elle ne fournit pas de conseils médicaux\n• Elle ne remplace pas des soins de santé professionnels\n• Consultez toujours un professionnel de santé qualifié pour toute question médicale\n\nNous ne garantissons pas l’exactitude ou l’exhaustivité des informations liées à la santé fournies dans l’application.',
       AppString.contactUsTitle: 'Nous contacter',
       AppString.contactUsContent:
-          'Si vous avez des questions ou des suggestions concernant cette politique de confidentialité, veuillez nous contacter :\n📧 **info@mutluanne.app**',
+          'Si vous avez des questions ou des suggestions concernant cette politique de confidentialité, veuillez nous contacter :\n📧 **support@sarang.app**',
       AppString.termsIntro:
           'Ces Conditions générales régissent votre utilisation de l’application mobile **Drink Water Reminder** (« App », « Service »), exploitée par **East West Consulting** (« nous », « notre », « nos »).\n\nEn téléchargeant ou en utilisant l’application, vous acceptez ces Conditions. Si vous n’êtes pas d’accord, veuillez ne pas utiliser l’application.',
       AppString.termsSection1Title: '1. Utilisation de l’application',
@@ -2744,7 +2744,7 @@ class AppTranslations extends Translations {
       AppString.termsSection12Content: 'Ces Conditions sont régies et interprétées conformément aux lois applicables.',
       AppString.termsSection13Title: '13. Nous contacter',
       AppString.termsSection13Content:
-          'Si vous avez des questions concernant ces Conditions, veuillez nous contacter :\n📧 **info@mutluanne.app**',
+          'Si vous avez des questions concernant ces Conditions, veuillez nous contacter :\n📧 **support@sarang.app**',
       AppString.defaultTimeRange: '8 h – 22 h',
       AppString.everyTwoHours: 'Toutes les 2 heures',
       AppString.upgradeToPremium: 'Passer à Premium',
@@ -3280,7 +3280,7 @@ class AppTranslations extends Translations {
           'यह ऐप केवल सामान्य स्वास्थ्य उद्देश्यों के लिए है。\n\n• यह चिकित्सीय सलाह प्रदान नहीं करता\n• यह पेशेवर स्वास्थ्य सेवा का विकल्प नहीं है\n• किसी भी स्वास्थ्य संबंधी चिंता के लिए हमेशा योग्य स्वास्थ्य विशेषज्ञ से परामर्श करें\n\nहम ऐप में प्रदान की गई स्वास्थ्य संबंधी जानकारी की सटीकता या पूर्णता की गारंटी नहीं देते।',
       AppString.contactUsTitle: 'संपर्क करें',
       AppString.contactUsContent:
-          'यदि आपके पास इस गोपनीयता नीति से संबंधित कोई प्रश्न या सुझाव हैं, तो कृपया हमसे संपर्क करें:\n📧 **info@mutluanne.app**',
+          'यदि आपके पास इस गोपनीयता नीति से संबंधित कोई प्रश्न या सुझाव हैं, तो कृपया हमसे संपर्क करें:\n📧 **support@sarang.app**',
       AppString.termsIntro:
           'ये नियम और शर्तें **Drink Water Reminder** मोबाइल एप्लिकेशन (“ऐप”, “सेवा”) के उपयोग को नियंत्रित करती हैं, जिसे **East West Consulting** (“हम”, “हमारा”) संचालित करता है。\n\nऐप डाउनलोड या उपयोग करके, आप इन नियमों से सहमत होते हैं। यदि आप सहमत नहीं हैं, तो कृपया ऐप का उपयोग न करें।',
       AppString.termsSection1Title: '1. ऐप का उपयोग',
@@ -3329,7 +3329,7 @@ class AppTranslations extends Translations {
 
       AppString.termsSection13Title: '13. हमसे संपर्क करें',
       AppString.termsSection13Content:
-          'यदि आपके पास इन नियमों के बारे में कोई प्रश्न हैं, तो कृपया हमसे संपर्क करें:\n📧 **info@mutluanne.app**',
+          'यदि आपके पास इन नियमों के बारे में कोई प्रश्न हैं, तो कृपया हमसे संपर्क करें:\n📧 **support@sarang.app**',
 
       AppString.defaultTimeRange: 'सुबह 8 बजे – रात 10 बजे',
       AppString.everyTwoHours: 'हर 2 घंटे में',
@@ -3866,7 +3866,7 @@ class AppTranslations extends Translations {
           'این برنامه فقط برای اهداف عمومی سلامتی طراحی شده است.\n\n• این برنامه توصیه پزشکی ارائه نمی‌دهد\n• جایگزین خدمات درمانی حرفه‌ای نیست\n• همیشه برای مسائل پزشکی با یک متخصص سلامت واجد شرایط مشورت کنید\n\nما دقت یا کامل بودن اطلاعات مرتبط با سلامت ارائه‌شده در برنامه را تضمین نمی‌کنیم.',
       AppString.contactUsTitle: 'تماس با ما',
       AppString.contactUsContent:
-          'اگر سؤال یا پیشنهادی درباره این سیاست حفظ حریم خصوصی دارید، لطفاً با ما تماس بگیرید:\n📧 **info@mutluanne.app**',
+          'اگر سؤال یا پیشنهادی درباره این سیاست حفظ حریم خصوصی دارید، لطفاً با ما تماس بگیرید:\n📧 **support@sarang.app**',
       AppString.termsIntro:
           'این شرایط و ضوابط، استفاده شما از برنامه موبایل **Drink Water Reminder** («برنامه»، «سرویس») که توسط **East West Consulting** اداره می‌شود را مدیریت می‌کند.\n\nبا دانلود یا استفاده از برنامه، شما با این شرایط موافقت می‌کنید. اگر موافق نیستید، لطفاً از برنامه استفاده نکنید.',
       AppString.termsSection1Title: '1. استفاده از برنامه',
@@ -3904,7 +3904,7 @@ class AppTranslations extends Translations {
       AppString.termsSection12Title: '12. قانون حاکم',
       AppString.termsSection12Content: 'این شرایط مطابق با قوانین قابل اجرا تفسیر و اجرا خواهند شد.',
       AppString.termsSection13Title: '13. تماس با ما',
-      AppString.termsSection13Content: 'اگر درباره این شرایط سؤالی دارید، لطفاً با ما تماس بگیرید:\n📧 **info@mutluanne.app**',
+      AppString.termsSection13Content: 'اگر درباره این شرایط سؤالی دارید، لطفاً با ما تماس بگیرید:\n📧 **support@sarang.app**',
       AppString.defaultTimeRange: '8 صبح تا 10 شب',
       AppString.everyTwoHours: 'هر 2 ساعت',
       AppString.upgradeToPremium: 'ارتقا به پریمیوم',
@@ -4397,7 +4397,7 @@ class AppTranslations extends Translations {
           'هذا التطبيق مخصص لأغراض العافية العامة فقط.\n\n• لا يقدم نصائح طبية\n• لا يُعتبر بديلًا عن الرعاية الصحية المهنية\n• استشر دائمًا مقدم رعاية صحية مؤهل بشأن أي مخاوف طبية\n\nنحن لا نضمن دقة أو اكتمال أي معلومات صحية مقدمة داخل التطبيق.',
       AppString.contactUsTitle: 'تواصل معنا',
       AppString.contactUsContent:
-          'إذا كانت لديك أي أسئلة أو اقتراحات بخصوص سياسة الخصوصية هذه، يرجى التواصل معنا:\n📧 **info@mutluanne.app**',
+          'إذا كانت لديك أي أسئلة أو اقتراحات بخصوص سياسة الخصوصية هذه، يرجى التواصل معنا:\n📧 **support@sarang.app**',
 
       AppString.termsIntro:
           'تحكم هذه الشروط والأحكام استخدامك لتطبيق **Drink Water Reminder** (“التطبيق”، “الخدمة”) الذي تديره **East West Consulting** (“نحن”، “لنا”).\n\nمن خلال تنزيل التطبيق أو استخدامه، فإنك توافق على هذه الشروط. إذا كنت لا توافق عليها، يرجى عدم استخدام التطبيق.',
@@ -4434,7 +4434,7 @@ class AppTranslations extends Translations {
       AppString.termsSection12Title: '12. القانون الحاكم',
       AppString.termsSection12Content: 'تخضع هذه الشروط وتُفسر وفقًا للقوانين المعمول بها.',
       AppString.termsSection13Title: '13. تواصل معنا',
-      AppString.termsSection13Content: 'إذا كانت لديك أي أسئلة حول هذه الشروط، يرجى التواصل معنا:\n📧 **info@mutluanne.app**',
+      AppString.termsSection13Content: 'إذا كانت لديك أي أسئلة حول هذه الشروط، يرجى التواصل معنا:\n📧 **support@sarang.app**',
 
       AppString.defaultTimeRange: '8 صباحًا – 10 مساءً',
       AppString.everyTwoHours: 'كل ساعتين',
@@ -4958,7 +4958,7 @@ class AppTranslations extends Translations {
           'یہ ایپ صرف عمومی صحت و تندرستی کے مقاصد کے لیے ہے۔\n\n• یہ طبی مشورہ فراہم نہیں کرتی\n• یہ پیشہ ورانہ طبی خدمات کا متبادل نہیں ہے\n• طبی مسائل کے لیے ہمیشہ کسی مستند ڈاکٹر یا ہیلتھ کیئر فراہم کنندہ سے مشورہ کریں\n\nہم ایپ میں فراہم کردہ صحت سے متعلق معلومات کی درستگی یا مکمل ہونے کی ضمانت نہیں دیتے۔',
       AppString.contactUsTitle: 'ہم سے رابطہ کریں',
       AppString.contactUsContent:
-          'اگر آپ کے پاس اس پرائیویسی پالیسی سے متعلق کوئی سوال یا تجویز ہو تو ہم سے رابطہ کریں:\n📧 **info@mutluanne.app**',
+          'اگر آپ کے پاس اس پرائیویسی پالیسی سے متعلق کوئی سوال یا تجویز ہو تو ہم سے رابطہ کریں:\n📧 **support@sarang.app**',
       AppString.termsIntro:
           'یہ شرائط و ضوابط **Drink Water Reminder** موبائل ایپ (“ایپ”، “سروس”) کے استعمال کو کنٹرول کرتے ہیں، جسے **East West Consulting** (“ہم”) چلاتے ہیں۔\n\nایپ ڈاؤن لوڈ یا استعمال کرکے، آپ ان شرائط سے اتفاق کرتے ہیں۔ اگر آپ اتفاق نہیں کرتے تو براہِ کرم ایپ استعمال نہ کریں۔',
       AppString.termsSection1Title: '1. ایپ کا استعمال',
@@ -4995,7 +4995,7 @@ class AppTranslations extends Translations {
       AppString.termsSection12Title: '12. قابلِ اطلاق قانون',
       AppString.termsSection12Content: 'یہ شرائط قابلِ اطلاق قوانین کے مطابق نافذ اور تشریح کی جائیں گی۔',
       AppString.termsSection13Title: '13. ہم سے رابطہ کریں',
-      AppString.termsSection13Content: 'اگر آپ کے ان شرائط سے متعلق کوئی سوالات ہیں تو ہم سے رابطہ کریں:\n📧 **info@mutluanne.app**',
+      AppString.termsSection13Content: 'اگر آپ کے ان شرائط سے متعلق کوئی سوالات ہیں تو ہم سے رابطہ کریں:\n📧 **support@sarang.app**',
       AppString.defaultTimeRange: 'صبح 8 بجے – رات 10 بجے',
       AppString.everyTwoHours: 'ہر 2 گھنٹے بعد',
       AppString.upgradeToPremium: 'Premium میں اپگریڈ کریں',
