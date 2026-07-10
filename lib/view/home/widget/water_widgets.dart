@@ -434,7 +434,7 @@ class _StarRatingDialogState extends State<StarRatingDialog> {
 
     String url = "";
     if (GetPlatform.isAndroid) {
-      url = "https://play.google.com/store/apps/details?id=com.sarang.reminder";
+      url = "https://play.google.com/store/apps/details?id=com.sarang.waterreminder";
     } else {
       url = "https://apps.apple.com/us/app/drink-water-remainder/id6766213522";
     }

@@ -1,4 +1,4 @@
-package com.sarang.reminder
+package com.sarang.waterreminder
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager

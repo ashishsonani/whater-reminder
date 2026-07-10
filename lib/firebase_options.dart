@@ -47,6 +47,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '518652564691',
     projectId: 'water-reminder-288f9',
     storageBucket: 'water-reminder-288f9.firebasestorage.app',
-    iosBundleId: 'com.sarang.reminder',
+    iosBundleId: 'com.sarang.waterreminder',
   );
 }

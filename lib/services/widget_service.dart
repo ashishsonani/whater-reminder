@@ -7,7 +7,7 @@ class WidgetService {
   WidgetService._();
 
   /// Must match the App Group of the Runner app and the widget extension.
-  static const String appGroupId = 'group.com.sarang.reminder';
+  static const String appGroupId = 'group.com.sarang.waterreminder';
   static const String _iosWidgetName = 'WaterWidget';
   static const String _androidWidgetName = 'WaterWidgetProvider';
 

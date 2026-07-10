@@ -1,7 +1,7 @@
 import WidgetKit
 import SwiftUI
 
-private let appGroupId = "group.com.sarang.reminder"
+private let appGroupId = "group.com.sarang.waterreminder"
 
 struct WaterEntry: TimelineEntry {
     let date: Date
