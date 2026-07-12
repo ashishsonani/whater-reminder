@@ -23,8 +23,8 @@ class AppString {
   static const String continueText = 'Continue';
 
   static const String categoryWater = 'Water';
-  static const String categoryTea = 'Tea';
-  static const String categoryCoffee = 'Coffee';
+  static const String categoryTea = 'Category Tea';
+  static const String categoryCoffee = 'Category Coffee';
   static const String categoryMilk = 'Milk';
   static const String categoryMore = 'More';
   static const String categoryJuice = 'Juice';
@@ -57,7 +57,7 @@ class AppString {
   static const String waterProvidesDesc2 = 'The best choice for hydration, with no calories or stimulants.';
   static const String teaProvidesDesc1 = 'Provides 90% water';
   static const String teaProvidesDesc2 = 'Contains antioxidants, but may have a mild diuretic effect.';
-  static const String coffeeProvidesDesc1 = 'Provides 90% water';
+  static const String coffeeProvidesDesc1 = 'Provides 90% water (coffee)';
   static const String coffeeProvidesDesc2 = 'Boosts alertness, but watch out for caffeine intake.';
   static const String milkProvidesDesc1 = 'Provides 88% water';
   static const String milkProvidesDesc2 = 'Rich in calcium and nutrients, but contains calories.';
@@ -626,7 +626,7 @@ class AppString {
   static const String goalDaysCount = 'goal_days_count';
   static const String personalBest = 'Personal Best';
   static const String allTime = 'All Time';
-  static const String yourBadgesPrefix = 'Your ';
+  static const String yourBadgesPrefix = 'Your (badges) ';
   static const String yourBadgesItalic = 'badges';
   static const String yourBadgesSuffix = 'your_badges_suffix';
 
@@ -637,7 +637,7 @@ class AppString {
   static const String firstDayBadgeDesc = 'Drank before 9 AM';
   static const String oneWeekBadgeTitle = 'Week One';
   static const String oneWeekBadgeDesc = '7-day streak';
-  static const String thirtyDaysBadgeTitle = '30 Days';
+  static const String thirtyDaysBadgeTitle = '30 Days Badge';
   static const String thirtyDaysBadgeDesc = 'A month strong';
   static const String hundredDaysBadgeTitle = 'Centurion';
   static const String hundredDaysBadgeDesc = '100-day streak';

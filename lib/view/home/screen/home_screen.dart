@@ -16,6 +16,7 @@ import 'package:water_intake/theme/app_shadows.dart';
 import 'package:water_intake/theme/app_text_styles.dart';
 import 'package:water_intake/theme/app_typography.dart';
 import 'package:water_intake/utils/app_strings.dart';
+import 'package:water_intake/utils/feature_flags.dart';
 import 'package:water_intake/view/home/controller/home_controller.dart';
 import 'package:water_intake/view/home/widget/water_widgets.dart';
 
@@ -525,7 +526,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 10.h),
+            if (kPremiumEnabled) SizedBox(height: 10.h),
+            if (kPremiumEnabled)
             SizedBox(
               width: double.infinity,
               height: 50.h,
@@ -1096,7 +1098,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           if (originalCategory != category) break;
                                         }
                                       }
-                                      isLocked = !false && originalDrinkIndex > 0;
+                                      isLocked = kPremiumEnabled && originalDrinkIndex > 0;
                                     }
 
                                     Widget card = Container(

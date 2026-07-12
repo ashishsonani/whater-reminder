@@ -8,6 +8,7 @@ import 'package:water_intake/gen/assets.gen.dart';
 import 'package:water_intake/theme/app_colors.dart';
 import 'package:water_intake/theme/app_text_styles.dart';
 import 'package:water_intake/utils/app_strings.dart';
+import 'package:water_intake/utils/feature_flags.dart';
 
 import '../../../route/route.dart';
 import '../../../services/ad_service.dart';
@@ -74,6 +75,7 @@ class AccountScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (kPremiumEnabled)
                 _buildTile(
                   icon: Assets.images.png.king.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
                   title: AppString.upgradeToPremium.tr,
