@@ -4,10 +4,10 @@
   "interstitial": true,
   "app_open": true,
   "click_count": 3,
-  "banner_id_android": "ca-app-pub-8708457885343434/2858546284",
-  "app_open_id_android": "ca-app-pub-8708457885343434/2420361348",
-  "interstitial_id_android": "ca-app-pub-8708457885343434/6940014680",
-  "banner_id_ios": "ca-app-pub-8708457885343434/3980056269",
-  "app_open_id_ios": "ca-app-pub-8708457885343434/1061002044",
-  "interstitial_id_ios": "ca-app-pub-8708457885343434/1663637270"
+  "banner_id_android": "ca-app-pub-5337469077393946/3500110892",
+  "app_open_id_android": "ca-app-pub-5337469077393946/3859203540",
+  "interstitial_id_android": "ca-app-pub-5337469077393946/2841635349",
+  "banner_id_ios": "ca-app-pub-5337469077393946/3500110892",
+  "app_open_id_ios": "ca-app-pub-5337469077393946/3859203540",
+  "interstitial_id_ios": "ca-app-pub-5337469077393946/2841635349"
 }
