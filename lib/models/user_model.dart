@@ -19,7 +19,6 @@ class UserModel {
   final String timeFormat;
   final List<String> awards;
   final List<String> celebratedAwards;
-  final String fcmToken;
   final bool isPremium;
 
   UserModel({
@@ -41,7 +40,6 @@ class UserModel {
     this.timeFormat = '12-hour',
     this.awards = const [],
     this.celebratedAwards = const [],
-    this.fcmToken = '',
     this.isPremium = false,
   });
 
@@ -65,7 +63,6 @@ class UserModel {
       timeFormat: map['timeFormat'] ?? '12-hour',
       awards: List<String>.from(map['awards'] ?? []),
       celebratedAwards: List<String>.from(map['celebratedAwards'] ?? []),
-      fcmToken: map['fcmToken'] ?? '',
       isPremium: map['isPremium'] ?? false,
     );
   }
@@ -90,7 +87,6 @@ class UserModel {
       'timeFormat': timeFormat,
       'awards': awards,
       'celebratedAwards': celebratedAwards,
-      'fcmToken': fcmToken,
       'isPremium': isPremium,
     };
   }

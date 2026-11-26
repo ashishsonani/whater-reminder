@@ -15,7 +15,6 @@ import 'package:water_intake/theme/app_typography.dart';
 import '../../../../common/common_button.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../../../models/water_record.dart';
-import '../../../../services/ad_service.dart';
 import '../../../../utils/app_strings.dart';
 import '../../../dashboard/controller/dashboard_controller.dart' show DashboardController;
 import '../../controller/home_controller.dart';
@@ -112,7 +111,6 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
                   SizedBox(height: 20.h),
                   _buildStreakCard(controller),
                   SizedBox(height: 20.h),
-                  const CommonBannerAd(),
                   _buildAwardsSection(controller),
                   SizedBox(height: 24.h),
                   _buildHydrationCalendar(controller),
