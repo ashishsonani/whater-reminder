@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../../../route/route.dart' show AppRoutes;
@@ -13,21 +16,13 @@ class SplashController extends GetxController {
   }
 
   void _navigateToNext() async {
-    // Consent first (UMP/GDPR form + iOS ATT prompt): blocks until answered
-    // on first launch, instant on later launches. Ads SDK starts inside.
+    await WidgetsBinding.instance.endOfFrame;
+    final minimumSplashTime = Future<void>.delayed(const Duration(seconds: 3));
+    unawaited(AdService.fetchRemoteConfig());
     await AdService.gatherConsentAndInit();
-
-    // Request notification permissions after UI is drawn and consent is gathered
     await NotificationService().requestPermissions();
-
-    // Fetch remote ads config in parallel with the delay
-    await Future.wait([
-      Future.delayed(const Duration(seconds: 3)),
-      AdService.fetchRemoteConfig(),
-    ]);
-
-    // Show App Open Ad on startup if available
-    AdService.appOpenAdManager.showAdIfAvailable();
+    await minimumSplashTime;
+    if (isClosed) return;
 
     bool isSetupComplete = await LocalStorage.isSetupComplete();
     if (isSetupComplete) {

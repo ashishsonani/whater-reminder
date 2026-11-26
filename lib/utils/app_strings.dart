@@ -135,6 +135,11 @@ class AppString {
   static const String drinkReminder = 'Drink Reminder';
   static const String preferences = 'Preferences';
   static const String termsAndConditions = 'Term & Conditions';
+  static const String rewardedThemeOffer = 'Watch an ad to unlock this theme for 24 hours.';
+  static const String watchAdForTheme = 'Watch ad';
+  static const String rewardedThemeActiveUntil = 'Active until @date at @time';
+  static const String rewardedAdUnavailable = 'No ad is available right now. Try again later.';
+  static const String adPrivacyChoices = 'Ad privacy choices';
   static const String privacyPolicy = 'Privacy Policy';
   static const String sendFeedback = 'Send Feedback';
   static const String rateUs = 'Love the app? Rate it';

@@ -30,6 +30,8 @@
 	<false/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSMicrophoneUsageDescription</key>
+    <string>Microphone access is not used for water intake tracking or reminder features.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Your data will be used to deliver personalized ads and measure ad performance, which helps keep this app free.</string>
 	<key>LSRequiresIPhoneOS</key>

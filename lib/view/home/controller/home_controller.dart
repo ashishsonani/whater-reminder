@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:water_intake/services/widget_service.dart';
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -17,6 +17,8 @@ import 'package:water_intake/models/stats_data.dart';
 import 'package:water_intake/models/user_model.dart';
 import 'package:water_intake/models/water_record.dart';
 import 'package:water_intake/services/firebase_service.dart';
+import 'package:water_intake/services/water_log_store.dart';
+import 'package:water_intake/services/water_log_migration.dart';
 import 'package:water_intake/utils/app_strings.dart';
 import 'package:water_intake/utils/local_storage.dart';
 import 'package:water_intake/view/dashboard/controller/dashboard_controller.dart';
@@ -280,7 +282,8 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   var waterRecords = <WaterRecord>[].obs;
   var currentStreak = 0.obs;
   var longestStreak = 0.obs;
-  String lastStreakDate = '';
+  final _waterLog = WaterLogStore.instance;
+  StreamSubscription<void>? _waterLogSubscription;
 
   // Calendar & History
   var focusedDay = DateTime.now().obs;
@@ -453,7 +456,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   var historyData = Rxn<HistoryData>();
 
   // Statistics
-  var isStatsLoading = false.obs;
+  var isStatsLoading = true.obs;
   var statsFocusedDay = DateTime.now().obs;
   var statisticsTabPeriod = 0.obs; // 0: Weekly, 1: Monthly, 2: Yearly
   var statsData = Rxn<StatsDataWrapper>();
@@ -467,10 +470,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
 
   Future<void> refreshAllData() async {
     log("Refreshing HomeController data...");
-    allHistoryLogs.clear();
     await _initPreferences();
-    fetchStats();
-    await fetchFullHistory();
     // We don't re-initialize TabController or AudioPlayer here to avoid ticker/memory leaks
   }
 
@@ -487,14 +487,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     debounce(currentIntake, (_) => _pushWidgetUpdate(), time: const Duration(milliseconds: 500));
     debounce(targetIntake, (_) => _pushWidgetUpdate(), time: const Duration(milliseconds: 500));
 
-    // Initialize background sync for history and stats
-    allRecordsStream.listen((data) {
-      log("Global history stream updated: ${data.length} records");
-    });
-
-    // Removed todayRecordsStream listener to prevent Firestore cache from causing progress bar to bounce/crash to 0 during rapid additions or deletions.
-
-    fetchStats();
+    _waterLogSubscription = _waterLog.changes.listen((_) => fetchFullHistory());
   }
 
   void _pushWidgetUpdate() {
@@ -556,40 +549,25 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   }
 
   Future<void> fetchFullHistory() async {
-    isHistoryLoading.value = true;
-    Map<String, DailyGoalStatus> dailyStatus = {};
-
     try {
-      String? uid = await FirebaseService().getUserId();
-      if (uid != null) {
-        // 1. Get all daily summaries to calculate goal status for the calendar
-        var dateSnapshots = await FirebaseService().firestore.collection('users').doc(uid).collection('water_records').get();
-
-        for (var dateDoc in dateSnapshots.docs) {
-          String dateKey = dateDoc.id;
-          var dailyData = dateDoc.data();
-          int current = dailyData['currentIntakeValue']?.toInt() ?? 0;
-          int target = dailyData['targetIntakeValue']?.toInt() ?? targetIntake.value;
-          if (target == 0) target = 0;
-          dailyStatus[dateKey] = DailyGoalStatus(goalMet: current >= target);
-        }
-
-        // 2. Use collectionGroup to get ALL records at once (MUCH faster)
-        var recordsSnapshot = await FirebaseService().firestore.collectionGroup('daily_records').where('userId', isEqualTo: uid).get();
-
-        List<WaterRecord> allList = recordsSnapshot.docs.map((doc) => _convertRecordIfNeeded(WaterRecord.fromJson(doc.data()))).toList();
-
-        allList.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-        allHistoryLogs.assignAll(allList);
-        historyData.value = HistoryData(data: dailyStatus);
-        _filterHistoryByDate(selectedDay.value);
-      }
-    } catch (e) {
-      log("Error fetching full history from Firestore: $e");
+      final days = await _waterLog.read();
+      final today = WaterLogStore.dateKey(DateTime.now());
+      final day = days[today];
+      final records = day?.records ?? [];
+      waterRecords.assignAll(records.map(_convertRecordIfNeeded).toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
+      currentIntake.value = day?.total(isMl.value) ?? 0;
+      allHistoryLogs.assignAll(days.values.expand((day) => day.records).map(_convertRecordIfNeeded).toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
+      historyData.value = HistoryData(data: days.map((date, day) => MapEntry(date, DailyGoalStatus(goalMet: day.goalMet))));
+      _filterHistoryByDate(selectedDay.value);
+      _updateStats(days);
+    } catch (error) {
+      log('Error reading device water logs: $error');
+    } finally {
+      isStatsLoading.value = false;
+      isHistoryLoading.value = false;
     }
-
-    isHistoryLoading.value = false;
   }
 
   bool get canAddCustomCup => (availableCups.length - 7) < 2;
@@ -604,48 +582,39 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     fetchStats();
   }
 
-  Future<void> fetchStats() async {
-    isStatsLoading.value = true;
-    String? uid = await FirebaseService().getUserId();
-    if (uid == null) {
-      isStatsLoading.value = false;
-      return;
+  Future<void> fetchStats() => fetchFullHistory();
+
+  void _updateStats(Map<String, WaterLogDay> days) {
+    final completedDates = days.keys.where((date) => days[date]!.goalMet).toList()..sort();
+    DateTime? previous;
+    int streak = 0;
+    int longest = 0;
+    for (final date in completedDates) {
+      final day = DateTime.parse(date);
+      final yesterday = DateTime(day.year, day.month, day.day - 1);
+      streak = previous == yesterday ? streak + 1 : 1;
+      if (streak > longest) longest = streak;
+      previous = day;
     }
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+    currentStreak.value = previous == today || previous == yesterday ? streak : 0;
+    longestStreak.value = longest;
 
-    try {
-      // Fetch all daily summaries to get intake/goal for each day
-      var summariesSnapshot = await FirebaseService().firestore.collection('users').doc(uid).collection('water_records').get();
-
-      List<ChartDatum> realData = [];
-      for (var doc in summariesSnapshot.docs) {
-        var data = doc.data();
-        int current = data['currentIntakeValue']?.toInt() ?? 0;
-        int target = data['targetIntakeValue']?.toInt() ?? targetIntake.value;
-        if (target == 0) target = 0; // Fallback
-
-        realData.add(
-          ChartDatum(
-            date: doc.id, // YYYY-MM-DD
-            completionPct: target > 0 ? (current / target * 100) : 0,
-            totalMl: current,
-          ),
+    statsData.value = StatsDataWrapper(data: StatsData(
+      goal: targetIntake.value,
+      currentStreak: currentStreak.value,
+      longestStreak: longestStreak.value,
+      chartData: days.entries.map((entry) {
+        final day = entry.value;
+        return ChartDatum(
+          date: entry.key,
+          completionPct: day.goal > 0 ? day.total(day.isMl) / day.goal * 100 : 0,
+          totalMl: day.total(isMl.value),
         );
-      }
-
-      statsData.value = StatsDataWrapper(
-        data: StatsData(
-          goal: targetIntake.value,
-          currentStreak: currentStreak.value,
-          longestStreak: longestStreak.value,
-          chartData: realData,
-        ),
-      );
-    } catch (e) {
-      log("Error fetching stats: $e");
-    }
-
-    isStatsLoading.value = false;
-    update();
+      }).toList(),
+    ));
   }
 
   Future<void> _initAudio() async {
@@ -670,6 +639,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
 
   @override
   void onClose() {
+    _waterLogSubscription?.cancel();
     _audioPlayer.dispose();
     tabController.dispose();
     super.onClose();
@@ -677,107 +647,16 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
 
   Future<void> _loadData() async {
     isHomeLoading.value = true;
-    String todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    String? uid = await FirebaseService().getUserId();
-
-    if (uid != null) {
-      try {
-        // 1. Get User Profile (including Streaks) from Firestore
-        var userDoc = await FirebaseService().firestore.collection('users').doc(uid).get();
-        if (userDoc.exists && userDoc.data() != null) {
-          UserModel user = UserModel.fromMap(userDoc.data()!, userDoc.id);
-          targetIntake.value = user.waterGoal > 0 ? user.waterGoal : 0;
-          isMl.value = user.isMl;
-          isKg.value = user.isKg;
-
-          // If target is not set, look for the most recent target in history
-          if (targetIntake.value == 0) {
-            var historySnapshot = await FirebaseService().firestore
-                .collection('users')
-                .doc(uid)
-                .collection('water_records')
-                .orderBy(FieldPath.documentId, descending: true)
-                .limit(5)
-                .get();
-
-            for (var doc in historySnapshot.docs) {
-              if (doc.id != todayStr) {
-                int lastTarget = doc.data()['targetIntakeValue']?.toInt() ?? 0;
-                if (lastTarget > 0) {
-                  targetIntake.value = lastTarget;
-                  // Sync back to user profile for future use
-                  await FirebaseService().firestore.collection('users').doc(uid).update({'waterGoal': lastTarget});
-                  break;
-                }
-              }
-            }
-          }
-
-          currentStreak.value = user.currentStreak;
-          longestStreak.value = user.longestStreak;
-          lastStreakDate = user.lastStreakDate;
-          unlockedAwards.assignAll(user.awards);
-          _celebratedAwards.addAll(user.celebratedAwards);
-
-          await _checkAndResetStreak(uid);
-        }
-
-        // 2. Get Today's Daily Summary from Firestore
-        var dailyDoc = await FirebaseService().firestore.collection('users').doc(uid).collection('water_records').doc(todayStr).get();
-        if (dailyDoc.exists && dailyDoc.data() != null) {
-          var data = dailyDoc.data()!;
-          bool docIsMl = data['isMl'] ?? true;
-          int docCurrent = data['currentIntakeValue']?.toInt() ?? 0;
-          int docTarget = data['targetIntakeValue']?.toInt() ?? 0;
-
-          if (docIsMl != isMl.value) {
-            if (isMl.value) {
-              currentIntake.value = (docCurrent * 29.5735).round();
-              if (docTarget > 0) targetIntake.value = (docTarget * 29.5735).round();
-            } else {
-              currentIntake.value = (docCurrent / 29.5735).round();
-              if (docTarget > 0) targetIntake.value = (docTarget / 29.5735).round();
-            }
-          } else {
-            currentIntake.value = docCurrent;
-            if (docTarget > 0) {
-              targetIntake.value = docTarget;
-            }
-          }
-        } else {
-          currentIntake.value = 0;
-          // Create today's summary doc with the recovered or global target
-          await FirebaseService().firestore.collection('users').doc(uid).collection('water_records').doc(todayStr).set({
-            'currentIntakeValue': 0,
-            'targetIntakeValue': targetIntake.value,
-          }, SetOptions(merge: true));
-        }
-
-        // 3. Load today's individual records for the list
-        var snapshot = await FirebaseService().firestore
-            .collection('users')
-            .doc(uid)
-            .collection('water_records')
-            .doc(todayStr)
-            .collection('daily_records')
-            .get();
-
-        List<WaterRecord> firestoreRecords = snapshot.docs.map((doc) => _convertRecordIfNeeded(WaterRecord.fromJson(doc.data()))).toList();
-        waterRecords.assignAll(firestoreRecords);
-        waterRecords.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-        // Ensure currentIntake is in perfect sync with the loaded individual records
-        int computedSum = firestoreRecords.fold(0, (sum, record) => sum + record.amount);
-        if (currentIntake.value != computedSum) {
-          currentIntake.value = computedSum;
-          await FirebaseService().firestore.collection('users').doc(uid).collection('water_records').doc(todayStr).set({
-            'currentIntakeValue': computedSum,
-          }, SetOptions(merge: true));
-        }
-      } catch (e) {
-        log("Error loading data from Firestore: $e");
-      }
+    final uid = await FirebaseService().getUserId();
+    final today = WaterLogStore.dateKey(DateTime.now());
+    final days = await _waterLog.read();
+    final dates = days.keys.where((date) => date.compareTo(today) <= 0 && days[date]!.goal > 0).toList()..sort();
+    final savedDay = dates.isEmpty ? null : days[dates.last];
+    if (savedDay != null) {
+      targetIntake.value = savedDay.goal;
+      isMl.value = savedDay.isMl;
     }
+    await fetchFullHistory();
 
     // Load selected cup index
     selectedCupIndex.value = await LocalStorage.getSelectedCupIndex();
@@ -820,9 +699,50 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     skipFeedback = false; // Reset for next time
 
     isHomeLoading.value = false;
+    if (uid != null) unawaited(_loadProfileAndImport(uid));
     await fetchStats();
     checkAndUnlockAwards(showSheet: false);
     update();
+  }
+
+  Future<void> _loadProfileAndImport(String uid) async {
+    try {
+      final userDoc = await FirebaseService().firestore.collection('users').doc(uid).get();
+      if (isClosed) return;
+      final data = userDoc.data();
+      if (data != null) {
+        final user = UserModel.fromMap(data, userDoc.id);
+        isKg.value = user.isKg;
+        unlockedAwards.assignAll(user.awards);
+        _celebratedAwards.addAll(user.celebratedAwards);
+        if (targetIntake.value == 0 && user.waterGoal > 0) {
+          await _waterLog.seedGoal(user.waterGoal, user.isMl);
+          await _refreshStoredGoal();
+        }
+      }
+    } catch (error) {
+      log('Error loading profile: $error');
+    }
+
+    try {
+      await importLegacyWaterLogs(uid);
+      await _refreshStoredGoal();
+    } catch (error) {
+      log('Error importing legacy logs: $error');
+    }
+  }
+
+  Future<void> _refreshStoredGoal() async {
+    final days = await _waterLog.read();
+    if (isClosed) return;
+    final today = WaterLogStore.dateKey(DateTime.now());
+    final dates = days.keys.where((date) => date.compareTo(today) <= 0 && days[date]!.goal > 0).toList()..sort();
+    if (dates.isNotEmpty) {
+      final day = days[dates.last]!;
+      if (isMl.value != day.isMl) _applyDisplayUnit(day.isMl);
+      targetIntake.value = day.goal;
+    }
+    await fetchFullHistory();
   }
 
   void showFeedbackPrompt({bool isRating = false}) {
@@ -897,118 +817,24 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     });
 
     final now = DateTime.now();
-    final recordId = now.millisecondsSinceEpoch.toString();
-
-    // 1. Optimistically update local state immediately for smooth UI
-    currentIntake.value += amount;
-
-    String? uid = await FirebaseService().getUserId(); // Need this early but it's fast
-
-    final record = WaterRecord(
-      id: recordId,
-      amount: amount,
-      type: type,
-      createdAt: now,
-      currentIntakeAtTime: currentIntake.value,
-      targetIntakeAtTime: targetIntake.value,
-      userId: uid ?? '',
-      isMl: isMl.value,
-      drinkType: drinkType,
-    );
-
-    waterRecords.insert(0, record);
-    allHistoryLogs.insert(0, record);
-
-    // Update streak logic: Only increment if goal reached for the first time today
-    String todayStr = DateFormat('yyyy-MM-dd').format(now);
-
-    triggerAnimation(amount);
-    
-    // Check if streak needs to be reset first (if they missed yesterday)
-    await _checkAndResetStreak(uid);
-
-    bool goalMetJustNow = false;
-    if (currentIntake.value >= targetIntake.value && lastStreakDate != todayStr) {
-      currentStreak.value++;
-      if (currentStreak.value > longestStreak.value) {
-        longestStreak.value = currentStreak.value;
-      }
-      lastStreakDate = todayStr;
-      goalMetJustNow = true;
-    }
-
-    if (goalMetJustNow) {
-      showGoalCompletionDialog();
-    } else {
-      playWaterSound();
-      AdService.showInterstitialAdIfReached();
-    }
-
-    // Sync to Firestore
+    final date = WaterLogStore.dateKey(now);
     try {
-      if (uid != null) {
-        String today = DateFormat('yyyy-MM-dd').format(now);
-        final summaryRef = FirebaseService().firestore.collection('users').doc(uid).collection('water_records').doc(today);
-
-        // 2. Add individual record to Firestore
-        await summaryRef.collection('daily_records').doc(recordId).set(record.toJson());
-
-        // 2. Update Daily Summary in Firestore LAST (this triggers the history stream)
-        await summaryRef.set({
-          'currentIntakeValue': currentIntake.value,
-          'targetIntakeValue': targetIntake.value,
-          'currentStreak': currentStreak.value,
-          'longestStreak': longestStreak.value,
-          'isMl': isMl.value,
-        }, SetOptions(merge: true));
-
-        // 3. Update User profile (always sync waterGoal, and update streaks if goal met)
-        Map<String, dynamic> userUpdates = {'waterGoal': targetIntake.value};
-        if (goalMetJustNow) {
-          userUpdates.addAll({
-            'currentStreak': currentStreak.value,
-            'longestStreak': longestStreak.value,
-            'lastStreakDate': lastStreakDate,
-          });
-        }
-        await FirebaseService().firestore.collection('users').doc(uid).update(userUpdates);
-
-        // 4. Refresh stats to show updated streak/charts
-        fetchStats();
-
-        // 5. Check for new awards (unlocked in background, shown in History)
-        checkAndUnlockAwards(showSheet: false);
+      final wasComplete = (await _waterLog.read())[date]?.goalMet ?? false;
+      await _waterLog.add(now, amount, type, goal: targetIntake.value, isMl: isMl.value, drinkType: drinkType);
+      await fetchFullHistory();
+      triggerAnimation(amount);
+      final completedGoal = !wasComplete && targetIntake.value > 0 && currentIntake.value >= targetIntake.value;
+      unawaited(AdService.onWaterLogged(completedGoal: completedGoal));
+      if (completedGoal) {
+        unawaited(showGoalCompletionDialog());
+      } else {
+        playWaterSound();
       }
-    } catch (e) {
-      log("Error saving record to Firestore: $e");
-    }
-
-    // await fetchFullHistory();
-  }
-
-  Future<void> _checkAndResetStreak(String? uid) async {
-    if (uid == null || lastStreakDate.isEmpty) return;
-
-    try {
-      DateTime lastDate = DateTime.parse(lastStreakDate);
-      DateTime today = DateTime.now();
-      DateTime yesterday = today.subtract(const Duration(days: 1));
-
-      String lastStr = DateFormat('yyyy-MM-dd').format(lastDate);
-      String yesterdayStr = DateFormat('yyyy-MM-dd').format(yesterday);
-      String tStr = DateFormat('yyyy-MM-dd').format(today);
-
-      // If last streak was NOT today AND NOT yesterday, it means we missed a day
-      if (lastStr != tStr && lastStr != yesterdayStr) {
-        currentStreak.value = 0;
-        lastStreakDate = '';
-        await FirebaseService().firestore.collection('users').doc(uid).update({'currentStreak': 0, 'lastStreakDate': ''});
-      }
-    } catch (e) {
-      log("Error checking streak reset: $e");
+      checkAndUnlockAwards(showSheet: false);
+    } catch (error) {
+      log('Error saving water log: $error');
     }
   }
-
 
   Stream<UserModel?>? _userStream;
   Stream<UserModel?> get userStream {
@@ -1029,240 +855,32 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
         .map((doc) => doc.exists ? UserModel.fromMap(doc.data()!, doc.id) : null);
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>>? _allSummariesStream;
-  Stream<QuerySnapshot<Map<String, dynamic>>> get allSummariesStream {
-    _allSummariesStream ??= _createAllSummariesStream().asBroadcastStream();
-    return _allSummariesStream!;
-  }
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> _createAllSummariesStream() async* {
-    String? uid = await FirebaseService().getUserId();
-    if (uid == null) return;
-    yield* FirebaseService().firestore.collection('users').doc(uid).collection('water_records').snapshots();
-  }
-
-  Stream<List<WaterRecord>>? _allRecordsStream;
-  Stream<List<WaterRecord>> get allRecordsStream {
-    _allRecordsStream ??= _createAllRecordsStream().asBroadcastStream();
-    return _allRecordsStream!;
-  }
-
-  Stream<List<WaterRecord>> _createAllRecordsStream() async* {
-    String? uid = await FirebaseService().getUserId();
-    if (uid == null) {
-      yield [];
-      return;
-    }
-
-    // Listen to changes in the summaries collection
-    // When any day's summary changes (new drink, deletion), we refresh the full history
-    yield* FirebaseService().firestore.collection('users').doc(uid).collection('water_records').snapshots().asyncMap((snapshot) async {
-      // This is reactive and doesn't require a collectionGroup index
-      List<WaterRecord> all = [];
-      for (var doc in snapshot.docs) {
-        var recordsSnap = await doc.reference.collection('daily_records').get();
-        for (var rDoc in recordsSnap.docs) {
-          all.add(_convertRecordIfNeeded(WaterRecord.fromJson(rDoc.data())));
-        }
-      }
-      all.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      allHistoryLogs.assignAll(all);
-
-      // Update historyData for calendar dots reactively
-      Map<String, DailyGoalStatus> dailyStatus = {};
-      for (var doc in snapshot.docs) {
-        var data = doc.data();
-        int current = data['currentIntakeValue']?.toInt() ?? 0;
-        int target = data['targetIntakeValue']?.toInt() ?? 0;
-        dailyStatus[doc.id] = DailyGoalStatus(goalMet: current >= target);
-      }
-      historyData.value = HistoryData(data: dailyStatus);
-
-      // Update Statistics Data Reactively
-      List<ChartDatum> realData = [];
-      for (var doc in snapshot.docs) {
-        var data = doc.data();
-        int current = data['currentIntakeValue']?.toInt() ?? 0;
-        int target = data['targetIntakeValue']?.toInt() ?? 0;
-        realData.add(ChartDatum(date: doc.id, completionPct: target > 0 ? (current / target * 100) : 0, totalMl: current));
-      }
-
-      statsData.value = StatsDataWrapper(
-        data: StatsData(
-          goal: targetIntake.value,
-          currentStreak: currentStreak.value,
-          longestStreak: longestStreak.value,
-          chartData: realData,
-        ),
-      );
-
-      return all;
-    });
-  }
-
-  Stream<List<WaterRecord>>? _recordsStream;
-  Stream<List<WaterRecord>> get todayRecordsStream {
-    _recordsStream ??= _createRecordsStream().asBroadcastStream();
-    return _recordsStream!;
-  }
-
-  Stream<List<WaterRecord>> _createRecordsStream() async* {
-    String? uid = await FirebaseService().getUserId();
-    if (uid == null) {
-      yield [];
-      return;
-    }
-    String todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    yield* FirebaseService().firestore
-        .collection('users')
-        .doc(uid)
-        .collection('water_records')
-        .doc(todayStr)
-        .collection('daily_records')
-        .snapshots()
-        .map((snapshot) {
-          final records = snapshot.docs.map((doc) => _convertRecordIfNeeded(WaterRecord.fromJson(doc.data()))).toList();
-          records.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-          return records;
-        });
-  }
-
-  Stream<DocumentSnapshot<Map<String, dynamic>>>? _summaryStream;
-  Stream<DocumentSnapshot<Map<String, dynamic>>> get todaySummaryStream {
-    _summaryStream ??= _createSummaryStream().asBroadcastStream();
-    return _summaryStream!;
-  }
-
-  Stream<DocumentSnapshot<Map<String, dynamic>>> _createSummaryStream() async* {
-    String? uid = await FirebaseService().getUserId();
-    if (uid == null) return;
-    String todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    yield* FirebaseService().firestore.collection('users').doc(uid).collection('water_records').doc(todayStr).snapshots();
-  }
-
   Future<void> deleteRecord(WaterRecord record) async {
     if (isProcessingAnimation) return;
     isProcessingAnimation = true;
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      isProcessingAnimation = false;
-    });
-
-    String dateStr = DateFormat('yyyy-MM-dd').format(record.createdAt);
-    String todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
     try {
-      String? uid = await FirebaseService().getUserId();
-      if (uid != null) {
-        int newIntake = 0;
-
-        // Optimistically update local lists and calculate new intake immediately
-        if (dateStr == todayStr) {
-          waterRecords.removeWhere((r) => r.id == record.id);
-          newIntake = waterRecords.fold(0, (sum, r) => sum + r.amount);
-          currentIntake.value = newIntake;
-        } else {
-          allHistoryLogs.removeWhere((r) => r.id == record.id);
-          newIntake = allHistoryLogs
-              .where((r) => DateFormat('yyyy-MM-dd').format(r.createdAt.toLocal()) == dateStr)
-              .fold(0, (sum, r) => sum + r.amount);
-        }
-
-        // 1. Delete individual record FIRST
-        await FirebaseService().firestore
-            .collection('users')
-            .doc(uid)
-            .collection('water_records')
-            .doc(dateStr)
-            .collection('daily_records')
-            .doc(record.id)
-            .delete();
-
-        // Get current summary to retrieve targetIntake
-        final summaryDoc = await FirebaseService().firestore.collection('users').doc(uid).collection('water_records').doc(dateStr).get();
-
-        if (summaryDoc.exists) {
-          final data = summaryDoc.data()!;
-          int target = data['targetIntakeValue']?.toInt() ?? targetIntake.value;
-
-          // 3. Check if streak should be reversed (only if it's today and we drop below goal)
-          Map<String, dynamic> userUpdates = {'waterGoal': targetIntake.value};
-
-          bool goalWasMet = false;
-          if (dateStr == todayStr) {
-            goalWasMet = lastStreakDate == todayStr;
-          }
-
-          if (dateStr == todayStr && goalWasMet && newIntake < target) {
-            if (currentStreak.value > 0) {
-              // If the streak we are losing was the record breaker, reverse it too
-              if (currentStreak.value == longestStreak.value) {
-                longestStreak.value--;
-                if (longestStreak.value < 0) longestStreak.value = 0;
-              }
-              currentStreak.value--;
-              lastStreakDate = currentStreak.value == 0
-                  ? ''
-                  : DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(const Duration(days: 1)));
-
-              userUpdates.addAll({
-                'currentStreak': currentStreak.value,
-                'longestStreak': longestStreak.value,
-                'lastStreakDate': lastStreakDate,
-              });
-            }
-          }
-
-          // Update user profile (always sync waterGoal)
-          await FirebaseService().firestore.collection('users').doc(uid).update(userUpdates);
-
-          // 4. Update Daily Summary LAST (this triggers the snapshots)
-          if (dateStr == todayStr) {
-            currentIntake.value = newIntake;
-          }
-
-          await summaryDoc.reference.set({
-            'currentIntakeValue': newIntake,
-            'targetIntakeValue': targetIntake.value,
-            'currentStreak': currentStreak.value,
-            'longestStreak': longestStreak.value,
-          }, SetOptions(merge: true));
-
-          // 5. Refresh stats to show updated streak/charts
-          fetchStats();
-          checkAndUnlockAwards(showSheet: false);
-        }
-      }
-    } catch (e) {
-      log("Error deleting record: $e");
+      await _waterLog.delete(record);
+      await fetchFullHistory();
+      checkAndUnlockAwards(showSheet: false);
+    } catch (error) {
+      log('Error deleting water log: $error');
+    } finally {
+      isProcessingAnimation = false;
     }
-  }
-
-  Future<void> _saveData() async {
-    // Keep UI preferences in LocalStorage for better experience
-    await LocalStorage.setSelectedCupIndex(selectedCupIndex.value);
   }
 
   Future<void> updateGoal(int newGoal) async {
+    await _waterLog.setGoal(newGoal, isMl.value);
     targetIntake.value = newGoal;
-
-    try {
-      String? uid = await FirebaseService().getUserId();
-      if (uid != null) {
-        String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-        // Update today's summary
-        await FirebaseService().firestore.collection('users').doc(uid).collection('water_records').doc(today).set({
-          'targetIntakeValue': newGoal,
-        }, SetOptions(merge: true));
-
-        // Also update user's global goal
+    await fetchFullHistory();
+    final uid = await FirebaseService().getUserId();
+    if (uid != null) {
+      try {
         await FirebaseService().firestore.collection('users').doc(uid).update({'waterGoal': newGoal});
+      } catch (error) {
+        log('Error syncing profile goal: $error');
       }
-    } catch (e) {
-      log("Error updating goal in Firestore: $e");
     }
-
-    await _saveData();
   }
 
   AssetGenImage getIconForType(String? type) {
@@ -1332,33 +950,15 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
 
   Future<void> updateUnit(bool isMlUnit) async {
     if (isMl.value == isMlUnit) return;
+    final goal = (isMlUnit ? targetIntake.value * 29.5735 : targetIntake.value / 29.5735).round();
+    await _waterLog.setGoal(goal, isMlUnit);
+    _applyDisplayUnit(isMlUnit);
+    targetIntake.value = goal;
+    await fetchFullHistory();
+  }
 
+  void _applyDisplayUnit(bool isMlUnit) {
     isMl.value = isMlUnit;
-
-    // Convert Goal and Current Intake
-    if (isMlUnit) {
-      targetIntake.value = (targetIntake.value * 29.5735).round();
-      currentIntake.value = (currentIntake.value * 29.5735).round();
-    } else {
-      targetIntake.value = (targetIntake.value / 29.5735).round();
-      currentIntake.value = (currentIntake.value / 29.5735).round();
-    }
-
-    // Sync converted values for today to Firestore
-    try {
-      String? uid = await FirebaseService().getUserId();
-      if (uid != null) {
-        String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        await FirebaseService().firestore.collection('users').doc(uid).collection('water_records').doc(today).set({
-          'currentIntakeValue': currentIntake.value,
-          'targetIntakeValue': targetIntake.value,
-          'isMl': isMl.value,
-        }, SetOptions(merge: true));
-      }
-    } catch (e) {
-      log("Error syncing converted units to Firestore: $e");
-    }
-
     // Convert Default Cups
     if (isMlUnit) {
       availableCups.assignAll([100, 125, 150, 175, 200, 300, 1000]);
@@ -1423,10 +1023,18 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     fetchStats();
   }
 
-  void showGoalCompletionDialog() {
+  Future<void> showGoalCompletionDialog() async {
     playWaterSound();
 
-    Get.dialog(
+    final (title, description, image) = switch (currentStreak.value) {
+      7 => (AppString.oneWeek.tr, AppString.oneWeekDesc.tr, Assets.images.png.thirdAwardPpng),
+      30 => (AppString.thirtyDays.tr, AppString.thirtyDaysDesc.tr, Assets.images.png.fourAward),
+      100 => (AppString.hundredDays.tr, AppString.hundredDaysDesc.tr, Assets.images.png.fiveAward),
+      365 => (AppString.threeSixtyFiveDays.tr, AppString.threeSixtyFiveDaysDesc.tr, Assets.images.png.sixAward),
+      _ => ('Goal Completed!', 'Great job! You reached your daily hydration goal.', Assets.images.png.firstAward),
+    };
+
+    final continued = await Get.dialog<bool>(
       TweenAnimationBuilder(
         duration: const Duration(milliseconds: 800),
         tween: Tween<double>(begin: 0.0, end: 1.0),
@@ -1440,10 +1048,10 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Assets.images.png.firstAward.image(width: 120.w, height: 120.h),
+                  image.image(width: 120.w, height: 120.h),
                   SizedBox(height: 16.h),
                   Text(
-                    'Goal Completed!',
+                    title,
                     style: TextStyle(
                       fontFamily: 'Inter Tight',
                       fontSize: 22.sp,
@@ -1453,7 +1061,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    'Great job! You reached your daily hydration goal.',
+                    description,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Inter Tight',
@@ -1470,10 +1078,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                     ),
-                    onPressed: () {
-                      Get.back();
-                      AdService.forceShowInterstitialAd();
-                    },
+                    onPressed: () => Get.back(result: true),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
                       child: Text(
@@ -1495,6 +1100,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
       ),
       barrierDismissible: false,
     );
+    if (continued == true && !isClosed) await AdService.showInterstitialAtBreak();
   }
 }
 

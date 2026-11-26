@@ -6,7 +6,8 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-ReminderList reminderListFromJson(String str) => ReminderList.fromJson(json.decode(str));
+ReminderList reminderListFromJson(String str) =>
+    ReminderList.fromJson(json.decode(str));
 
 String reminderListToJson(ReminderList data) => json.encode(data.toJson());
 
@@ -16,10 +17,13 @@ class ReminderList {
 
   ReminderList({this.message, this.data});
 
-  ReminderList copyWith({String? message, Data? data}) => ReminderList(message: message ?? this.message, data: data ?? this.data);
+  ReminderList copyWith({String? message, Data? data}) =>
+      ReminderList(message: message ?? this.message, data: data ?? this.data);
 
-  factory ReminderList.fromJson(Map<String, dynamic> json) =>
-      ReminderList(message: json["message"], data: json["data"] == null ? null : Data.fromJson(json["data"]));
+  factory ReminderList.fromJson(Map<String, dynamic> json) => ReminderList(
+    message: json["message"],
+    data: json["data"] == null ? null : Data.fromJson(json["data"]),
+  );
 
   Map<String, dynamic> toJson() => {"message": message, "data": data?.toJson()};
 }
@@ -30,17 +34,25 @@ class Data {
 
   Data({this.remindersEnabled, this.reminders});
 
-  Data copyWith({bool? remindersEnabled, List<Reminder>? reminders}) =>
-      Data(remindersEnabled: remindersEnabled ?? this.remindersEnabled, reminders: reminders ?? this.reminders);
+  Data copyWith({bool? remindersEnabled, List<Reminder>? reminders}) => Data(
+    remindersEnabled: remindersEnabled ?? this.remindersEnabled,
+    reminders: reminders ?? this.reminders,
+  );
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     remindersEnabled: json["remindersEnabled"],
-    reminders: json["reminders"] == null ? [] : List<Reminder>.from(json["reminders"]!.map((x) => Reminder.fromJson(x))),
+    reminders: json["reminders"] == null
+        ? []
+        : List<Reminder>.from(
+            json["reminders"]!.map((x) => Reminder.fromJson(x)),
+          ),
   );
 
   Map<String, dynamic> toJson() => {
     "remindersEnabled": remindersEnabled,
-    "reminders": reminders == null ? [] : List<dynamic>.from(reminders!.map((x) => x.toJson())),
+    "reminders": reminders == null
+        ? []
+        : List<dynamic>.from(reminders!.map((x) => x.toJson())),
   };
 }
 
@@ -53,9 +65,25 @@ class Reminder {
   bool? isSnooze;
   DateTime? createdAt;
 
-  Reminder({this.id, this.time, this.interval, this.isEnabled, this.isCustom, this.isSnooze, this.createdAt});
+  Reminder({
+    this.id,
+    this.time,
+    this.interval,
+    this.isEnabled,
+    this.isCustom,
+    this.isSnooze,
+    this.createdAt,
+  });
 
-  Reminder copyWith({String? id, String? time, String? interval, bool? isEnabled, bool? isCustom, bool? isSnooze, DateTime? createdAt}) => Reminder(
+  Reminder copyWith({
+    String? id,
+    String? time,
+    String? interval,
+    bool? isEnabled,
+    bool? isCustom,
+    bool? isSnooze,
+    DateTime? createdAt,
+  }) => Reminder(
     id: id ?? this.id,
     time: time ?? this.time,
     interval: interval ?? this.interval,
@@ -69,10 +97,16 @@ class Reminder {
     id: json["id"],
     time: json["timeRange"],
     interval: json["interval"],
-    isEnabled: json["isActive"] ?? json["isEnabled"], // Support both Firestore and local keys
+    isEnabled:
+        json["isActive"] ??
+        json["isEnabled"], // Support both Firestore and local keys
     isCustom: json["isCustom"],
     isSnooze: json["isSnooze"],
-    createdAt: json["createdAt"] != null ? (json["createdAt"] as Timestamp).toDate() : null,
+    createdAt: switch (json["createdAt"]) {
+      final Timestamp timestamp => timestamp.toDate(),
+      final String value => DateTime.tryParse(value),
+      _ => null,
+    },
   );
 
   Map<String, dynamic> toJson() => {
@@ -82,6 +116,6 @@ class Reminder {
     "isActive": isEnabled,
     "isCustom": isCustom,
     "isSnooze": isSnooze,
-    "createdAt": createdAt != null ? Timestamp.fromDate(createdAt!) : null,
+    "createdAt": createdAt?.toIso8601String(),
   };
 }

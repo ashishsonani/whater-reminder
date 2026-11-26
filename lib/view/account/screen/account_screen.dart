@@ -15,6 +15,7 @@ import '../../../services/ad_service.dart';
 import '../../home/widget/water_widgets.dart';
 import '../controller/account_controller.dart';
 import '../widget/language_selection_bottom_sheet.dart';
+import '../widget/rewarded_theme_card.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -45,6 +46,7 @@ class AccountScreen extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(height: 10.h),
+              const RewardedThemeCard(),
               _buildSection([
                 _buildTile(
                   icon: Assets.images.png.location.image(scale: 3.5 / 1.sp, color: const Color(0xff475467)),
@@ -107,6 +109,17 @@ class AccountScreen extends StatelessWidget {
                   title: AppString.privacyPolicy.tr,
                   onTap: () => Get.toNamed(AppRoutes.privacyPolicy),
                 ),
+                ValueListenableBuilder<bool>(
+                  valueListenable: AdService.privacyOptionsRequired,
+                  builder: (context, required, _) {
+                    if (!required) return const SizedBox.shrink();
+                    return _buildTile(
+                      icon: const Icon(Icons.privacy_tip_outlined, color: Color(0xff475467)),
+                      title: AppString.adPrivacyChoices.tr,
+                      onTap: AdService.showPrivacyOptions,
+                    );
+                  },
+                ),
               ]),
               SizedBox(height: 20.h),
               _buildSection([
@@ -148,8 +161,6 @@ class AccountScreen extends StatelessWidget {
                 ),
               ]),
               SizedBox(height: 15.h),
-              const CommonBannerAd(),
-              SizedBox(height: 10.h),
               Text(
                 "${AppString.version.tr} 1.0.3",
                 style: AppTextStyle.latoRegularBlack14.copyWith(color: AppColors.teal, fontSize: 12.sp),

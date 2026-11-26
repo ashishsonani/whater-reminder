@@ -1217,9 +1217,6 @@ PODS:
   - Firebase/Functions (12.14.0):
     - Firebase/CoreOnly
     - FirebaseFunctions (~> 12.14.0)
-  - Firebase/Messaging (12.14.0):
-    - Firebase/CoreOnly
-    - FirebaseMessaging (~> 12.14.0)
   - firebase_analytics (12.4.2):
     - firebase_core
     - FirebaseAnalytics (= 12.14.0)
@@ -1230,10 +1227,6 @@ PODS:
     - Flutter
   - firebase_core (4.10.0):
     - Firebase/CoreOnly (= 12.14.0)
-    - Flutter
-  - firebase_messaging (16.3.0):
-    - Firebase/Messaging (= 12.14.0)
-    - firebase_core
     - Flutter
   - FirebaseAnalytics (12.14.0):
     - FirebaseAnalytics/Default (= 12.14.0)
@@ -1305,15 +1298,6 @@ PODS:
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/UserDefaults (~> 8.1)
     - PromisesObjC (~> 2.4)
-  - FirebaseMessaging (12.14.0):
-    - FirebaseCore (~> 12.14.0)
-    - FirebaseInstallations (~> 12.14.0)
-    - GoogleDataTransport (~> 10.1)
-    - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
-    - GoogleUtilities/Environment (~> 8.1)
-    - GoogleUtilities/Reachability (~> 8.1)
-    - GoogleUtilities/UserDefaults (~> 8.1)
-    - nanopb (~> 3.30910.0)
   - FirebaseMessagingInterop (12.14.0)
   - FirebaseSharedSwift (12.14.0)
   - Flutter (1.0.0)
@@ -1356,9 +1340,6 @@ PODS:
     - GoogleUtilities/Network (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
-  - GoogleDataTransport (10.1.0):
-    - nanopb (~> 3.30910.0)
-    - PromisesObjC (~> 2.4)
   - GoogleUserMessagingPlatform (3.1.0)
   - GoogleUtilities/AppDelegateSwizzler (8.1.1):
     - GoogleUtilities/Environment
@@ -1519,7 +1500,6 @@ DEPENDENCIES:
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
-  - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
   - flutter_email_sender (from `.symlinks/plugins/flutter_email_sender/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
@@ -1551,13 +1531,11 @@ SPEC REPOS:
     - FirebaseFirestoreInternal
     - FirebaseFunctions
     - FirebaseInstallations
-    - FirebaseMessaging
     - FirebaseMessagingInterop
     - FirebaseSharedSwift
     - Google-Mobile-Ads-SDK
     - GoogleAdsOnDeviceConversion
     - GoogleAppMeasurement
-    - GoogleDataTransport
     - GoogleUserMessagingPlatform
     - GoogleUtilities
     - "gRPC-C++"
@@ -1583,8 +1561,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
-  firebase_messaging:
-    :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
   flutter_email_sender:
@@ -1625,7 +1601,6 @@ SPEC CHECKSUMS:
   firebase_analytics: 9ea6c22e60e1d37ee76772de57b4addddb03e276
   firebase_auth: d4091ec40b52cc2ea56171ea521c30b388844acb
   firebase_core: 383e19b49a08df5d7a6cf5017616de6a357ed7af
-  firebase_messaging: ab03d6090864c0fb8136521231df6a66cb13be49
   FirebaseAnalytics: 99364329a3ea4d1ab4a3744b5464371b7351c481
   FirebaseAppCheckInterop: f123c0261a7b46f060e98fc2961651f1ac68f384
   FirebaseAuth: 01a77d472aec77ec008141e7d859d1b9cb8dc2cf
@@ -1637,7 +1612,6 @@ SPEC CHECKSUMS:
   FirebaseFirestoreInternal: 5bd3585e6292ec5e8dc019a46f20d165de27fcd1
   FirebaseFunctions: 5ccef4817f5a5fc0024f3d5dfc1fbbcf0744d07d
   FirebaseInstallations: 7cdc919e29dc54306edeffdbdc1eed1a40d7d1e7
-  FirebaseMessaging: 4803888ce3002188f24e19faa8d2326261538426
   FirebaseMessagingInterop: e835049cc41a4c6c71781eaceee113b2601cd89d
   FirebaseSharedSwift: 7c659ebf23afdc1e60a05df72a07ad7349f5758f
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
@@ -1648,7 +1622,6 @@ SPEC CHECKSUMS:
   google_mobile_ads: 16ad301354fa6a7ea55770c6254bd4339bf8558b
   GoogleAdsOnDeviceConversion: 80ce443fa1b4b5750913d53a04ecda644ff57744
   GoogleAppMeasurement: 1987ffa55055dfb22c52e363c31aa50c1e11d349
-  GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: 4f2618a4a1e762a1ee134a1e2323bba9843e06da
   "gRPC-C++": cc207623316fb041a7a3e774c252cf68a058b9e8

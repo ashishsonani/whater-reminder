@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import 'package:water_intake/models/chart_card.dart';
 import 'package:water_intake/models/chart_point.dart';
 import 'package:water_intake/models/chart_datum.dart';
-import 'package:water_intake/models/water_record.dart';
 import 'package:water_intake/models/weekly_completion.dart';
 import 'package:water_intake/theme/app_colors.dart';
 import 'package:water_intake/theme/app_shadows.dart';
@@ -18,7 +17,6 @@ import 'package:water_intake/theme/app_typography.dart';
 import 'package:water_intake/view/dashboard/controller/dashboard_controller.dart';
 import 'package:water_intake/view/home/controller/home_controller.dart' hide ChartMode;
 
-import '../../../../../services/ad_service.dart' show CommonBannerAd;
 import '../../../../../utils/app_strings.dart';
 
 class StatisticScreen extends StatefulWidget {
@@ -74,10 +72,9 @@ class _StatisticScreenState extends State<StatisticScreen> {
     final controller = Get.find<HomeController>();
     return Scaffold(
       backgroundColor: AppColors.paper,
-      body: StreamBuilder<List<WaterRecord>>(
-        stream: controller.allRecordsStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+      body: Obx(
+        () {
+          if (controller.isStatsLoading.value) {
             return const Center(child: CupertinoActivityIndicator());
           }
           return SafeArea(
@@ -275,7 +272,6 @@ class _StatisticScreenState extends State<StatisticScreen> {
                       child: _buildDrinkCompletionCard(controller),
                     ),
                     SizedBox(height: 10.h),
-                    const CommonBannerAd(),
 
                     SizedBox(height: 10.h),
 
@@ -374,7 +370,7 @@ class _StatisticScreenState extends State<StatisticScreen> {
         int dayGoal = controller.targetIntake.value > 0 ? controller.targetIntake.value : 2000;
 
         if (dayData != null) {
-          goalMet = (dayData.completionPct ?? 0) >= 100 || (dayData.totalMl ?? 0) >= dayGoal;
+          goalMet = (dayData.completionPct ?? 0) >= 100;
         } else {
           // Fallback to allHistoryLogs using local timezone correction
           final dayLogs = controller.allHistoryLogs.where((log) {

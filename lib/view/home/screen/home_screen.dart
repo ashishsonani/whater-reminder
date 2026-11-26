@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,8 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:water_intake/gen/assets.gen.dart';
-import 'package:water_intake/services/ad_service.dart';
 import 'package:water_intake/theme/app_colors.dart';
+import 'package:water_intake/theme/rewarded_theme.dart';
 import 'package:water_intake/theme/app_fonts.dart';
 import 'package:water_intake/theme/app_shadows.dart';
 import 'package:water_intake/theme/app_text_styles.dart';
@@ -46,6 +45,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
+    final palette = HydrationPalette.of(context);
     return Scaffold(
       backgroundColor: AppColors.paper,
       appBar: AppBar(elevation: 0, surfaceTintColor: Colors.transparent, toolbarHeight: 0, backgroundColor: AppColors.paper),
@@ -71,34 +71,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                      stream: controller.todaySummaryStream,
-                      builder: (context, snapshot) {
-                        int streak = controller.currentStreak.value;
-                        if (snapshot.hasData && snapshot.data!.exists) {
-                          streak = snapshot.data!.data()?['currentStreak']?.toInt() ?? streak;
-                        }
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: AppColors.card,
-                            border: Border.all(color: AppColors.cardEdge),
-                            borderRadius: BorderRadius.circular(100),
-                            boxShadow: AppShadows.level1,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.local_fire_department_rounded, size: 14.sp, color: AppColors.accent),
-                              const SizedBox(width: 6),
-                              Text('$streak', style: AppTypography.streakNum),
-                              const SizedBox(width: 4),
-                              Text(AppString.days.tr.toUpperCase(), style: AppTypography.streakLabel),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                    Obx(() {
+                      final streak = controller.currentStreak.value;
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.card,
+                          border: Border.all(color: AppColors.cardEdge),
+                          borderRadius: BorderRadius.circular(100),
+                          boxShadow: AppShadows.level1,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.local_fire_department_rounded, size: 14.sp, color: AppColors.accent),
+                            const SizedBox(width: 6),
+                            Text('$streak', style: AppTypography.streakNum),
+                            const SizedBox(width: 4),
+                            Text(AppString.days.tr.toUpperCase(), style: AppTypography.streakLabel),
+                          ],
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -123,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 160.w,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: RadialGradient(colors: [AppColors.tealSoft.withValues(alpha: 0.4), AppColors.tealSoft.withValues(alpha: 0.0)]),
+                          gradient: RadialGradient(colors: [palette.soft.withValues(alpha: 0.4), palette.soft.withValues(alpha: 0.0)]),
                         ),
                       ),
                     ),
@@ -312,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     customColors: CustomSliderColors(
                       trackColor: AppColors.paperWarm,
                       progressBarColors: animatedPercentage > 0.001
-                          ? const [AppColors.tealBright, AppColors.teal]
+                          ? [HydrationPalette.of(context).bright, HydrationPalette.of(context).accent]
                           : [Colors.transparent, Colors.transparent],
                       hideShadow: true,
                       dotColor: Colors.white,
@@ -418,7 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           10.w.horizontalSpace,
-          _buildPrimaryLogButton(controller),
+          _buildPrimaryLogButton(controller, HydrationPalette.of(context)),
           10.w.horizontalSpace,
           Expanded(
             child: Obx(() {
@@ -2104,7 +2098,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPrimaryLogButton(HomeController controller) {
+  Widget _buildPrimaryLogButton(HomeController controller, HydrationPalette palette) {
     return Obx(() {
       final int current = controller.currentIntake.value;
       final int target = controller.targetIntake.value;
@@ -2176,7 +2170,7 @@ class _HomeScreenState extends State<HomeScreen> {
               gradient: RadialGradient(
                 center: Alignment(-0.4, -0.4),
                 radius: 0.95,
-                colors: [AppColors.tealBright, AppColors.teal, AppColors.tealDeep],
+                colors: [palette.bright, palette.accent, palette.deep],
                 stops: [0.0, 0.6, 1.0],
               ),
               boxShadow: isGoalAchieved ? [] : AppShadows.drinkButton,
@@ -2187,7 +2181,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 if (!isGoalAchieved)
                   Positioned.fill(
-                    child: CustomPaint(painter: _DashedRingPainter(color: AppColors.teal.withValues(alpha: 0.25), inset: -8)),
+                    child: CustomPaint(painter: _DashedRingPainter(color: palette.accent.withValues(alpha: 0.25), inset: -8)),
                   ),
                 Column(
                   mainAxisSize: MainAxisSize.min,
@@ -2326,35 +2320,31 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           SizedBox(height: 14.h),
-          StreamBuilder<List<WaterRecord>>(
-            stream: controller.todayRecordsStream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-                return const Center(child: CupertinoActivityIndicator());
-              }
-              final records = snapshot.data ?? [];
-              return Column(
-                children: [
-                  if (records.isEmpty)
-                    _buildEmptyState(hasPadding: false)
-                  else
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: records.length,
-                      separatorBuilder: (context, index) => SizedBox(height: 10.h),
-                      itemBuilder: (context, index) {
-                        final record = records[index];
-                        return _buildHistoryItem(record, controller);
-                      },
-                    ),
-                  SizedBox(height: 15.h),
-                  const CommonBannerAd(),
-                  SizedBox(height: 20.h),
-                ],
-              );
-            },
-          ),
+          Obx(() {
+            if (controller.isHomeLoading.value) {
+              return const Center(child: CupertinoActivityIndicator());
+            }
+            final records = controller.waterRecords.toList();
+            return Column(
+              children: [
+                if (records.isEmpty)
+                  _buildEmptyState(hasPadding: false)
+                else
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: records.length,
+                    separatorBuilder: (context, index) => SizedBox(height: 10.h),
+                    itemBuilder: (context, index) {
+                      final record = records[index];
+                      return _buildHistoryItem(record, controller);
+                    },
+                  ),
+                SizedBox(height: 15.h),
+                SizedBox(height: 20.h),
+              ],
+            );
+          }),
         ],
       ),
     );

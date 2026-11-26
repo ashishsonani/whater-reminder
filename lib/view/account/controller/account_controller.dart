@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:water_intake/services/notification_service.dart';
+import 'package:water_intake/services/reminder_store.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,6 +18,7 @@ class LanguageItemData {
 
 class AccountController extends GetxController {
   var isNotificationEnabled = true.obs;
+  StreamSubscription<void>? _reminderSubscription;
   var selectedLanguage = 'Turkish'.obs;
   var selectedPlan = 2.obs; // Premium screen selected plan
 
@@ -51,6 +56,7 @@ class AccountController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _reminderSubscription = ReminderStore.instance.changes.listen((_) => _loadReminderSetting());
     _loadSettings();
   }
 
@@ -93,33 +99,23 @@ class AccountController extends GetxController {
       }
     }
 
-    // Load from Firestore first for accuracy, fallback to local
-    String? uid = await FirebaseService().getUserId();
-    if (uid != null) {
-      final doc = await FirebaseService().firestore.collection('users').doc(uid).get();
-      if (doc.exists && doc.data()!.containsKey('isNotificationEnabled')) {
-        isNotificationEnabled.value = doc.data()!['isNotificationEnabled'];
-        return;
-      }
-    }
-    isNotificationEnabled.value = prefs.getBool('notifications_enabled') ?? true;
+    await _loadReminderSetting();
   }
 
-  Future<void> toggleNotifications(bool value) async {
-    isNotificationEnabled.value = value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('notifications_enabled', value);
-
-    // Sync with Firestore so Cloud Function knows to stop/start
-    await FirebaseService().updateNotificationSettings(value);
+  Future<void> _loadReminderSetting() async {
+    final enabled = await ReminderStore.instance.isEnabled();
+    if (!isClosed) isNotificationEnabled.value = enabled;
   }
+
+  Future<void> toggleNotifications(bool value) => ReminderStore.instance.setEnabled(value);
 
   Future<void> changeLanguage(String language) async {
     selectedLanguage.value = language;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selected_language', language);
+    await NotificationService().refreshReminderSchedule();
 
-    // Sync language to Firestore for Cloud Functions
+    // Keep the account language in sync.
     String? uid = await FirebaseService().getUserId();
     if (uid != null) {
       await FirebaseService().firestore.collection('users').doc(uid).update({
@@ -155,6 +151,7 @@ class AccountController extends GetxController {
 
   @override
   void onClose() {
+    _reminderSubscription?.cancel();
     searchController.dispose();
     super.onClose();
   }
