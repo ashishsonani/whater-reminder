@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,24 +33,16 @@ class AdService {
   static const _waterLogCountKey = 'waterLogsSinceAdOpportunity';
   static int waterLogsPerAdOpportunity = 5;
 
-  static String bannerIdAndroid = 'ca-app-pub-8708457885343434/2858546284';
-  static String interstitialIdAndroid =
-      'ca-app-pub-8708457885343434/6940014680';
+  static String bannerIdAndroid = '';
+  static String interstitialIdAndroid = '';
+  static String bannerIdIos = '';
+  static String interstitialIdIos = '';
 
-  static String bannerIdIos = 'ca-app-pub-8708457885343434/3980056269';
-  static String interstitialIdIos = 'ca-app-pub-8708457885343434/1663637270';
+  static String get bannerAdUnitId =>
+      Platform.isAndroid ? bannerIdAndroid : bannerIdIos;
 
-  static String get bannerAdUnitId => !kReleaseMode
-      ? (Platform.isAndroid
-            ? 'ca-app-pub-3940256099942544/9214589741'
-            : 'ca-app-pub-3940256099942544/2435281174')
-      : (Platform.isAndroid ? bannerIdAndroid : bannerIdIos);
-
-  static String get interstitialAdUnitId => !kReleaseMode
-      ? (Platform.isAndroid
-            ? 'ca-app-pub-3940256099942544/1033173712'
-            : 'ca-app-pub-3940256099942544/4411468910')
-      : (Platform.isAndroid ? interstitialIdAndroid : interstitialIdIos);
+  static String get interstitialAdUnitId =>
+      Platform.isAndroid ? interstitialIdAndroid : interstitialIdIos;
 
   static bool _consentAllowsAds = false;
   static bool _mobileAdsInitialized = false;
@@ -60,16 +53,17 @@ class AdService {
       _mobileAdsInitialized &&
       !_privacyFormOpen &&
       adsEnabled;
-  static bool get canLoadBanner => _canLoadAds && bannerEnabled;
+  static bool get canLoadBanner =>
+      _canLoadAds && bannerEnabled && bannerAdUnitId.isNotEmpty;
 
-  static String? get _rewardedAdUnitId => kReleaseMode
-      ? (Platform.isAndroid ? _rewardedIdAndroid : _rewardedIdIos)
-      : (Platform.isAndroid
-            ? 'ca-app-pub-3940256099942544/5224354917'
-            : 'ca-app-pub-3940256099942544/1712485313');
+  static String? get _rewardedAdUnitId =>
+      Platform.isAndroid ? _rewardedIdAndroid : _rewardedIdIos;
 
   static bool get canOfferThemeReward =>
-      _canLoadAds && rewardedEnabled && _rewardedAdUnitId != null;
+      _canLoadAds &&
+      rewardedEnabled &&
+      _rewardedAdUnitId != null &&
+      _rewardedAdUnitId!.isNotEmpty;
 
   static Future<bool> watchThemeReward({
     required bool Function() canPresent,
@@ -261,7 +255,15 @@ class AdService {
 
   static Future<void> fetchRemoteConfig() async {
     final cached = await _loadCachedConfig();
-    if (cached != null) _applyConfig(cached);
+    if (cached != null) {
+      _applyConfig(cached);
+    } else {
+      try {
+        final local = await rootBundle.loadString('config.json');
+        final decoded = json.decode(local) as Map<String, dynamic>;
+        _applyConfig(decoded);
+      } catch (_) {}
+    }
 
     final cacheBuster = DateTime.now().millisecondsSinceEpoch;
     final String? body =
@@ -341,31 +343,25 @@ class AdService {
       interstitialCooldown = Duration(minutes: int.parse(cooldownMin));
     }
 
-    bannerIdAndroid = _readUnitId(data['banner_id_android'], bannerIdAndroid);
-    interstitialIdAndroid = _readUnitId(
-      data['interstitial_id_android'],
-      interstitialIdAndroid,
-    );
-    bannerIdIos = _readUnitId(data['banner_id_ios'], bannerIdIos);
-    interstitialIdIos = _readUnitId(
-      data['interstitial_id_ios'],
-      interstitialIdIos,
-    );
+    bannerIdAndroid = _readUnitId(data['banner_id_android']);
+    interstitialIdAndroid = _readUnitId(data['interstitial_id_android']);
+    bannerIdIos = _readUnitId(data['banner_id_ios']);
+    interstitialIdIos = _readUnitId(data['interstitial_id_ios']);
 
     final androidReward = data['rewarded_id_android'];
-    _rewardedIdAndroid = androidReward is String && androidReward.isNotEmpty
-        ? androidReward
+    _rewardedIdAndroid = androidReward is String && androidReward.trim().isNotEmpty
+        ? androidReward.trim()
         : null;
     final iosReward = data['rewarded_id_ios'];
-    _rewardedIdIos = iosReward is String && iosReward.isNotEmpty
-        ? iosReward
+    _rewardedIdIos = iosReward is String && iosReward.trim().isNotEmpty
+        ? iosReward.trim()
         : null;
 
     if (_activeConfig != previous) _refreshPlacements();
   }
 
-  static String _readUnitId(Object? value, String fallback) =>
-      value is String && value.isNotEmpty ? value : fallback;
+  static String _readUnitId(Object? value) =>
+      value is String ? value.trim() : '';
 
   static Future<void> _cacheConfig(String body) async {
     try {
@@ -390,6 +386,7 @@ class AdService {
   static void _loadInterstitial() {
     if (!_canLoadAds ||
         !interstitialEnabled ||
+        interstitialAdUnitId.isEmpty ||
         _isInterstitialLoading ||
         _isInterstitialShowing) {
       return;
