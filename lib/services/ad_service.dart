@@ -15,6 +15,7 @@ class AdService {
   static bool adsEnabled = false; // Fallback to false
   static bool bannerEnabled = false;
   static bool interstitialEnabled = false;
+  static bool rewardedEnabled = true;
   static InterstitialAd? _interstitialAd;
   static DateTime? _interstitialLoadedAt;
   static DateTime? _lastInterstitialRequest;
@@ -27,9 +28,9 @@ class AdService {
   static ValueListenable<int> get placementRevision => _placementRevision;
   static final privacyOptionsRequired = ValueNotifier<bool>(false);
   static const _lastInterstitialImpressionKey = 'lastMilestoneAdImpression';
-  static const _interstitialCooldown = Duration(hours: 3);
+  static Duration interstitialCooldown = const Duration(hours: 3);
   static const _waterLogCountKey = 'waterLogsSinceAdOpportunity';
-  static const _waterLogsPerAdOpportunity = 5;
+  static int waterLogsPerAdOpportunity = 5;
 
   static String bannerIdAndroid = 'ca-app-pub-8708457885343434/2858546284';
   static String interstitialIdAndroid =
@@ -68,7 +69,7 @@ class AdService {
             : 'ca-app-pub-3940256099942544/1712485313');
 
   static bool get canOfferThemeReward =>
-      _canLoadAds && _rewardedAdUnitId != null;
+      _canLoadAds && rewardedEnabled && _rewardedAdUnitId != null;
 
   static Future<bool> watchThemeReward({
     required bool Function() canPresent,
@@ -253,27 +254,39 @@ class AdService {
   }
 
   static const String _configCacheKey = 'cached_ads_config_json';
+  static const String _remoteConfigUrlApi =
+      'https://api.github.com/repos/ashishsonani/whater-reminder/contents/config.json';
+  static const String _remoteConfigUrlRaw =
+      'https://raw.githubusercontent.com/ashishsonani/whater-reminder/main/config.json';
 
   static Future<void> fetchRemoteConfig() async {
     final cached = await _loadCachedConfig();
     if (cached != null) _applyConfig(cached);
 
+    final cacheBuster = DateTime.now().millisecondsSinceEpoch;
     final String? body =
         await _fetchConfigBody(
-          'https://api.github.com/repos/ashishsonani/whater-reminder/contents/config.json',
+          _remoteConfigUrlApi,
           headers: {
             'Accept': 'application/vnd.github.v3.raw',
             'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
           },
         ) ??
         await _fetchConfigBody(
-          'https://raw.githubusercontent.com/ashishsonani/whater-reminder/main/config.json',
+          '$_remoteConfigUrlRaw?t=$cacheBuster',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+          },
         );
 
     if (body == null) return;
     try {
-      _applyConfig(json.decode(body) as Map<String, dynamic>);
+      final decoded = json.decode(body) as Map<String, dynamic>;
+      _applyConfig(decoded);
       unawaited(_cacheConfig(body));
+      debugPrint('Remote ad config applied from GitHub: $decoded');
     } catch (error) {
       debugPrint('Remote ad config is invalid: $error');
     }
@@ -295,10 +308,13 @@ class AdService {
     return null;
   }
 
-  static (bool, bool, bool, String, String, String?) get _activeConfig => (
+  static (bool, bool, bool, bool, int, int, String, String, String?) get _activeConfig => (
     adsEnabled,
     bannerEnabled,
     interstitialEnabled,
+    rewardedEnabled,
+    waterLogsPerAdOpportunity,
+    interstitialCooldown.inMinutes,
     bannerAdUnitId,
     interstitialAdUnitId,
     _rewardedAdUnitId,
@@ -309,6 +325,21 @@ class AdService {
     adsEnabled = data['ads_enabled'] == true;
     bannerEnabled = data['banner'] == true;
     interstitialEnabled = data['interstitial'] == true;
+    rewardedEnabled = data['rewarded'] != false;
+
+    final interval = data['interstitial_interval'] ?? data['click_count'];
+    if (interval is int && interval > 0) {
+      waterLogsPerAdOpportunity = interval;
+    } else if (interval is String && int.tryParse(interval) != null) {
+      waterLogsPerAdOpportunity = int.parse(interval);
+    }
+
+    final cooldownMin = data['interstitial_cooldown_minutes'];
+    if (cooldownMin is int && cooldownMin >= 0) {
+      interstitialCooldown = Duration(minutes: cooldownMin);
+    } else if (cooldownMin is String && int.tryParse(cooldownMin) != null) {
+      interstitialCooldown = Duration(minutes: int.parse(cooldownMin));
+    }
 
     bannerIdAndroid = _readUnitId(data['banner_id_android'], bannerIdAndroid);
     interstitialIdAndroid = _readUnitId(
@@ -413,7 +444,7 @@ class AdService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final count = (prefs.getInt(_waterLogCountKey) ?? 0) + 1;
-      final reachedInterval = count >= _waterLogsPerAdOpportunity;
+      final reachedInterval = count >= waterLogsPerAdOpportunity;
       final saved = await prefs.setInt(
         _waterLogCountKey,
         reachedInterval ? 0 : count,
@@ -442,7 +473,7 @@ class AdService {
       final previous = prefs.getInt(_lastInterstitialImpressionKey);
       if (previous != null &&
           now.difference(DateTime.fromMillisecondsSinceEpoch(previous)) <
-              _interstitialCooldown) {
+              interstitialCooldown) {
         return;
       }
 
@@ -496,9 +527,19 @@ class AdService {
 }
 
 class _InterstitialPreloader with WidgetsBindingObserver {
+  DateTime? _lastConfigCheck;
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) AdService._loadInterstitial();
+    if (state == AppLifecycleState.resumed) {
+      AdService._loadInterstitial();
+      final now = DateTime.now();
+      if (_lastConfigCheck == null ||
+          now.difference(_lastConfigCheck!) > const Duration(minutes: 5)) {
+        _lastConfigCheck = now;
+        unawaited(AdService.fetchRemoteConfig());
+      }
+    }
   }
 }
 
