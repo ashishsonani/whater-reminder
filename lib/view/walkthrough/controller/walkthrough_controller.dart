@@ -1,9 +1,9 @@
+import 'package:water_intake/services/notification_service.dart';
+import 'package:water_intake/services/water_log_store.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:water_intake/models/reminder_model.dart';
 import 'package:water_intake/route/route.dart';
 import 'package:water_intake/services/firebase_service.dart';
 import 'package:water_intake/utils/local_storage.dart';
@@ -57,7 +57,6 @@ class WalkthroughController extends GetxController {
   var waterGoal = 2950.obs;
   var tempWaterGoal = 2950.obs;
   var isMl = true.obs;
-  var isNotificationEnabled = true.obs;
 
   @override
   void onInit() {
@@ -356,7 +355,6 @@ class WalkthroughController extends GetxController {
       await LocalStorage.setUserId(uid);
 
       // 3. Prepare Data
-      String? fcmToken = await FirebaseMessaging.instance.getToken();
       Map<String, dynamic> userData = {
         'uid': uid,
         'gender': selectedGender.value,
@@ -369,9 +367,6 @@ class WalkthroughController extends GetxController {
         'climate': selectedClimate.value,
         'waterGoal': waterGoal.value,
         'isMl': isMl.value,
-        'isNotificationEnabled': isNotificationEnabled.value,
-        'fcmToken': fcmToken ?? '',
-        'timezoneOffset': DateTime.now().timeZoneOffset.inMinutes,
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
@@ -380,26 +375,10 @@ class WalkthroughController extends GetxController {
       await FirebaseService().firestore.collection('users').doc(uid).set(userData, SetOptions(merge: true));
       print("Data successfully saved to Firestore!");
 
-      // 4.5 Save default reminder to ensure it exists if app is killed
-      var remindersRef = FirebaseService().firestore.collection('users').doc(uid).collection('reminders');
-      var existingDefaults = await remindersRef.where('isCustom', isEqualTo: false).limit(1).get();
-
-      if (existingDefaults.docs.isEmpty) {
-        var docRef = remindersRef.doc();
-        ReminderModel defaultReminder = ReminderModel(
-          id: docRef.id,
-          uid: uid,
-          timeRange: '8 AM – 10 PM',
-          interval: 'Every 2 hours',
-          isActive: true,
-          isCustom: false,
-        );
-        await docRef.set(defaultReminder.toMap());
-        print("Default reminder successfully saved to Firestore!");
-      }
-
-      // 5. Save only essential info to Local Storage
+      // Persist initial settings for on-device logging.
+      await WaterLogStore.instance.setGoal(waterGoal.value, isMl.value);
       await LocalStorage.setSetupComplete(true);
+      await NotificationService().refreshReminderSchedule();
       await LocalStorage.setIntakeUnit(isMl.value ? 'ml' : 'oz');
 
       // 6. Navigate
@@ -416,6 +395,8 @@ class WalkthroughController extends GetxController {
 
   Future<void> updateWaterGoalInFirebase() async {
     try {
+      await WaterLogStore.instance.setGoal(waterGoal.value, isMl.value);
+      await LocalStorage.setIntakeUnit(isMl.value ? 'ml' : 'oz');
       String? uid = await FirebaseService().getUserId();
       if (uid != null) {
         await FirebaseService().firestore.collection('users').doc(uid).update({
@@ -423,8 +404,6 @@ class WalkthroughController extends GetxController {
           'isMl': isMl.value,
           'updatedAt': FieldValue.serverTimestamp(),
         });
-        await LocalStorage.setIntakeUnit(isMl.value ? 'ml' : 'oz');
-        print("Water goal updated in Firebase and LocalStorage for UID: $uid");
       }
     } catch (e) {
       debugPrint("Error updating water goal: $e");

@@ -3,127 +3,263 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:water_intake/theme/rewarded_theme.dart';
 
 class AdService {
   // Remote Config State
   static bool adsEnabled = false; // Fallback to false
   static bool bannerEnabled = false;
   static bool interstitialEnabled = false;
-  static bool appOpenEnabled = false;
-  static int clickCountInterval = 3;
-  static int _currentClickCount = 0;
-
   static InterstitialAd? _interstitialAd;
+  static DateTime? _interstitialLoadedAt;
+  static DateTime? _lastInterstitialRequest;
   static bool _isInterstitialLoading = false;
-  
-  static final AppOpenAdManager appOpenAdManager = AppOpenAdManager();
+  static bool _isInterstitialShowing = false;
+  static bool _isRewardedInProgress = false;
+  static String? _rewardedIdAndroid;
+  static String? _rewardedIdIos;
+  static final _placementRevision = ValueNotifier<int>(0);
+  static ValueListenable<int> get placementRevision => _placementRevision;
+  static final privacyOptionsRequired = ValueNotifier<bool>(false);
+  static const _lastInterstitialImpressionKey = 'lastMilestoneAdImpression';
+  static const _interstitialCooldown = Duration(hours: 3);
+  static const _waterLogCountKey = 'waterLogsSinceAdOpportunity';
+  static const _waterLogsPerAdOpportunity = 5;
 
   static String bannerIdAndroid = 'ca-app-pub-8708457885343434/2858546284';
-  static String appOpenIdAndroid = 'ca-app-pub-8708457885343434/2420361348';
-  static String interstitialIdAndroid = 'ca-app-pub-8708457885343434/6940014680';
+  static String interstitialIdAndroid =
+      'ca-app-pub-8708457885343434/6940014680';
 
-  // iOS ad unit IDs. Default to Google's test units until real IDs are
-  // provided via remote config (banner_id_ios / app_open_id_ios / interstitial_id_ios).
-  static String bannerIdIos = 'ca-app-pub-8708457885343434/3980056269'; 
-  static String appOpenIdIos = 'ca-app-pub-8708457885343434/1061002044'; 
+  static String bannerIdIos = 'ca-app-pub-8708457885343434/3980056269';
   static String interstitialIdIos = 'ca-app-pub-8708457885343434/1663637270';
 
-  static String get bannerAdUnitId {
-    if (Platform.isAndroid) {
-      return bannerIdAndroid;
-    } else if (Platform.isIOS) {
-      return bannerIdIos;
-    }
-    throw UnsupportedError('Unsupported platform');
-  }
+  static String get bannerAdUnitId => !kReleaseMode
+      ? (Platform.isAndroid
+            ? 'ca-app-pub-3940256099942544/9214589741'
+            : 'ca-app-pub-3940256099942544/2435281174')
+      : (Platform.isAndroid ? bannerIdAndroid : bannerIdIos);
 
-  static String get appOpenAdUnitId {
-    if (Platform.isAndroid) {
-      return appOpenIdAndroid;
-    } else if (Platform.isIOS) {
-      return appOpenIdIos;
-    }
-    throw UnsupportedError('Unsupported platform');
-  }
+  static String get interstitialAdUnitId => !kReleaseMode
+      ? (Platform.isAndroid
+            ? 'ca-app-pub-3940256099942544/1033173712'
+            : 'ca-app-pub-3940256099942544/4411468910')
+      : (Platform.isAndroid ? interstitialIdAndroid : interstitialIdIos);
 
-  static String get interstitialAdUnitId {
-    if (Platform.isAndroid) {
-      return interstitialIdAndroid;
-    } else if (Platform.isIOS) {
-      return interstitialIdIos;
-    }
-    throw UnsupportedError('Unsupported platform');
-  }
-
-  /// True once the UMP consent flow allows requesting ads.
-  /// Every ad load must check this in addition to the remote-config flags.
-  static bool consentAllowsAds = false;
+  static bool _consentAllowsAds = false;
   static bool _mobileAdsInitialized = false;
+  static bool _isInitializingMobileAds = false;
+  static bool _privacyFormOpen = false;
+  static bool get _canLoadAds =>
+      _consentAllowsAds &&
+      _mobileAdsInitialized &&
+      !_privacyFormOpen &&
+      adsEnabled;
+  static bool get canLoadBanner => _canLoadAds && bannerEnabled;
 
-  /// Gathers the required consents, then starts the Mobile Ads SDK.
-  ///
-  /// Order (per Google's guidance):
-  ///  1. UMP consent info update + consent form (GDPR form in the EEA and,
-  ///     if configured in the AdMob console, the iOS IDFA explainer).
-  ///  2. The iOS App Tracking Transparency system prompt (no-op elsewhere,
-  ///     or if the user already answered it).
-  ///  3. MobileAds.initialize() — only if UMP says ads may be requested.
-  ///
-  /// Must be called when app UI is already on screen (dialogs need a view),
-  /// i.e. from the splash screen, not from main().
-  static Future<void> gatherConsentAndInit() async {
-    // Forcefully allow ads and bypass the UMP/ATT consent dialogs
-    consentAllowsAds = true;
-    debugPrint('Consent bypassed: Forcefully enabling ads');
-    await _initMobileAds();
-  }
+  static String? get _rewardedAdUnitId => kReleaseMode
+      ? (Platform.isAndroid ? _rewardedIdAndroid : _rewardedIdIos)
+      : (Platform.isAndroid
+            ? 'ca-app-pub-3940256099942544/5224354917'
+            : 'ca-app-pub-3940256099942544/1712485313');
 
-  static Future<void> _loadAndShowConsentFormIfRequired() {
-    final completer = Completer<void>();
-    ConsentForm.loadAndShowConsentFormIfRequired((FormError? error) {
-      if (error != null) {
-        debugPrint('UMP consent form error: ${error.message}');
-      }
-      if (!completer.isCompleted) completer.complete();
-    });
-    return completer.future;
-  }
+  static bool get canOfferThemeReward =>
+      _canLoadAds && _rewardedAdUnitId != null;
 
-  static Future<void> _requestTrackingAuthorization() async {
-    if (!Platform.isIOS) return;
+  static Future<bool> watchThemeReward({
+    required bool Function() canPresent,
+  }) async {
+    final adUnitId = _rewardedAdUnitId;
+    if (!canOfferThemeReward ||
+        adUnitId == null ||
+        _isRewardedInProgress ||
+        _isInterstitialShowing) {
+      return false;
+    }
+
+    _isRewardedInProgress = true;
+    RewardedAd? loadedAd;
     try {
-      final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-      if (status == TrackingStatus.notDetermined) {
-        // Small pause so the system dialog attaches to the visible scene.
-        await Future.delayed(const Duration(milliseconds: 300));
-        await AppTrackingTransparency.requestTrackingAuthorization();
+      final revision = _placementRevision.value;
+      final pending = Completer<RewardedAd?>();
+      unawaited(
+        RewardedAd.load(
+          adUnitId: adUnitId,
+          request: const AdRequest(),
+          rewardedAdLoadCallback: RewardedAdLoadCallback(
+            onAdLoaded: (ad) {
+              if (pending.isCompleted) {
+                ad.dispose();
+              } else {
+                pending.complete(ad);
+              }
+            },
+            onAdFailedToLoad: (error) {
+              debugPrint('Rewarded ad failed to load: $error');
+              if (!pending.isCompleted) pending.complete(null);
+            },
+          ),
+        ).catchError((Object error) {
+          debugPrint('Rewarded ad request failed: $error');
+          if (!pending.isCompleted) pending.complete(null);
+        }),
+      );
+      final timeout = Timer(const Duration(seconds: 12), () {
+        if (!pending.isCompleted) pending.complete(null);
+      });
+      final ad = await pending.future;
+      timeout.cancel();
+      loadedAd = ad;
+      if (ad == null ||
+          revision != _placementRevision.value ||
+          !canOfferThemeReward ||
+          !canPresent() ||
+          WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        return false;
       }
-    } catch (e) {
-      debugPrint('ATT request failed: $e');
+
+      final closed = Completer<bool>();
+      Future<void>? reward;
+      ad.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (_) => closed.complete(true),
+        onAdFailedToShowFullScreenContent: (_, error) {
+          debugPrint('Rewarded ad failed to show: $error');
+          closed.complete(false);
+        },
+      );
+      await ad.show(
+        onUserEarnedReward: (_, _) {
+          reward ??= ThemeReward.instance.grant().catchError((Object error) {
+            debugPrint('Could not save rewarded theme: $error');
+          });
+        },
+      );
+      final presented = await closed.future;
+      await reward;
+      return presented;
+    } catch (error) {
+      debugPrint('Rewarded ad failed: $error');
+      return false;
+    } finally {
+      loadedAd?.dispose();
+      _isRewardedInProgress = false;
     }
   }
 
-  static Future<void> _initMobileAds() async {
-    if (_mobileAdsInitialized) return;
-    _mobileAdsInitialized = true;
-    await MobileAds.instance.initialize();
+  static Future<void> gatherConsentAndInit() async {
+    if (!Platform.isAndroid && !Platform.isIOS) return;
+    final consent = ConsentInformation.instance;
+    final updated = Completer<bool>();
+    try {
+      consent.requestConsentInfoUpdate(
+        ConsentRequestParameters(),
+        () => updated.complete(true),
+        (error) {
+          debugPrint('UMP consent update failed: ${error.message}');
+          updated.complete(false);
+        },
+      );
+      if (await updated.future.timeout(
+        const Duration(seconds: 8),
+        onTimeout: () => false,
+      )) {
+        await ConsentForm.loadAndShowConsentFormIfRequired((error) {
+          if (error != null) {
+            debugPrint('UMP consent form failed: ${error.message}');
+          }
+        });
+      }
+    } catch (error) {
+      debugPrint('Error gathering ad consent: $error');
+    }
+    await _refreshConsent(requestTracking: true);
+  }
+
+  static Future<void> showPrivacyOptions() async {
+    if (_privacyFormOpen || !privacyOptionsRequired.value) return;
+    _privacyFormOpen = true;
+    _refreshPlacements();
+    try {
+      await ConsentForm.showPrivacyOptionsForm((error) {
+        if (error != null) {
+          debugPrint('Ad privacy options failed: ${error.message}');
+        }
+      });
+    } catch (error) {
+      debugPrint('Error opening ad privacy options: $error');
+    } finally {
+      _privacyFormOpen = false;
+      await _refreshConsent();
+    }
+  }
+
+  static Future<void> _refreshConsent({bool requestTracking = false}) async {
+    final consent = ConsentInformation.instance;
+    try {
+      privacyOptionsRequired.value =
+          await consent.getPrivacyOptionsRequirementStatus() ==
+          PrivacyOptionsRequirementStatus.required;
+    } catch (error) {
+      debugPrint('Error reading ad privacy status: $error');
+    }
+    try {
+      _consentAllowsAds = await consent.canRequestAds();
+      if (_consentAllowsAds && !_mobileAdsInitialized) {
+        if (requestTracking && Platform.isIOS) {
+          try {
+            if (await AppTrackingTransparency.trackingAuthorizationStatus ==
+                TrackingStatus.notDetermined) {
+              await AppTrackingTransparency.requestTrackingAuthorization();
+            }
+          } catch (error) {
+            debugPrint('ATT request failed: $error');
+          }
+        }
+        unawaited(_initializeMobileAds());
+      }
+    } catch (error) {
+      _consentAllowsAds = false;
+      debugPrint('Error checking ad consent: $error');
+    } finally {
+      _refreshPlacements();
+    }
+  }
+
+  static Future<void> _initializeMobileAds() async {
+    if (_isInitializingMobileAds || _mobileAdsInitialized) return;
+    _isInitializingMobileAds = true;
+    try {
+      await MobileAds.instance.initialize();
+      _mobileAdsInitialized = true;
+      WidgetsBinding.instance.addObserver(_InterstitialPreloader());
+      _refreshPlacements();
+    } catch (error) {
+      debugPrint('Mobile Ads SDK initialization failed: $error');
+    } finally {
+      _isInitializingMobileAds = false;
+    }
+  }
+
+  static void _refreshPlacements() {
+    _interstitialAd?.dispose();
+    _interstitialAd = null;
+    _lastInterstitialRequest = null;
+    _placementRevision.value++;
+    _loadInterstitial();
   }
 
   static const String _configCacheKey = 'cached_ads_config_json';
 
-  /// Fetch Ads Configuration from GitHub JSON.
-  ///
-  /// Resilience chain — a transient failure must never kill ads revenue:
-  ///  1. GitHub API (instant updates, but 60 req/hour/IP unauthenticated)
-  ///  2. raw.githubusercontent.com (CDN-cached ~5 min, effectively unlimited)
-  ///  3. last successfully fetched config, cached on device
-  ///  4. everything disabled (true first launch with no network only)
   static Future<void> fetchRemoteConfig() async {
-    final String? body = await _fetchConfigBody(
+    final cached = await _loadCachedConfig();
+    if (cached != null) _applyConfig(cached);
+
+    final String? body =
+        await _fetchConfigBody(
           'https://api.github.com/repos/ashishsonani/whater-reminder/contents/config.json',
           headers: {
             'Accept': 'application/vnd.github.v3.raw',
@@ -134,33 +270,23 @@ class AdService {
           'https://raw.githubusercontent.com/ashishsonani/whater-reminder/main/config.json',
         );
 
-    if (body != null) {
-      try {
-        _applyConfig(json.decode(body));
-        _cacheConfig(body);
-        debugPrint('Remote Ads Config loaded: adsEnabled=$adsEnabled, banner=$bannerEnabled, interstitial=$interstitialEnabled, appOpen=$appOpenEnabled, clickCount=$clickCountInterval');
-        _preloadAds();
-        return;
-      } catch (e) {
-        debugPrint('Remote config JSON invalid: $e');
-      }
-    }
-
-    // Network/parse failure: reuse the last config that worked.
-    final cached = await _loadCachedConfig();
-    if (cached != null) {
-      _applyConfig(cached);
-      debugPrint('Remote config unavailable, using cached config: adsEnabled=$adsEnabled');
-      _preloadAds();
-    } else {
-      debugPrint('Remote config unavailable and no cache, ads disabled');
-      _setFallbackConfig();
+    if (body == null) return;
+    try {
+      _applyConfig(json.decode(body) as Map<String, dynamic>);
+      unawaited(_cacheConfig(body));
+    } catch (error) {
+      debugPrint('Remote ad config is invalid: $error');
     }
   }
 
-  static Future<String?> _fetchConfigBody(String url, {Map<String, String>? headers}) async {
+  static Future<String?> _fetchConfigBody(
+    String url, {
+    Map<String, String>? headers,
+  }) async {
     try {
-      final response = await http.get(Uri.parse(url), headers: headers).timeout(const Duration(seconds: 8));
+      final response = await http
+          .get(Uri.parse(url), headers: headers)
+          .timeout(const Duration(seconds: 8));
       if (response.statusCode == 200) return response.body;
       debugPrint('Config fetch $url failed, status: ${response.statusCode}');
     } catch (e) {
@@ -169,30 +295,46 @@ class AdService {
     return null;
   }
 
-  static void _applyConfig(dynamic data) {
-    adsEnabled = data['ads_enabled'] ?? false;
-    bannerEnabled = data['banner'] ?? false;
-    interstitialEnabled = data['interstitial'] ?? false;
-    appOpenEnabled = data['app_open'] ?? false;
-    clickCountInterval = data['click_count'] ?? 3;
+  static (bool, bool, bool, String, String, String?) get _activeConfig => (
+    adsEnabled,
+    bannerEnabled,
+    interstitialEnabled,
+    bannerAdUnitId,
+    interstitialAdUnitId,
+    _rewardedAdUnitId,
+  );
 
-    bannerIdAndroid = data['banner_id_android'] ?? bannerIdAndroid;
-    appOpenIdAndroid = data['app_open_id_android'] ?? appOpenIdAndroid;
-    interstitialIdAndroid = data['interstitial_id_android'] ?? interstitialIdAndroid;
+  static void _applyConfig(Map<String, dynamic> data) {
+    final previous = _activeConfig;
+    adsEnabled = data['ads_enabled'] == true;
+    bannerEnabled = data['banner'] == true;
+    interstitialEnabled = data['interstitial'] == true;
 
-    bannerIdIos = data['banner_id_ios'] ?? bannerIdIos;
-    appOpenIdIos = data['app_open_id_ios'] ?? appOpenIdIos;
-    interstitialIdIos = data['interstitial_id_ios'] ?? interstitialIdIos;
+    bannerIdAndroid = _readUnitId(data['banner_id_android'], bannerIdAndroid);
+    interstitialIdAndroid = _readUnitId(
+      data['interstitial_id_android'],
+      interstitialIdAndroid,
+    );
+    bannerIdIos = _readUnitId(data['banner_id_ios'], bannerIdIos);
+    interstitialIdIos = _readUnitId(
+      data['interstitial_id_ios'],
+      interstitialIdIos,
+    );
+
+    final androidReward = data['rewarded_id_android'];
+    _rewardedIdAndroid = androidReward is String && androidReward.isNotEmpty
+        ? androidReward
+        : null;
+    final iosReward = data['rewarded_id_ios'];
+    _rewardedIdIos = iosReward is String && iosReward.isNotEmpty
+        ? iosReward
+        : null;
+
+    if (_activeConfig != previous) _refreshPlacements();
   }
 
-  static void _preloadAds() {
-    if (adsEnabled && interstitialEnabled) {
-      loadInterstitialAd();
-    }
-    if (adsEnabled && appOpenEnabled) {
-      appOpenAdManager.loadAd();
-    }
-  }
+  static String _readUnitId(Object? value, String fallback) =>
+      value is String && value.isNotEmpty ? value : fallback;
 
   static Future<void> _cacheConfig(String body) async {
     try {
@@ -203,246 +345,281 @@ class AdService {
     }
   }
 
-  static Future<dynamic> _loadCachedConfig() async {
+  static Future<Map<String, dynamic>?> _loadCachedConfig() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final body = prefs.getString(_configCacheKey);
-      if (body != null) return json.decode(body);
+      if (body != null) return json.decode(body) as Map<String, dynamic>;
     } catch (e) {
       debugPrint('Failed to read cached ads config: $e');
     }
     return null;
   }
 
-  static void _setFallbackConfig() {
-    adsEnabled = false;
-    bannerEnabled = false;
-    interstitialEnabled = false;
-    appOpenEnabled = false;
-  }
-
-  /// Load Interstitial Ad
-  static void loadInterstitialAd() {
-    if (!consentAllowsAds || !adsEnabled || !interstitialEnabled || _isInterstitialLoading || _interstitialAd != null) {
+  static void _loadInterstitial() {
+    if (!_canLoadAds ||
+        !interstitialEnabled ||
+        _isInterstitialLoading ||
+        _isInterstitialShowing) {
       return;
     }
+
+    final now = DateTime.now();
+    final loadedAt = _interstitialLoadedAt;
+    if (_interstitialAd != null &&
+        loadedAt != null &&
+        now.difference(loadedAt) < const Duration(hours: 1)) {
+      return;
+    }
+    final lastRequest = _lastInterstitialRequest;
+    if (lastRequest != null &&
+        now.difference(lastRequest) < const Duration(minutes: 1)) {
+      return;
+    }
+    _lastInterstitialRequest = now;
+    _interstitialAd?.dispose();
+    _interstitialAd = null;
     _isInterstitialLoading = true;
-    InterstitialAd.load(
-      adUnitId: interstitialAdUnitId,
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) {
-          _interstitialAd = ad;
-          _isInterstitialLoading = false;
-        },
-        onAdFailedToLoad: (error) {
-          debugPrint('InterstitialAd failed to load: $error');
-          _isInterstitialLoading = false;
-          _interstitialAd = null;
-        },
-      ),
+    final revision = _placementRevision.value;
+    unawaited(
+      InterstitialAd.load(
+        adUnitId: interstitialAdUnitId,
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (ad) {
+            _isInterstitialLoading = false;
+            if (revision != _placementRevision.value) {
+              ad.dispose();
+              _loadInterstitial();
+              return;
+            }
+            _interstitialAd = ad;
+            _interstitialLoadedAt = DateTime.now();
+          },
+          onAdFailedToLoad: (error) {
+            _isInterstitialLoading = false;
+            if (revision != _placementRevision.value) _loadInterstitial();
+            debugPrint('Interstitial failed to load: $error');
+          },
+        ),
+      ).catchError((Object error) {
+        _isInterstitialLoading = false;
+        debugPrint('Interstitial request failed: $error');
+      }),
     );
   }
 
-  /// Called on user actions to show Interstitial Ad if click count reached
-  static void showInterstitialAdIfReached() {
-    if (!adsEnabled || !interstitialEnabled) return;
+  static Future<void> onWaterLogged({required bool completedGoal}) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final count = (prefs.getInt(_waterLogCountKey) ?? 0) + 1;
+      final reachedInterval = count >= _waterLogsPerAdOpportunity;
+      final saved = await prefs.setInt(
+        _waterLogCountKey,
+        reachedInterval ? 0 : count,
+      );
+      // On a goal-completing log, use the celebration's existing ad opportunity.
+      if (saved && reachedInterval && !completedGoal) {
+        await showInterstitialAtBreak();
+      }
+    } catch (error) {
+      debugPrint('Could not update the water-log ad counter: $error');
+    }
+  }
 
-    _currentClickCount++;
-    debugPrint('Ad click count: $_currentClickCount / $clickCountInterval');
+  static Future<void> showInterstitialAtBreak() async {
+    if (!_canLoadAds ||
+        !interstitialEnabled ||
+        _isInterstitialShowing ||
+        _isRewardedInProgress) {
+      return;
+    }
+    _isInterstitialShowing = true;
+    bool handedToSdk = false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final now = DateTime.now();
+      final previous = prefs.getInt(_lastInterstitialImpressionKey);
+      if (previous != null &&
+          now.difference(DateTime.fromMillisecondsSinceEpoch(previous)) <
+              _interstitialCooldown) {
+        return;
+      }
 
-    if (_currentClickCount >= clickCountInterval) {
-      _currentClickCount = 0; // Reset counter
-      if (_interstitialAd != null) {
-        _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
-          onAdDismissedFullScreenContent: (ad) {
-            ad.dispose();
-            _interstitialAd = null;
-            loadInterstitialAd(); // Reload for next time
-          },
-          onAdFailedToShowFullScreenContent: (ad, error) {
-            ad.dispose();
-            _interstitialAd = null;
-            loadInterstitialAd();
-          },
-        );
-        _interstitialAd!.show();
-      } else {
-        // If not loaded yet, try loading it for next time
-        loadInterstitialAd();
+      final ad = _interstitialAd;
+      if (ad == null ||
+          now.difference(_interstitialLoadedAt!) >= const Duration(hours: 1)) {
+        ad?.dispose();
+        _interstitialAd = null;
+        return;
+      }
+      if (!_canLoadAds ||
+          WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        return;
+      }
+      _interstitialAd = null;
+
+      void finish(InterstitialAd ad) {
+        ad.dispose();
+        _isInterstitialShowing = false;
+        _loadInterstitial();
+      }
+
+      ad.fullScreenContentCallback = FullScreenContentCallback(
+        onAdShowedFullScreenContent: (_) {
+          unawaited(
+            prefs.setInt(
+              _lastInterstitialImpressionKey,
+              DateTime.now().millisecondsSinceEpoch,
+            ),
+          );
+        },
+        onAdDismissedFullScreenContent: finish,
+        onAdFailedToShowFullScreenContent: (ad, _) => finish(ad),
+      );
+      try {
+        await ad.show();
+        handedToSdk = true;
+      } catch (error) {
+        ad.dispose();
+        rethrow;
+      }
+    } catch (error) {
+      debugPrint('Interstitial failed to show: $error');
+    } finally {
+      if (!handedToSdk) {
+        _isInterstitialShowing = false;
+        _loadInterstitial();
       }
     }
   }
-  static void forceShowInterstitialAd() {
-    if (!adsEnabled || !interstitialEnabled) return;
-    
-    if (_interstitialAd != null) {
-      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
-        onAdDismissedFullScreenContent: (ad) {
-          ad.dispose();
-          _interstitialAd = null;
-          loadInterstitialAd(); // Reload for next time
-        },
-        onAdFailedToShowFullScreenContent: (ad, error) {
-          ad.dispose();
-          _interstitialAd = null;
-          loadInterstitialAd();
-        },
-      );
-      _interstitialAd!.show();
-    } else {
-      loadInterstitialAd();
-    }
-  }
 }
 
-/// App Open Ad Manager
-class AppOpenAdManager {
-  AppOpenAd? _appOpenAd;
-  bool _isShowingAd = false;
-  DateTime? _appOpenLoadTime;
-
-  /// Load an AppOpenAd.
-  void loadAd() {
-    if (!AdService.consentAllowsAds || !AdService.adsEnabled || !AdService.appOpenEnabled) return;
-
-    AppOpenAd.load(
-      adUnitId: AdService.appOpenAdUnitId,
-      request: const AdRequest(),
-      adLoadCallback: AppOpenAdLoadCallback(
-        onAdLoaded: (ad) {
-          _appOpenLoadTime = DateTime.now();
-          _appOpenAd = ad;
-        },
-        onAdFailedToLoad: (error) {
-          debugPrint('AppOpenAd failed to load: $error');
-        },
-      ),
-    );
-  }
-
-  /// Whether an ad is available to be shown.
-  bool get isAdAvailable {
-    return _appOpenAd != null;
-  }
-
-  /// Shows the ad, if one exists and is not already being shown.
-  void showAdIfAvailable() {
-    if (!AdService.adsEnabled || !AdService.appOpenEnabled) return;
-
-    if (!isAdAvailable) {
-      loadAd();
-      return;
-    }
-    if (_isShowingAd) {
-      return;
-    }
-    if (DateTime.now().subtract(const Duration(hours: 4)).isAfter(_appOpenLoadTime!)) {
-      _appOpenAd!.dispose();
-      _appOpenAd = null;
-      loadAd();
-      return;
-    }
-
-    _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (ad) {
-        _isShowingAd = true;
-      },
-      onAdFailedToShowFullScreenContent: (ad, error) {
-        _isShowingAd = false;
-        ad.dispose();
-        _appOpenAd = null;
-      },
-      onAdDismissedFullScreenContent: (ad) {
-        _isShowingAd = false;
-        ad.dispose();
-        _appOpenAd = null;
-        loadAd();
-      },
-    );
-    _appOpenAd!.show();
-  }
-}
-
-/// AppLifecycleReactor to show App Open Ads on app resume.
-class AppLifecycleReactor extends WidgetsBindingObserver {
-  final AppOpenAdManager appOpenAdManager;
-
-  AppLifecycleReactor({required this.appOpenAdManager});
-
+class _InterstitialPreloader with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      appOpenAdManager.showAdIfAvailable();
-    }
+    if (state == AppLifecycleState.resumed) AdService._loadInterstitial();
   }
 }
 
-/// Common Banner Ad Widget
-class CommonBannerAd extends StatefulWidget {
-  const CommonBannerAd({super.key});
+class DashboardBannerAd extends StatelessWidget {
+  const DashboardBannerAd({super.key});
 
   @override
-  State<CommonBannerAd> createState() => _CommonBannerAdState();
+  Widget build(BuildContext context) {
+    final orientation = MediaQuery.orientationOf(context);
+    return ValueListenableBuilder<int>(
+      valueListenable: AdService.placementRevision,
+      builder: (context, revision, _) {
+        if (!AdService.canLoadBanner) return const SizedBox.shrink();
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth.floor();
+            if (width < 200) return const SizedBox.shrink();
+            return _AdaptiveBanner(
+              key: ValueKey((revision, orientation, width)),
+              width: width,
+            );
+          },
+        );
+      },
+    );
+  }
 }
 
-class _CommonBannerAdState extends State<CommonBannerAd> {
+class _AdaptiveBanner extends StatefulWidget {
+  const _AdaptiveBanner({super.key, required this.width});
+
+  final int width;
+
+  @override
+  State<_AdaptiveBanner> createState() => _AdaptiveBannerState();
+}
+
+class _AdaptiveBannerState extends State<_AdaptiveBanner> {
   BannerAd? _bannerAd;
-  bool _isLoaded = false;
+  Timer? _retry;
+  bool _loaded = false;
 
   @override
   void initState() {
     super.initState();
-    if (AdService.consentAllowsAds && AdService.adsEnabled && AdService.bannerEnabled) {
-      _loadAd();
+    _load();
+  }
+
+  Future<void> _load() async {
+    if (!AdService.canLoadBanner) return;
+    final revision = AdService.placementRevision.value;
+    try {
+      final size =
+          await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+            widget.width,
+          );
+      if (!mounted ||
+          revision != AdService.placementRevision.value ||
+          !AdService.canLoadBanner) {
+        return;
+      }
+      if (size == null || size.width > widget.width) return;
+      final ad = BannerAd(
+        adUnitId: AdService.bannerAdUnitId,
+        size: size,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (_) {
+            if (mounted) setState(() => _loaded = true);
+          },
+          onAdFailedToLoad: (failedAd, error) {
+            if (!mounted || _bannerAd != failedAd) return;
+            debugPrint('Banner failed to load: $error');
+            _retryLoad();
+          },
+        ),
+      );
+      _bannerAd = ad;
+      await ad.load();
+    } catch (error) {
+      debugPrint('Banner request failed: $error');
+      if (mounted) _retryLoad();
     }
   }
 
-  void _loadAd() {
-    _bannerAd = BannerAd(
-      adUnitId: AdService.bannerAdUnitId,
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          if (mounted) {
-            setState(() {
-              _isLoaded = true;
-            });
-          }
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          if (mounted) {
-            setState(() {
-              _bannerAd = null;
-              _isLoaded = false;
-            });
-          }
-          debugPrint('Banner Ad failed to load: $error');
-        },
-      ),
-    )..load();
+  void _retryLoad() {
+    final failed = _bannerAd;
+    setState(() {
+      _loaded = false;
+      _bannerAd = null;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => failed?.dispose());
+    _retry?.cancel();
+    _retry = Timer(const Duration(minutes: 1), _load);
   }
 
   @override
   void dispose() {
+    _retry?.cancel();
     _bannerAd?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!AdService.consentAllowsAds || !AdService.adsEnabled || !AdService.bannerEnabled || !_isLoaded || _bannerAd == null) {
-      return const SizedBox.shrink();
-    }
-
-    return Center(
-      child: Container(
-        width: _bannerAd!.size.width.toDouble(),
-        height: _bannerAd!.size.height.toDouble(),
-        alignment: Alignment.center,
-        child: AdWidget(ad: _bannerAd!),
+    final ad = _bannerAd;
+    if (!_loaded || ad == null) return const SizedBox.shrink();
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.symmetric(
+          horizontal: BorderSide(color: Theme.of(context).dividerColor),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Center(
+        heightFactor: 1,
+        child: SizedBox(
+          width: ad.size.width.toDouble(),
+          height: ad.size.height.toDouble(),
+          child: AdWidget(ad: ad),
+        ),
       ),
     );
   }

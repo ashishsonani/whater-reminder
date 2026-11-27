@@ -23,27 +23,6 @@ class FirebaseService {
     return await LocalStorage.getUserId();
   }
 
-  Future<void> updateFcmToken(String token) async {
-    String? uid = await getUserId();
-    if (uid != null) {
-      await _firestore.collection('users').doc(uid).update({
-        'fcmToken': token,
-        'timezoneOffset': DateTime.now().timeZoneOffset.inMinutes,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-    }
-  }
-
-  Future<void> updateNotificationSettings(bool isEnabled) async {
-    String? uid = await getUserId();
-    if (uid != null) {
-      await _firestore.collection('users').doc(uid).set({
-        'isNotificationEnabled': isEnabled,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    }
-  }
-
   Future<void> setPremiumStatus(bool isPremium) async {
     String? uid = await getUserId();
     if (uid != null) {

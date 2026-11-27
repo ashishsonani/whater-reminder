@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -12,9 +11,9 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:water_intake/firebase_options.dart';
 import 'package:water_intake/route/route.dart';
-import 'package:water_intake/services/ad_service.dart';
 import 'package:water_intake/services/notification_service.dart';
 import 'package:water_intake/services/widget_service.dart';
+import 'package:water_intake/theme/rewarded_theme.dart';
 import 'package:water_intake/utils/app_translations.dart';
 import 'package:water_intake/utils/local_storage.dart';
 
@@ -23,6 +22,7 @@ void main() async {
 
 
   await LocalStorage.init();
+  await ThemeReward.instance.restore();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.white,
@@ -94,21 +94,16 @@ void main() async {
     debugPrint('Firebase init error: $e');
   }
 
-  runApp(MyApp(initialLocale: initialLocale));
+  runApp(RewardedThemeScope(child: MyApp(initialLocale: initialLocale)));
 }
 
 void _initPostRunApp() async {
   try {
     await WidgetService.init();
 
-    // Initialize Firebase Messaging background handler
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     final notificationService = NotificationService();
     await notificationService.init();
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
-
-    final appLifecycleReactor = AppLifecycleReactor(appOpenAdManager: AdService.appOpenAdManager);
-    WidgetsBinding.instance.addObserver(appLifecycleReactor);
 
     await initializeDateFormatting('tr_TR', null);
   } catch (e) {

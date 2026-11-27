@@ -5,6 +5,11 @@ class AppTranslations extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {
     'en_US': {
+      AppString.rewardedThemeOffer: 'Watch an ad to unlock this theme for 24 hours.',
+      AppString.watchAdForTheme: 'Watch ad',
+      AppString.rewardedThemeActiveUntil: 'Active until @date at @time',
+      AppString.rewardedAdUnavailable: 'No ad is available right now. Try again later.',
+      AppString.adPrivacyChoices: 'Ad privacy choices',
       AppString.categoryWater: 'Water',
       AppString.categoryTea: 'Tea',
       AppString.categoryCoffee: 'Coffee',
@@ -589,6 +594,11 @@ class AppTranslations extends Translations {
     },
 
     'tr_TR': {
+      AppString.rewardedThemeOffer: 'Bu temayı 24 saat kullanmak için reklam izle.',
+      AppString.watchAdForTheme: 'Reklam izle',
+      AppString.rewardedThemeActiveUntil: '@date @time tarihine kadar etkin',
+      AppString.rewardedAdUnavailable: 'Şu anda reklam yok. Daha sonra tekrar dene.',
+      AppString.adPrivacyChoices: 'Reklam gizliliği seçenekleri',
       AppString.categoryWater: 'Su',
       AppString.categoryTea: 'Çay',
       AppString.categoryCoffee: 'Kahve',
@@ -1175,6 +1185,11 @@ class AppTranslations extends Translations {
     },
 
     'es_ES': {
+      AppString.rewardedThemeOffer: 'Mira un anuncio para desbloquear este tema durante 24 horas.',
+      AppString.watchAdForTheme: 'Ver anuncio',
+      AppString.rewardedThemeActiveUntil: 'Activo hasta el @date a las @time',
+      AppString.rewardedAdUnavailable: 'No hay anuncios disponibles. Inténtalo más tarde.',
+      AppString.adPrivacyChoices: 'Opciones de privacidad de anuncios',
       AppString.categoryWater: 'Agua',
       AppString.categoryTea: 'Té',
       AppString.categoryCoffee: 'Café',
@@ -1745,6 +1760,11 @@ class AppTranslations extends Translations {
       AppString.maxLimit: 'Max',
     },
     'de_DE': {
+      AppString.rewardedThemeOffer: 'Sieh dir eine Anzeige an, um dieses Design 24 Stunden lang freizuschalten.',
+      AppString.watchAdForTheme: 'Anzeige ansehen',
+      AppString.rewardedThemeActiveUntil: 'Aktiv bis @date um @time',
+      AppString.rewardedAdUnavailable: 'Gerade ist keine Anzeige verfügbar. Versuche es später erneut.',
+      AppString.adPrivacyChoices: 'Datenschutzoptionen für Werbung',
       AppString.categoryWater: 'Wasser',
       AppString.categoryTea: 'Tee',
       AppString.categoryCoffee: 'Kaffee',
@@ -2314,6 +2334,11 @@ class AppTranslations extends Translations {
       AppString.maxLimit: 'Max',
     },
     'fr_FR': {
+      AppString.rewardedThemeOffer: 'Regardez une annonce pour débloquer ce thème pendant 24 heures.',
+      AppString.watchAdForTheme: 'Voir une annonce',
+      AppString.rewardedThemeActiveUntil: 'Actif jusqu’au @date à @time',
+      AppString.rewardedAdUnavailable: 'Aucune annonce disponible pour le moment. Réessayez plus tard.',
+      AppString.adPrivacyChoices: 'Choix de confidentialité des annonces',
       AppString.categoryWater: 'Eau',
       AppString.categoryTea: 'Thé',
       AppString.categoryCoffee: 'Café',
@@ -2889,6 +2914,11 @@ class AppTranslations extends Translations {
       AppString.maxLimit: 'Max',
     },
     'hi_IN': {
+      AppString.rewardedThemeOffer: 'यह थीम 24 घंटे के लिए अनलॉक करने के लिए विज्ञापन देखें।',
+      AppString.watchAdForTheme: 'विज्ञापन देखें',
+      AppString.rewardedThemeActiveUntil: '@date को @time तक सक्रिय',
+      AppString.rewardedAdUnavailable: 'अभी कोई विज्ञापन उपलब्ध नहीं है। बाद में फिर से कोशिश करें।',
+      AppString.adPrivacyChoices: 'विज्ञापन गोपनीयता विकल्प',
       AppString.categoryWater: 'पानी',
       AppString.categoryTea: 'चाय',
       AppString.categoryCoffee: 'कॉफ़ी',
@@ -3471,6 +3501,11 @@ class AppTranslations extends Translations {
       AppString.maxLimit: 'अधिकतम',
     },
     'fa_IR': {
+      AppString.rewardedThemeOffer: 'برای فعال کردن این پوسته به مدت ۲۴ ساعت، یک آگهی ببینید.',
+      AppString.watchAdForTheme: 'مشاهده آگهی',
+      AppString.rewardedThemeActiveUntil: 'فعال تا @date ساعت @time',
+      AppString.rewardedAdUnavailable: 'در حال حاضر آگهی موجود نیست. بعداً دوباره امتحان کنید.',
+      AppString.adPrivacyChoices: 'گزینه‌های حریم خصوصی تبلیغات',
       AppString.categoryWater: 'آب',
       AppString.categoryTea: 'چای',
       AppString.categoryCoffee: 'قهوه',
@@ -4005,6 +4040,11 @@ class AppTranslations extends Translations {
       AppString.mineralWater: 'آب معدنی',
     },
     'ar_SA': {
+      AppString.rewardedThemeOffer: 'شاهد إعلانًا لفتح هذا المظهر لمدة ٢٤ ساعة.',
+      AppString.watchAdForTheme: 'شاهد إعلانًا',
+      AppString.rewardedThemeActiveUntil: 'نشط حتى @date الساعة @time',
+      AppString.rewardedAdUnavailable: 'لا يوجد إعلان متاح الآن. حاول مرة أخرى لاحقًا.',
+      AppString.adPrivacyChoices: 'خيارات خصوصية الإعلانات',
       AppString.categoryWater: 'ماء',
       AppString.categoryTea: 'شاي',
       AppString.categoryCoffee: 'قهوة',
@@ -4561,6 +4601,11 @@ class AppTranslations extends Translations {
       AppString.maxLimit: 'حداکثر',
     },
     'ur_PK': {
+      AppString.rewardedThemeOffer: 'یہ تھیم ۲۴ گھنٹوں کے لیے کھولنے کے لیے اشتہار دیکھیں۔',
+      AppString.watchAdForTheme: 'اشتہار دیکھیں',
+      AppString.rewardedThemeActiveUntil: '@date کو @time تک فعال',
+      AppString.rewardedAdUnavailable: 'اس وقت کوئی اشتہار دستیاب نہیں۔ بعد میں دوبارہ کوشش کریں۔',
+      AppString.adPrivacyChoices: 'اشتہارات کی رازداری کے اختیارات',
       AppString.categoryWater: 'پانی',
       AppString.categoryTea: 'چائے',
       AppString.categoryCoffee: 'کافی',

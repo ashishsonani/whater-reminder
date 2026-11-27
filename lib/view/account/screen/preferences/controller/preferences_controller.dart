@@ -1,3 +1,4 @@
+import 'package:water_intake/services/water_log_store.dart';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -122,12 +123,13 @@ class PreferencesController extends GetxController {
 
     intakeUnit.value = unit;
     await LocalStorage.setIntakeUnit(unit);
-    await _updateFirestore({'isMl': unit == 'ml', 'waterGoal': intakeGoal.value});
-
     if (Get.isRegistered<HomeController>()) {
       final home = Get.find<HomeController>();
       await home.updateUnit(unit == 'ml');
+    } else {
+      await WaterLogStore.instance.setGoal(intakeGoal.value, unit == 'ml');
     }
+    await _updateFirestore({'isMl': unit == 'ml', 'waterGoal': intakeGoal.value});
   }
 
   Future<void> toggleSound(bool value) async {
@@ -142,21 +144,11 @@ class PreferencesController extends GetxController {
 
   Future<void> updateIntakeGoal(int goal) async {
     intakeGoal.value = goal;
-    String? uid = await FirebaseService().getUserId();
-    if (uid == null) return;
-
-    // 1. Update Global Goal in User Profile
-    await _updateFirestore({'waterGoal': goal});
-
-    // 2. Update Today's Summary
-    String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    await FirebaseService().firestore.collection('users').doc(uid).collection('water_records').doc(today).set({
-      'targetIntakeValue': goal,
-    }, SetOptions(merge: true));
-
-    // 3. Notify HomeController if it's open
     if (Get.isRegistered<HomeController>()) {
-      Get.find<HomeController>().targetIntake.value = goal;
+      await Get.find<HomeController>().updateGoal(goal);
+    } else {
+      await WaterLogStore.instance.setGoal(goal, await LocalStorage.getIntakeUnit() == 'ml');
+      await _updateFirestore({'waterGoal': goal});
     }
   }
 
@@ -312,19 +304,8 @@ class PreferencesController extends GetxController {
 
     await FirebaseService().firestore.collection('users').doc(uid).update(defaultData);
 
-    // 2. Clear all water records in Firestore
-    var waterRecordsRef = FirebaseService().firestore.collection('users').doc(uid).collection('water_records');
-    var snapshots = await waterRecordsRef.get();
-
-    for (var doc in snapshots.docs) {
-      // Delete the daily_records subcollection docs first
-      var dailyRecords = await doc.reference.collection('daily_records').get();
-      for (var dailyDoc in dailyRecords.docs) {
-        await dailyDoc.reference.delete();
-      }
-      // Delete the summary doc
-      await doc.reference.delete();
-    }
+    await WaterLogStore.instance.clear();
+    await WaterLogStore.instance.setGoal(2950, true);
 
     // 3. Reset Local Storage
     final prefs = await SharedPreferences.getInstance();
