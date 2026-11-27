@@ -9,6 +9,8 @@ import '../model/reminder_model.dart';
 
 class DrinkRemindersController extends GetxController {
   var isReminderEnabled = true.obs;
+  final pausedToday = false.obs;
+  final stopsAtGoal = true.obs;
   var isLoading = false.obs;
   var reminders = <Reminder>[].obs;
 
@@ -38,9 +40,13 @@ class DrinkRemindersController extends GetxController {
   Future<void> _loadReminders() async {
     final saved = await _store.read();
     final enabled = await _store.isEnabled();
+    final paused = await _store.isPausedOn(DateTime.now());
+    final autoStop = await _store.stopsAtGoal();
     if (isClosed) return;
     reminders.assignAll(saved.reversed);
     isReminderEnabled.value = enabled;
+    pausedToday.value = paused;
+    stopsAtGoal.value = autoStop;
   }
 
   @override
@@ -53,6 +59,13 @@ class DrinkRemindersController extends GetxController {
   }
 
   Future<void> toggleGlobalReminders(bool value) => _store.setEnabled(value);
+
+  Future<void> setPausedToday(bool value) => _store.setPausedToday(value);
+
+  Future<void> setStopsAtGoal(bool value) => _store.setStopsAtGoal(value);
+
+  Future<void> setReminderDays(String? id, ReminderDays days) =>
+      _store.setDays(id, days);
 
   Future<void> toggleReminder(int index) async {
     final reminder = reminders[index];

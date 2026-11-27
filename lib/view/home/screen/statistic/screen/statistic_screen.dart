@@ -1,3 +1,4 @@
+import 'package:water_intake/models/weekly_hydration_recap.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
@@ -132,7 +133,8 @@ class _StatisticScreenState extends State<StatisticScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20.h),
+                    _weeklyRecap(controller.weeklyRecap.value),
+                    SizedBox(height: 10.h),
                     FadeSlideUpTransition(
                       play: playAnimation.value,
                       delay: const Duration(milliseconds: 80),
@@ -298,6 +300,46 @@ class _StatisticScreenState extends State<StatisticScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _weeklyRecap(WeeklyHydrationRecap recap) {
+    final period = switch (recap.mostConsistentPeriod) {
+      LoggingPeriod.morning => AppString.loggingMorning.tr,
+      LoggingPeriod.afternoon => AppString.loggingAfternoon.tr,
+      LoggingPeriod.evening => AppString.loggingEvening.tr,
+      LoggingPeriod.overnight => AppString.loggingOvernight.tr,
+      null => null,
+    };
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 10.h),
+      padding: EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        border: Border.all(color: AppColors.cardEdge),
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(AppString.hydrationRecap.tr, style: AppTypography.sectionTitle),
+          SizedBox(height: 8.h),
+          Text(
+            recap.loggedDays == 0
+              ? AppString.noHydrationRecap.tr
+              : AppString.goalDaysRecap.trParams({'days': recap.goalDays.toString()}),
+            style: AppTypography.statSmall,
+          ),
+          if (period != null) ...[
+            SizedBox(height: 4.h),
+            Text(AppString.bestLoggingTime.trParams({
+              'period': period,
+              'days': recap.periodDays.toString(),
+            }), style: AppTypography.statSmall),
+          ],
+        ],
       ),
     );
   }

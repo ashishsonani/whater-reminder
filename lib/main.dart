@@ -23,6 +23,7 @@ void main() async {
 
   await LocalStorage.init();
   await ThemeReward.instance.restore();
+  await MilestoneTheme.instance.restore();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.white,

@@ -39,7 +39,7 @@
         </activity>
         <receiver
             android:name=".WaterWidgetProvider"
-            android:exported="true"
+            android:exported="false"
             android:label="Water Reminder">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

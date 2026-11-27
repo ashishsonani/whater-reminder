@@ -111,6 +111,7 @@ class WaterLogStore {
     int? goal,
     bool? isMl,
     String? drinkType,
+    String? recordId,
   }) => _edit((days) {
     final date = dateKey(now);
     final previousDates =
@@ -120,6 +121,8 @@ class WaterLogStore {
     final unit = isMl ?? previous?.isMl ?? true;
     final target = goal ?? previous?.goal ?? 0;
     final records = day?.records ?? [];
+    final id = recordId ?? now.microsecondsSinceEpoch.toString();
+    if (records.any((record) => record.id == id)) return;
     final recordIsMl = isMl ?? true;
     final amountInGoalUnit = recordIsMl == unit
         ? amount
@@ -130,7 +133,7 @@ class WaterLogStore {
       records: [
         ...records,
         WaterRecord(
-          id: now.microsecondsSinceEpoch.toString(),
+          id: id,
           amount: amount,
           type: type,
           createdAt: now,
@@ -143,14 +146,17 @@ class WaterLogStore {
     );
   });
 
-  Future<void> delete(WaterRecord record) => _edit((days) {
-    final date = dateKey(record.createdAt);
+  Future<void> delete(WaterRecord record) =>
+      deleteById(record.createdAt, record.id);
+
+  Future<void> deleteById(DateTime dateTime, String id) => _edit((days) {
+    final date = dateKey(dateTime);
     final day = days[date];
     if (day == null) return;
     days[date] = WaterLogDay(
       goal: day.goal,
       isMl: day.isMl,
-      records: day.records.where((item) => item.id != record.id).toList(),
+      records: day.records.where((item) => item.id != id).toList(),
     );
   });
 

@@ -16,6 +16,7 @@ import '../../home/widget/water_widgets.dart';
 import '../controller/account_controller.dart';
 import '../widget/language_selection_bottom_sheet.dart';
 import '../widget/rewarded_theme_card.dart';
+import '../widget/milestone_theme_card.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -46,6 +47,7 @@ class AccountScreen extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(height: 10.h),
+              const MilestoneThemeCard(),
               const RewardedThemeCard(),
               _buildSection([
                 _buildTile(

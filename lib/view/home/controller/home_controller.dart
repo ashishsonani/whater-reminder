@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:water_intake/services/widget_service.dart';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -16,9 +15,12 @@ import 'package:water_intake/models/history_data.dart';
 import 'package:water_intake/models/stats_data.dart';
 import 'package:water_intake/models/user_model.dart';
 import 'package:water_intake/models/water_record.dart';
+import 'package:water_intake/models/weekly_hydration_recap.dart';
+import 'package:water_intake/theme/rewarded_theme.dart';
 import 'package:water_intake/services/firebase_service.dart';
 import 'package:water_intake/services/water_log_store.dart';
 import 'package:water_intake/services/water_log_migration.dart';
+import 'package:water_intake/services/widget_service.dart';
 import 'package:water_intake/utils/app_strings.dart';
 import 'package:water_intake/utils/local_storage.dart';
 import 'package:water_intake/view/dashboard/controller/dashboard_controller.dart';
@@ -263,6 +265,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   }
 
   bool isProcessingAnimation = false;
+  bool _deferMilestoneUnlock = false;
   var animationAmount = 0.obs;
   var animationTrigger = 0.obs;
 
@@ -282,6 +285,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   var waterRecords = <WaterRecord>[].obs;
   var currentStreak = 0.obs;
   var longestStreak = 0.obs;
+  final weeklyRecap = WeeklyHydrationRecap.empty.obs;
   final _waterLog = WaterLogStore.instance;
   StreamSubscription<void>? _waterLogSubscription;
 
@@ -482,20 +486,8 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     _initAudio();
     tabController = TabController(length: 2, vsync: this);
 
-    // Keep the home-screen widget in sync with today's progress.
-    // Debounced so bursts of quick logs cost one widget reload.
-    debounce(currentIntake, (_) => _pushWidgetUpdate(), time: const Duration(milliseconds: 500));
-    debounce(targetIntake, (_) => _pushWidgetUpdate(), time: const Duration(milliseconds: 500));
-
     _waterLogSubscription = _waterLog.changes.listen((_) => fetchFullHistory());
-  }
-
-  void _pushWidgetUpdate() {
-    WidgetService.updateProgress(
-      current: currentIntake.value,
-      goal: targetIntake.value,
-      isMl: isMl.value,
-    );
+    unawaited(WidgetService.sync());
   }
 
   void showDailyTip() {
@@ -601,6 +593,8 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     final yesterday = DateTime(now.year, now.month, now.day - 1);
     currentStreak.value = previous == today || previous == yesterday ? streak : 0;
     longestStreak.value = longest;
+    weeklyRecap.value = WeeklyHydrationRecap.fromDays(days, today);
+    if (!_deferMilestoneUnlock) _recordMilestoneTheme();
 
     statsData.value = StatsDataWrapper(data: StatsData(
       goal: targetIntake.value,
@@ -615,6 +609,12 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
         );
       }).toList(),
     ));
+  }
+
+  void _recordMilestoneTheme() {
+    unawaited(MilestoneTheme.instance.recordStreak(longestStreak.value).catchError((Object error) {
+      log('Error saving milestone theme: $error');
+    }));
   }
 
   Future<void> _initAudio() async {
@@ -809,8 +809,8 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   }
 
 
-  Future<void> addWater(int amount, String type, {String? drinkType}) async {
-    if (isProcessingAnimation) return;
+  Future<void> addWater(int amount, String type, {String? drinkType, String? confirmation}) async {
+    if (amount <= 0 || isProcessingAnimation) return;
     isProcessingAnimation = true;
     Future.delayed(const Duration(milliseconds: 1000), () {
       isProcessingAnimation = false;
@@ -818,21 +818,49 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
 
     final now = DateTime.now();
     final date = WaterLogStore.dateKey(now);
+    final id = now.microsecondsSinceEpoch.toString();
+    _deferMilestoneUnlock = true;
     try {
       final wasComplete = (await _waterLog.read())[date]?.goalMet ?? false;
-      await _waterLog.add(now, amount, type, goal: targetIntake.value, isMl: isMl.value, drinkType: drinkType);
+      await _waterLog.add(now, amount, type, goal: targetIntake.value, isMl: isMl.value, drinkType: drinkType, recordId: id);
       await fetchFullHistory();
       triggerAnimation(amount);
       final completedGoal = !wasComplete && targetIntake.value > 0 && currentIntake.value >= targetIntake.value;
       unawaited(AdService.onWaterLogged(completedGoal: completedGoal));
       if (completedGoal) {
-        unawaited(showGoalCompletionDialog());
+        final choice = await showGoalCompletionDialog(confirmation: confirmation);
+        if (isClosed) return;
+        if (choice == false) {
+          await undoWaterLog(now, id);
+          return;
+        }
+        if (choice == true) unawaited(AdService.showInterstitialAtBreak());
       } else {
         playWaterSound();
+        final context = Get.context;
+        final messenger = context != null && context.mounted ? ScaffoldMessenger.maybeOf(context) : null;
+        messenger?.hideCurrentSnackBar();
+        messenger?.showSnackBar(SnackBar(
+          content: Text(confirmation ?? AppString.waterLogged.tr),
+          action: SnackBarAction(label: AppString.undoWaterLog.tr, onPressed: () => undoWaterLog(now, id)),
+        ));
       }
       checkAndUnlockAwards(showSheet: false);
     } catch (error) {
       log('Error saving water log: $error');
+    } finally {
+      _deferMilestoneUnlock = false;
+      if (!isClosed) _recordMilestoneTheme();
+    }
+  }
+
+  Future<void> undoWaterLog(DateTime date, String id) async {
+    try {
+      await _waterLog.deleteById(date, id);
+      await fetchFullHistory();
+      checkAndUnlockAwards(showSheet: false);
+    } catch (error) {
+      log('Error undoing water log: $error');
     }
   }
 
@@ -1023,7 +1051,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     fetchStats();
   }
 
-  Future<void> showGoalCompletionDialog() async {
+  Future<bool?> showGoalCompletionDialog({String? confirmation}) async {
     playWaterSound();
 
     final (title, description, image) = switch (currentStreak.value) {
@@ -1034,7 +1062,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
       _ => ('Goal Completed!', 'Great job! You reached your daily hydration goal.', Assets.images.png.firstAward),
     };
 
-    final continued = await Get.dialog<bool>(
+    return Get.dialog<bool>(
       TweenAnimationBuilder(
         duration: const Duration(milliseconds: 800),
         tween: Tween<double>(begin: 0.0, end: 1.0),
@@ -1069,6 +1097,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
                       color: Colors.black54,
                     ),
                   ),
+                  if (confirmation != null) ...[SizedBox(height: 8.h), Text(confirmation, textAlign: TextAlign.center)],
                   SizedBox(height: 20.h),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -1092,6 +1121,10 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
                       ),
                     ),
                   ),
+                  TextButton(
+                    onPressed: () => Get.back(result: false),
+                    child: Text(AppString.undoWaterLog.tr),
+                  ),
                 ],
               ),
             ),
@@ -1100,7 +1133,6 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
       ),
       barrierDismissible: false,
     );
-    if (continued == true && !isClosed) await AdService.showInterstitialAtBreak();
   }
 }
 

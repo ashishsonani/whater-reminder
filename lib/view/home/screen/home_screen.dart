@@ -2139,24 +2139,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 }
                 String drinkType = _getFilenameFromAsset(controller.selectedDrinkAsset.value);
-                controller.addWater(amount, type, drinkType: drinkType);
-
-                if (isCapped) {
-                  final String unit = controller.isMl.value ? 'ml' : 'oz';
-                  Get.snackbar(
-                    AppString.amountCapped.tr,
-                    AppString.amountCappedDesc.tr
-                        .replaceAll('@originalAmount', originalAmount.toString())
-                        .replaceAll('@unit', unit)
-                        .replaceAll('@amount', amount.toString()),
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: AppColors.tealDeep.withValues(alpha: 0.95),
-                    colorText: Colors.white,
-                    margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-                    borderRadius: 16.r,
-                    duration: const Duration(seconds: 4),
-                  );
-                }
+                final unit = controller.isMl.value ? 'ml' : 'oz';
+                controller.addWater(
+                  amount,
+                  type,
+                  drinkType: drinkType,
+                  confirmation: isCapped
+                      ? AppString.amountCappedDesc.trParams({
+                          'originalAmount': originalAmount.toString(),
+                          'unit': unit,
+                          'amount': amount.toString(),
+                        })
+                      : null,
+                );
               },
         child: AnimatedScale(
           scale: 1.0,

@@ -56,6 +56,21 @@ class Data {
   };
 }
 
+enum ReminderDays {
+  everyDay,
+  weekdays,
+  weekends;
+
+  Set<int> get days => switch (this) {
+    everyDay => const {1, 2, 3, 4, 5, 6, 7},
+    weekdays => const {1, 2, 3, 4, 5},
+    weekends => const {6, 7},
+  };
+
+  static ReminderDays fromName(Object? name) =>
+      values.firstWhere((value) => value.name == name, orElse: () => everyDay);
+}
+
 class Reminder {
   String? id;
   String? time;
@@ -64,6 +79,7 @@ class Reminder {
   bool? isCustom;
   bool? isSnooze;
   DateTime? createdAt;
+  final ReminderDays days;
 
   Reminder({
     this.id,
@@ -73,6 +89,7 @@ class Reminder {
     this.isCustom,
     this.isSnooze,
     this.createdAt,
+    this.days = ReminderDays.everyDay,
   });
 
   Reminder copyWith({
@@ -83,6 +100,7 @@ class Reminder {
     bool? isCustom,
     bool? isSnooze,
     DateTime? createdAt,
+    ReminderDays? days,
   }) => Reminder(
     id: id ?? this.id,
     time: time ?? this.time,
@@ -91,10 +109,12 @@ class Reminder {
     isCustom: isCustom ?? this.isCustom,
     isSnooze: isSnooze ?? this.isSnooze,
     createdAt: createdAt ?? this.createdAt,
+    days: days ?? this.days,
   );
 
   factory Reminder.fromJson(Map<String, dynamic> json) => Reminder(
     id: json["id"],
+    days: ReminderDays.fromName(json["days"]),
     time: json["timeRange"],
     interval: json["interval"],
     isEnabled:
@@ -111,6 +131,7 @@ class Reminder {
 
   Map<String, dynamic> toJson() => {
     "id": id,
+    "days": days.name,
     "timeRange": time,
     "interval": interval,
     "isActive": isEnabled,

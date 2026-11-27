@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:water_intake/services/water_log_store.dart';
 import 'package:water_intake/view/account/screen/reminder/model/reminder_model.dart';
 
 class ReminderStore {
@@ -10,6 +11,8 @@ class ReminderStore {
   static const _key = 'deviceReminders';
   static const _imported = 'deviceRemindersImported';
   static const _enabledKey = 'notifications_enabled';
+  static const _pauseKey = 'remindersPausedOn';
+  static const _stopKey = 'stopRemindersAtGoal';
 
   final _changes = StreamController<void>.broadcast();
   Stream<void> get changes => _changes.stream;
@@ -58,6 +61,32 @@ class ReminderStore {
     if (!await prefs.setBool(_enabledKey, enabled)) {
       throw StateError('Could not save reminder setting');
     }
+  });
+
+  Future<bool> isPausedOn(DateTime date) async =>
+      (await SharedPreferences.getInstance()).getString(_pauseKey) ==
+      WaterLogStore.dateKey(date);
+
+  Future<bool> stopsAtGoal() async =>
+      (await SharedPreferences.getInstance()).getBool(_stopKey) ?? true;
+
+  Future<void> setPausedToday(bool paused) => _edit((prefs) async {
+    if (paused) {
+      await prefs.setString(_pauseKey, WaterLogStore.dateKey(DateTime.now()));
+    } else {
+      await prefs.remove(_pauseKey);
+    }
+  });
+
+  Future<void> setStopsAtGoal(bool enabled) => _edit((prefs) async {
+    await prefs.setBool(_stopKey, enabled);
+  });
+
+  Future<void> setDays(String? id, ReminderDays days) => _edit((prefs) async {
+    await _save(prefs, [
+      for (final reminder in _read(prefs))
+        if (reminder.id == id) reminder.copyWith(days: days) else reminder,
+    ]);
   });
 
   Future<void> add(String time) => _edit((prefs) async {
