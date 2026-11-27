@@ -109,7 +109,7 @@ class GoalScreen extends StatelessWidget {
                       child: CommonButton(
                         text: AppString.continueText.tr,
                         onPressed: () async {
-                          await controller.updateWaterGoalInFirebase();
+                          await controller.saveWaterGoal();
                           Get.offAllNamed(AppRoutes.addReminder);
                         },
                       ),
@@ -275,7 +275,7 @@ class GoalScreen extends StatelessWidget {
                     TextButton(
                       onPressed: () {
                         controller.waterGoal.value = controller.tempWaterGoal.value;
-                        controller.updateWaterGoalInFirebase();
+                        controller.saveWaterGoal();
                         Get.back();
                       },
                       child: Text(

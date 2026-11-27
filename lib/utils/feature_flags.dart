@@ -1,7 +1,3 @@
-/// Compile-time feature switches.
-///
-/// Premium/IAP is disabled for the initial release: IAPService is not wired
-/// and App Review rejects visible-but-non-functional purchase UI. Flipping
-/// this to true restores the Premium screen entries and drink locks once
-/// IAPService and the App Store products exist.
+/// The legacy drink picker paywall remains disabled so existing drinks stay
+/// available. Hydration Plus billing is controlled by IAPService.enabled.
 const bool kPremiumEnabled = false;

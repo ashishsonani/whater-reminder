@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:water_intake/theme/rewarded_theme.dart';
+import 'package:water_intake/services/iap_service.dart';
 
 class AdService {
   // Remote Config State
@@ -50,6 +50,7 @@ class AdService {
             : 'ca-app-pub-3940256099942544/4411468910')
       : (Platform.isAndroid ? interstitialIdAndroid : interstitialIdIos);
 
+  static bool _observesPremium = false;
   static bool _consentAllowsAds = false;
   static bool _mobileAdsInitialized = false;
   static bool _isInitializingMobileAds = false;
@@ -58,6 +59,7 @@ class AdService {
       _consentAllowsAds &&
       _mobileAdsInitialized &&
       !_privacyFormOpen &&
+      !IAPService.instance.isPremium &&
       adsEnabled;
   static bool get canLoadBanner => _canLoadAds && bannerEnabled;
 
@@ -89,7 +91,7 @@ class AdService {
       unawaited(
         RewardedAd.load(
           adUnitId: adUnitId,
-          request: const AdRequest(),
+          request: const AdRequest(nonPersonalizedAds: true),
           rewardedAdLoadCallback: RewardedAdLoadCallback(
             onAdLoaded: (ad) {
               if (pending.isCompleted) {
@@ -152,6 +154,11 @@ class AdService {
 
   static Future<void> gatherConsentAndInit() async {
     if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (!_observesPremium) {
+      _observesPremium = true;
+      IAPService.instance.premiumAccess.addListener(_refreshPlacements);
+    }
+    if (IAPService.instance.isPremium) return;
     final consent = ConsentInformation.instance;
     final updated = Completer<bool>();
     try {
@@ -176,7 +183,7 @@ class AdService {
     } catch (error) {
       debugPrint('Error gathering ad consent: $error');
     }
-    await _refreshConsent(requestTracking: true);
+    await _refreshConsent();
   }
 
   static Future<void> showPrivacyOptions() async {
@@ -197,7 +204,7 @@ class AdService {
     }
   }
 
-  static Future<void> _refreshConsent({bool requestTracking = false}) async {
+  static Future<void> _refreshConsent() async {
     final consent = ConsentInformation.instance;
     try {
       privacyOptionsRequired.value =
@@ -209,16 +216,6 @@ class AdService {
     try {
       _consentAllowsAds = await consent.canRequestAds();
       if (_consentAllowsAds && !_mobileAdsInitialized) {
-        if (requestTracking && Platform.isIOS) {
-          try {
-            if (await AppTrackingTransparency.trackingAuthorizationStatus ==
-                TrackingStatus.notDetermined) {
-              await AppTrackingTransparency.requestTrackingAuthorization();
-            }
-          } catch (error) {
-            debugPrint('ATT request failed: $error');
-          }
-        }
         unawaited(_initializeMobileAds());
       }
     } catch (error) {
@@ -384,7 +381,7 @@ class AdService {
     unawaited(
       InterstitialAd.load(
         adUnitId: interstitialAdUnitId,
-        request: const AdRequest(),
+        request: const AdRequest(nonPersonalizedAds: true),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (ad) {
             _isInterstitialLoading = false;
@@ -564,7 +561,7 @@ class _AdaptiveBannerState extends State<_AdaptiveBanner> {
       final ad = BannerAd(
         adUnitId: AdService.bannerAdUnitId,
         size: size,
-        request: const AdRequest(),
+        request: const AdRequest(nonPersonalizedAds: true),
         listener: BannerAdListener(
           onAdLoaded: (_) {
             if (mounted) setState(() => _loaded = true);

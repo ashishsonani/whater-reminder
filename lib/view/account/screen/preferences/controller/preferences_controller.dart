@@ -1,11 +1,9 @@
 import 'package:water_intake/services/water_log_store.dart';
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:water_intake/models/user_model.dart';
 import 'package:water_intake/services/firebase_service.dart';
 
 import 'package:water_intake/theme/app_colors.dart';
@@ -28,68 +26,55 @@ class PreferencesController extends GetxController {
   var activityLevel = 'Moderately active'.obs;
   var climate = 'Temperate'.obs;
   var age = 25.obs;
-  var isPremium = false.obs;
 
   var isLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    loadPreferences();
-    fetchUserData();
+    _loadWithLegacyProfile();
   }
 
-  Future<void> fetchUserData() async {
-    isLoading.value = true;
+  Future<void> _loadWithLegacyProfile() async {
+    await loadPreferences();
+    final uid = await LocalStorage.getUserId();
+    if (uid == null || isClosed) return;
     try {
-      String? uid = await FirebaseService().getUserId();
-      if (uid == null) return;
-
-      var doc = await FirebaseService().firestore.collection('users').doc(uid).get();
-      if (doc.exists && doc.data() != null) {
-        final user = UserModel.fromMap(doc.data()!, doc.id);
-
-        weightUnit.value = user.isKg ? 'kg' : 'lb';
-        intakeUnit.value = user.isMl ? 'ml' : 'oz';
-        intakeGoal.value = user.waterGoal;
-        wakeUpTime.value = user.wakeUpTime;
-        bedTime.value = user.bedTime;
-        gender.value = user.gender;
-        weightValue.value = user.weight;
-        activityLevel.value = user.activityLevel;
-        climate.value = user.climate;
-        age.value = user.age;
-        timeFormat.value = user.timeFormat;
-        isPremium.value = user.isPremium;
-      }
+      await FirebaseService().importLegacyProfile(uid);
+      if (!isClosed) await loadPreferences();
     } catch (e) {
-      log("Error fetching user data: $e");
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  Future<void> _updateFirestore(Map<String, dynamic> data) async {
-    isLoading.value = true;
-    try {
-      String? uid = await FirebaseService().getUserId();
-      if (uid == null) return;
-
-      await FirebaseService().firestore.collection('users').doc(uid).update({...data, 'updatedAt': FieldValue.serverTimestamp()});
-    } catch (e) {
-      log("Error updating user data in Firestore: $e");
-    } finally {
-      isLoading.value = false;
+      log('Could not import legacy hydration profile: $e');
     }
   }
 
   Future<void> loadPreferences() async {
-    weightUnit.value = await LocalStorage.getWeightUnit();
-    intakeUnit.value = await LocalStorage.getIntakeUnit();
-    soundEnabled.value = await LocalStorage.isSoundEnabled();
-    vibrationEnabled.value = await LocalStorage.isVibrationEnabled();
-    timeFormat.value = await LocalStorage.getTimeFormat();
-    climate.value = await LocalStorage.getClimate();
+    final fallbackWeightUnit = await LocalStorage.getWeightUnit();
+    final fallbackIntakeUnit = await LocalStorage.getIntakeUnit();
+    final fallbackTimeFormat = await LocalStorage.getTimeFormat();
+    final fallbackClimate = await LocalStorage.getClimate();
+    final sound = await LocalStorage.isSoundEnabled();
+    final vibration = await LocalStorage.isVibrationEnabled();
+    final days = await WaterLogStore.instance.read();
+    if (isClosed) return;
+
+    final profile = LocalStorage.readHydrationProfile();
+    final today = WaterLogStore.dateKey(DateTime.now());
+    final dates = days.keys.where((date) => date.compareTo(today) <= 0 && days[date]!.goal > 0).toList()..sort();
+    final latestGoal = dates.isEmpty ? null : days[dates.last];
+    final isKg = profile['isKg'] as bool?;
+    weightUnit.value = isKg == null ? fallbackWeightUnit : (isKg ? 'kg' : 'lb');
+    intakeUnit.value = latestGoal == null ? fallbackIntakeUnit : (latestGoal.isMl ? 'ml' : 'oz');
+    intakeGoal.value = latestGoal?.goal ?? 2950;
+    soundEnabled.value = sound;
+    vibrationEnabled.value = vibration;
+    timeFormat.value = profile['timeFormat'] as String? ?? fallbackTimeFormat;
+    climate.value = profile['climate'] as String? ?? fallbackClimate;
+    wakeUpTime.value = profile['wakeUpTime'] as String? ?? '8:00 AM';
+    bedTime.value = profile['bedTime'] as String? ?? '10:00 PM';
+    gender.value = profile['gender'] as String? ?? 'Male';
+    weightValue.value = (profile['weight'] as num?)?.toInt() ?? 70;
+    activityLevel.value = profile['activityLevel'] as String? ?? 'Moderately active';
+    age.value = (profile['age'] as num?)?.toInt() ?? 25;
   }
 
   Future<void> toggleWeightUnit(String unit) async {
@@ -103,8 +88,7 @@ class PreferencesController extends GetxController {
     }
 
     weightUnit.value = unit;
-    await LocalStorage.setWeightUnit(unit);
-    await _updateFirestore({'isKg': unit == 'kg', 'weight': weightValue.value});
+    await LocalStorage.updateHydrationProfile({'isKg': unit == 'kg', 'weight': weightValue.value});
 
     if (Get.isRegistered<HomeController>()) {
       Get.find<HomeController>().isKg.value = (unit == 'kg');
@@ -129,7 +113,6 @@ class PreferencesController extends GetxController {
     } else {
       await WaterLogStore.instance.setGoal(intakeGoal.value, unit == 'ml');
     }
-    await _updateFirestore({'isMl': unit == 'ml', 'waterGoal': intakeGoal.value});
   }
 
   Future<void> toggleSound(bool value) async {
@@ -148,7 +131,6 @@ class PreferencesController extends GetxController {
       await Get.find<HomeController>().updateGoal(goal);
     } else {
       await WaterLogStore.instance.setGoal(goal, await LocalStorage.getIntakeUnit() == 'ml');
-      await _updateFirestore({'waterGoal': goal});
     }
   }
 
@@ -209,8 +191,7 @@ class PreferencesController extends GetxController {
 
   Future<void> updateTimeFormat(String format) async {
     timeFormat.value = format;
-    await LocalStorage.setTimeFormat(format);
-    await _updateFirestore({'timeFormat': format});
+    await LocalStorage.updateHydrationProfile({'timeFormat': format});
   }
 
   String getFormattedTime(String timeStr) {
@@ -242,108 +223,86 @@ class PreferencesController extends GetxController {
 
   Future<void> updateWakeUpTime(String time) async {
     wakeUpTime.value = time;
-    await _updateFirestore({'wakeUpTime': time});
+    await LocalStorage.updateHydrationProfile({'wakeUpTime': time});
   }
 
   Future<void> updateBedTime(String time) async {
     bedTime.value = time;
-    await _updateFirestore({'bedTime': time});
+    await LocalStorage.updateHydrationProfile({'bedTime': time});
   }
 
   Future<void> updateGender(String val) async {
     gender.value = val;
-    await _updateFirestore({'gender': val});
+    await LocalStorage.updateHydrationProfile({'gender': val});
     calculateRecommendedGoal();
   }
 
   Future<void> updateWeightValue(int val) async {
     weightValue.value = val;
-    await _updateFirestore({'weight': val});
+    await LocalStorage.updateHydrationProfile({'weight': val});
     calculateRecommendedGoal();
   }
 
   Future<void> updateActivityLevel(String val) async {
     activityLevel.value = val;
-    await _updateFirestore({'activityLevel': val});
+    await LocalStorage.updateHydrationProfile({'activityLevel': val});
     calculateRecommendedGoal();
   }
 
   Future<void> updateClimate(String val) async {
     climate.value = val;
-    await LocalStorage.setClimate(val);
-    await _updateFirestore({'climate': val});
+    await LocalStorage.updateHydrationProfile({'climate': val});
     calculateRecommendedGoal();
   }
 
   Future<void> resetAllTracking() async {
     isLoading.value = true;
-    // try {
-    String? uid = await FirebaseService().getUserId();
-    if (uid == null) return;
+    try {
+      await LocalStorage.updateHydrationProfile({
+        'gender': 'Male',
+        'weight': 70,
+        'isKg': true,
+        'age': 30,
+        'wakeUpTime': '7:00 AM',
+        'bedTime': '10:00 PM',
+        'activityLevel': 'Moderate Active',
+        'climate': 'Temperate',
+        'timeFormat': '12-hour',
+        'awards': <String>[],
+        'celebratedAwards': <String>[],
+        'legacyImported': true,
+      });
+      await WaterLogStore.instance.clear();
+      await WaterLogStore.instance.setGoal(2950, true);
 
-    // 1. Reset User Profile to defaults in Firestore
-    Map<String, dynamic> defaultData = {
-      'gender': 'Male',
-      'weight': 70,
-      'isKg': true,
-      'age': 30,
-      'wakeUpTime': '7:00 AM',
-      'bedTime': '10:00 PM',
-      'activityLevel': 'Moderate Active',
-      'climate': 'Temperate',
-      "timeFormat": '12-hour',
-      'waterGoal': 2950,
-      'isMl': true,
-      'currentStreak': 0,
-      'longestStreak': 0,
-      'awards': [],
-      'celebratedAwards': [],
-      'lastStreakDate': '',
-      'updatedAt': FieldValue.serverTimestamp(),
-    };
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('water_custom_cups');
+      await prefs.remove('customCups');
+      await prefs.remove('customTypes');
+      await prefs.remove('lastLogDate');
+      await prefs.remove('selectedCupIndex');
+      await LocalStorage.setIntakeUnit('ml');
+      await loadPreferences();
 
-    await FirebaseService().firestore.collection('users').doc(uid).update(defaultData);
+      if (Get.isRegistered<HomeController>()) {
+        final home = Get.find<HomeController>();
+        home.skipFeedback = true;
+        await home.refreshAllData();
+      }
 
-    await WaterLogStore.instance.clear();
-    await WaterLogStore.instance.setGoal(2950, true);
-
-    // 3. Reset Local Storage
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('water_custom_cups'); // Used in HomeController
-    await prefs.remove('customCups'); // Used in LocalStorage
-    await prefs.remove('customTypes');
-    await prefs.remove('lastLogDate');
-    await prefs.remove('selectedCupIndex');
-
-    await LocalStorage.setWeightUnit('kg');
-    await LocalStorage.setIntakeUnit('ml');
-    await LocalStorage.setTimeFormat('12-hour');
-    await LocalStorage.setClimate('Temperate');
-
-    // 4. Reload local controller state
-    await loadPreferences();
-    await fetchUserData();
-
-    // 5. Notify HomeController to refresh its data if it's open
-    if (Get.isRegistered<HomeController>()) {
-      final homeController = Get.find<HomeController>();
-      homeController.skipFeedback = true;
-      await homeController.refreshAllData();
+      Get.snackbar(
+        AppString.success.tr,
+        AppString.resetData.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+        colorText: AppColors.primary,
+      );
+    } catch (error) {
+      log('Could not reset tracking: $error');
+      Get.snackbar(AppString.error.tr, AppString.error.tr);
+    } finally {
+      isLoading.value = false;
     }
-
-    Get.snackbar(
-      AppString.success.tr,
-      AppString.resetData.tr,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-      colorText: AppColors.primary,
-    );
-    // } catch (e) {
-    //   log("Error resetting all tracking: $e");
-    //   Get.snackbar(AppString.error.tr, AppString.error.tr, snackPosition: SnackPosition.BOTTOM);
-    // } finally {
-    isLoading.value = false;
-    // }
   }
 
   void skip() {

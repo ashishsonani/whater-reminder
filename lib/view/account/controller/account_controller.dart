@@ -2,11 +2,9 @@ import 'dart:async';
 
 import 'package:water_intake/services/notification_service.dart';
 import 'package:water_intake/services/reminder_store.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:water_intake/services/firebase_service.dart';
 
 class LanguageItemData {
   final String code;
@@ -114,15 +112,6 @@ class AccountController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selected_language', language);
     await NotificationService().refreshReminderSchedule();
-
-    // Keep the account language in sync.
-    String? uid = await FirebaseService().getUserId();
-    if (uid != null) {
-      await FirebaseService().firestore.collection('users').doc(uid).update({
-        'language': language,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-    }
 
     if (language == 'Turkish' || language == 'Türkçe') {
       Get.updateLocale(const Locale('tr', 'TR'));

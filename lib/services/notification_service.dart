@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -81,9 +80,8 @@ class NotificationService with WidgetsBindingObserver {
     _reminders.changes.listen((_) => _queueReschedule());
     WaterLogStore.instance.changes.listen((_) => _queueReschedule());
     _queueReschedule();
-    FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null) unawaited(_importLegacyReminders(user.uid));
-    });
+    final legacyUid = await LocalStorage.getUserId();
+    if (legacyUid != null) unawaited(_importLegacyReminders(legacyUid));
   }
 
   Future<void> _importLegacyReminders(String uid) async {
@@ -99,9 +97,6 @@ class NotificationService with WidgetsBindingObserver {
             .toList(),
         enabled: profile.data()?['isNotificationEnabled'] != false,
       );
-      if (profile.data()?.containsKey('fcmToken') == true) {
-        await user.update({'fcmToken': FieldValue.delete()});
-      }
     } catch (error) {
       log('Error importing legacy reminders: $error');
     }

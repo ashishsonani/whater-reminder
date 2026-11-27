@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:water_intake/firebase_options.dart';
 import 'package:water_intake/route/route.dart';
 import 'package:water_intake/services/notification_service.dart';
+import 'package:water_intake/services/iap_service.dart';
 import 'package:water_intake/services/widget_service.dart';
 import 'package:water_intake/theme/rewarded_theme.dart';
 import 'package:water_intake/utils/app_translations.dart';
@@ -90,11 +90,12 @@ void main() async {
 
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    _initPostRunApp();
   } catch (e) {
     debugPrint('Firebase init error: $e');
   }
 
+  await IAPService.instance.init();
+  _initPostRunApp();
   runApp(RewardedThemeScope(child: MyApp(initialLocale: initialLocale)));
 }
 
@@ -104,7 +105,6 @@ void _initPostRunApp() async {
 
     final notificationService = NotificationService();
     await notificationService.init();
-    FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
 
     await initializeDateFormatting('tr_TR', null);
   } catch (e) {

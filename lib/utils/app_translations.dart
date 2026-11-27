@@ -5,6 +5,19 @@ class AppTranslations extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {
     'en_US': {
+      AppString.plusOneMonth: '1 month',
+      AppString.plusMonths: '@months months',
+      AppString.plusBillingPeriod: 'Every @period',
+      AppString.plusFreeWeek: '7 days free',
+      AppString.plusTrialRenewal: '7 days free, then @price every @period. Renews automatically until canceled.',
+      AppString.plusRenewal: '@price every @period. Renews automatically until canceled.',
+      AppString.plusCancel: 'Cancel in your store subscription settings.',
+      AppString.plusStartTrial: 'Start 7-day free trial',
+      AppString.plusSubscribe: 'Subscribe',
+      AppString.plusRestore: 'Restore purchases',
+      AppString.plusActive: 'Subscription active',
+      AppString.plusManage: 'Manage',
+      AppString.plusUnavailable: 'Subscription plans are unavailable right now.',
       AppString.waterLogged: 'Water logged',
       AppString.undoWaterLog: 'Undo',
       AppString.stopRemindersAtGoal: 'Stop reminders when I reach my goal',
@@ -294,6 +307,12 @@ class AppTranslations extends Translations {
       AppString.noReminderSet: 'No reminder set',
       AppString.tapToAddReminder: 'Tap the + button to add your first reminder',
 
+      AppString.privacyLocalData:
+          'Your water logs, hydration profile, goals, and reminders are saved on your device. If you are upgrading from an older version, the app may import your existing data from Firebase.',
+      AppString.privacyFeedbackAndBilling:
+          'If you submit feedback, Firebase stores your message and an anonymous account identifier. On Android, Firebase also verifies Google Play subscription purchases.',
+      AppString.privacyAdMob:
+          'Google AdMob serves non-personalized ads on the free tier. AdMob may process data such as approximate location, ad interactions, and diagnostics to serve and measure ads.',
       AppString.privacyPolicyIntro:
           'This Privacy Policy applies to your use of our Water Reminder application on all platforms.\n\nYour privacy is important to us. This policy explains how we handle your information when you use our app.',
       AppString.infoNotCollectTitle: 'Information We Do Not Collect',
@@ -608,6 +627,19 @@ class AppTranslations extends Translations {
     },
 
     'tr_TR': {
+      AppString.plusOneMonth: '1 ay',
+      AppString.plusMonths: '@months ay',
+      AppString.plusBillingPeriod: 'Her @period',
+      AppString.plusFreeWeek: '7 gün ücretsiz',
+      AppString.plusTrialRenewal: '7 gün ücretsiz, ardından her @period için @price. İptal edilene kadar otomatik yenilenir.',
+      AppString.plusRenewal: 'Her @period için @price. İptal edilene kadar otomatik yenilenir.',
+      AppString.plusCancel: 'Mağazanın abonelik ayarlarından iptal edin.',
+      AppString.plusStartTrial: '7 günlük ücretsiz denemeyi başlat',
+      AppString.plusSubscribe: 'Abone ol',
+      AppString.plusRestore: 'Satın alımları geri yükle',
+      AppString.plusActive: 'Abonelik etkin',
+      AppString.plusManage: 'Yönet',
+      AppString.plusUnavailable: 'Abonelik planları şu anda kullanılamıyor.',
       AppString.waterLogged: 'Su kaydedildi',
       AppString.undoWaterLog: 'Geri al',
       AppString.stopRemindersAtGoal: 'Hedefime ulaşınca hatırlatmaları durdur',
@@ -899,6 +931,12 @@ class AppTranslations extends Translations {
       AppString.noReminderSet: 'Hatırlatıcı ayarlanmadı',
       AppString.tapToAddReminder: 'İlk hatırlatıcınızı eklemek için + düğmesine dokunun',
       AppString.historyNotFound: 'Su alımı geçmişi bulunamadı.',
+      AppString.privacyLocalData:
+          'Su kayıtlarınız, hidrasyon profiliniz, hedefleriniz ve hatırlatıcılarınız cihazınızda saklanır. Eski bir sürümden güncelliyorsanız uygulama mevcut verilerinizi Firebase’den içe aktarabilir.',
+      AppString.privacyFeedbackAndBilling:
+          'Geri bildirim gönderirseniz Firebase mesajınızı ve anonim hesap kimliğinizi saklar. Android’de Firebase, Google Play abonelik satın alımlarını da doğrular.',
+      AppString.privacyAdMob:
+          'Google AdMob, ücretsiz sürümde kişiselleştirilmemiş reklamlar gösterir. AdMob, reklam sunmak ve ölçmek için yaklaşık konum, reklam etkileşimleri ve tanılama verilerini işleyebilir.',
       AppString.privacyPolicyIntro:
           'Bu Gizlilik Politikası, Su Hatırlatıcı uygulamamızın tüm platformlardaki kullanımınız için geçerlidir.\n\nGizliliğiniz bizim için önemlidir. Bu politika, uygulamamızı kullandığınızda bilgilerinizi nasıl ele aldığımızı açıklar.',
       AppString.infoNotCollectTitle: 'Toplamadığımız Bilgiler',
@@ -1213,6 +1251,19 @@ class AppTranslations extends Translations {
     },
 
     'es_ES': {
+      AppString.plusOneMonth: '1 mes',
+      AppString.plusMonths: '@months meses',
+      AppString.plusBillingPeriod: 'Cada @period',
+      AppString.plusFreeWeek: '7 días gratis',
+      AppString.plusTrialRenewal: '7 días gratis, luego @price cada @period. Se renueva automáticamente hasta que canceles.',
+      AppString.plusRenewal: '@price cada @period. Se renueva automáticamente hasta que canceles.',
+      AppString.plusCancel: 'Cancela en los ajustes de suscripción de tu tienda.',
+      AppString.plusStartTrial: 'Iniciar prueba gratis de 7 días',
+      AppString.plusSubscribe: 'Suscribirse',
+      AppString.plusRestore: 'Restaurar compras',
+      AppString.plusActive: 'Suscripción activa',
+      AppString.plusManage: 'Gestionar',
+      AppString.plusUnavailable: 'Los planes de suscripción no están disponibles en este momento.',
       AppString.waterLogged: 'Agua registrada',
       AppString.undoWaterLog: 'Deshacer',
       AppString.stopRemindersAtGoal: 'Detener recordatorios al alcanzar mi objetivo',
@@ -1529,6 +1580,12 @@ class AppTranslations extends Translations {
       AppString.plus30PercentWater: '+30% de consumo de agua',
       AppString.noReminderSet: 'No hay recordatorios configurados',
       AppString.tapToAddReminder: 'Toca el botón + para agregar tu primer recordatorio',
+      AppString.privacyLocalData:
+          'Los registros de agua, el perfil de hidratación, las metas y los recordatorios se guardan en tu dispositivo. Si actualizas desde una versión anterior, la app puede importar tus datos existentes desde Firebase.',
+      AppString.privacyFeedbackAndBilling:
+          'Si envías comentarios, Firebase guarda tu mensaje y un identificador de cuenta anónimo. En Android, Firebase también verifica las compras de suscripciones de Google Play.',
+      AppString.privacyAdMob:
+          'Google AdMob muestra anuncios no personalizados en la versión gratuita. AdMob puede procesar datos como la ubicación aproximada, las interacciones con anuncios y los diagnósticos para publicar y medir anuncios.',
       AppString.privacyPolicyIntro:
           'Esta Política de Privacidad se aplica al uso de nuestra aplicación Water Reminder en todas las plataformas.\n\nTu privacidad es importante para nosotros. Esta política explica cómo manejamos tu información cuando usas nuestra app.',
       AppString.infoNotCollectTitle: 'Información que no recopilamos',
@@ -1802,6 +1859,19 @@ class AppTranslations extends Translations {
       AppString.maxLimit: 'Max',
     },
     'de_DE': {
+      AppString.plusOneMonth: '1 Monat',
+      AppString.plusMonths: '@months Monate',
+      AppString.plusBillingPeriod: 'Alle @period',
+      AppString.plusFreeWeek: '7 Tage gratis',
+      AppString.plusTrialRenewal: '7 Tage gratis, danach @price alle @period. Verlängert sich automatisch bis zur Kündigung.',
+      AppString.plusRenewal: '@price alle @period. Verlängert sich automatisch bis zur Kündigung.',
+      AppString.plusCancel: 'Kündige in den Abo-Einstellungen deines Stores.',
+      AppString.plusStartTrial: '7-tägige kostenlose Testphase starten',
+      AppString.plusSubscribe: 'Abonnieren',
+      AppString.plusRestore: 'Käufe wiederherstellen',
+      AppString.plusActive: 'Abo aktiv',
+      AppString.plusManage: 'Verwalten',
+      AppString.plusUnavailable: 'Abos sind derzeit nicht verfügbar.',
       AppString.waterLogged: 'Wasser erfasst',
       AppString.undoWaterLog: 'Rückgängig',
       AppString.stopRemindersAtGoal: 'Erinnerungen beim Erreichen meines Ziels stoppen',
@@ -2122,6 +2192,12 @@ class AppTranslations extends Translations {
       AppString.plus30PercentWater: '+30% Wasser',
       AppString.noReminderSet: 'Keine Erinnerungen',
       AppString.tapToAddReminder: 'Tippe auf das + Symbol für eine Erinnerung',
+      AppString.privacyLocalData:
+          'Trinkprotokolle, Hydrationsprofil, Ziele und Erinnerungen werden auf deinem Gerät gespeichert. Bei einem Update von einer älteren Version kann die App vorhandene Daten aus Firebase importieren.',
+      AppString.privacyFeedbackAndBilling:
+          'Wenn du Feedback sendest, speichert Firebase deine Nachricht und eine anonyme Kontokennung. Unter Android prüft Firebase auch Abo-Käufe über Google Play.',
+      AppString.privacyAdMob:
+          'Google AdMob zeigt in der kostenlosen Version nicht personalisierte Werbung an. AdMob kann ungefähre Standortdaten, Anzeigeninteraktionen und Diagnosedaten zur Auslieferung und Messung von Werbung verarbeiten.',
       AppString.privacyPolicyIntro:
           'Diese Datenschutzrichtlinie gilt für die Nutzung unserer Water Reminder App auf allen Plattformen.\n\nDeine Privatsphäre ist uns wichtig. Diese Richtlinie erklärt, wie wir deine Informationen behandeln, wenn du unsere App nutzt.',
       AppString.infoNotCollectTitle: 'Informationen, die wir nicht sammeln',
@@ -2390,6 +2466,19 @@ class AppTranslations extends Translations {
       AppString.maxLimit: 'Max',
     },
     'fr_FR': {
+      AppString.plusOneMonth: '1 mois',
+      AppString.plusMonths: '@months mois',
+      AppString.plusBillingPeriod: 'Tous les @period',
+      AppString.plusFreeWeek: '7 jours gratuits',
+      AppString.plusTrialRenewal: '7 jours gratuits, puis @price tous les @period. Renouvellement automatique jusqu’à résiliation.',
+      AppString.plusRenewal: '@price tous les @period. Renouvellement automatique jusqu’à résiliation.',
+      AppString.plusCancel: 'Résiliez dans les paramètres d’abonnement de votre boutique.',
+      AppString.plusStartTrial: 'Commencer l’essai gratuit de 7 jours',
+      AppString.plusSubscribe: 'S’abonner',
+      AppString.plusRestore: 'Restaurer les achats',
+      AppString.plusActive: 'Abonnement actif',
+      AppString.plusManage: 'Gérer',
+      AppString.plusUnavailable: 'Les abonnements sont temporairement indisponibles.',
       AppString.waterLogged: 'Eau enregistrée',
       AppString.undoWaterLog: 'Annuler',
       AppString.stopRemindersAtGoal: 'Arrêter les rappels quand mon objectif est atteint',
@@ -2714,6 +2803,12 @@ class AppTranslations extends Translations {
       AppString.plus30PercentWater: '+30 % de consommation d’eau',
       AppString.noReminderSet: 'Aucun rappel défini',
       AppString.tapToAddReminder: 'Appuyez sur le bouton + pour ajouter votre premier rappel',
+      AppString.privacyLocalData:
+          'Tes consommations, ton profil d’hydratation, tes objectifs et tes rappels sont enregistrés sur ton appareil. En cas de mise à jour depuis une ancienne version, l’application peut importer tes données existantes depuis Firebase.',
+      AppString.privacyFeedbackAndBilling:
+          'Si tu envoies un commentaire, Firebase stocke ton message et un identifiant de compte anonyme. Sur Android, Firebase vérifie aussi les achats d’abonnement sur Google Play.',
+      AppString.privacyAdMob:
+          'Google AdMob diffuse des annonces non personnalisées dans la version gratuite. AdMob peut traiter la localisation approximative, les interactions avec les annonces et les données de diagnostic pour diffuser et mesurer les annonces.',
       AppString.privacyPolicyIntro:
           'Cette politique de confidentialité s’applique à votre utilisation de notre application Water Reminder sur toutes les plateformes.\n\nVotre vie privée est importante pour nous. Cette politique explique comment nous traitons vos informations lorsque vous utilisez notre application.',
       AppString.infoNotCollectTitle: 'Informations que nous ne collectons pas',
@@ -2984,6 +3079,19 @@ class AppTranslations extends Translations {
       AppString.maxLimit: 'Max',
     },
     'hi_IN': {
+      AppString.plusOneMonth: '1 महीना',
+      AppString.plusMonths: '@months महीने',
+      AppString.plusBillingPeriod: 'हर @period',
+      AppString.plusFreeWeek: '7 दिन मुफ़्त',
+      AppString.plusTrialRenewal: '7 दिन मुफ़्त, फिर हर @period @price। रद्द करने तक अपने आप नवीनीकरण होगा।',
+      AppString.plusRenewal: 'हर @period @price। रद्द करने तक अपने आप नवीनीकरण होगा।',
+      AppString.plusCancel: 'अपने स्टोर की सदस्यता सेटिंग में रद्द करें।',
+      AppString.plusStartTrial: '7 दिन का मुफ़्त ट्रायल शुरू करें',
+      AppString.plusSubscribe: 'सदस्यता लें',
+      AppString.plusRestore: 'खरीदारी बहाल करें',
+      AppString.plusActive: 'सदस्यता सक्रिय है',
+      AppString.plusManage: 'प्रबंधित करें',
+      AppString.plusUnavailable: 'सदस्यता प्लान अभी उपलब्ध नहीं हैं।',
       AppString.waterLogged: 'पानी दर्ज किया गया',
       AppString.undoWaterLog: 'पूर्ववत करें',
       AppString.stopRemindersAtGoal: 'लक्ष्य पूरा होने पर रिमाइंडर रोकें',
@@ -3307,6 +3415,12 @@ class AppTranslations extends Translations {
       AppString.plus30PercentWater: '+30% पानी सेवन',
       AppString.noReminderSet: 'कोई रिमाइंडर सेट नहीं है',
       AppString.tapToAddReminder: 'अपना पहला रिमाइंडर जोड़ने के लिए + बटन दबाएँ',
+      AppString.privacyLocalData:
+          'पानी पीने के रिकॉर्ड, हाइड्रेशन प्रोफ़ाइल, लक्ष्य और रिमाइंडर आपके डिवाइस पर सेव होते हैं। पुराने वर्शन से अपडेट करने पर ऐप Firebase से आपका मौजूदा डेटा इंपोर्ट कर सकता है।',
+      AppString.privacyFeedbackAndBilling:
+          'अगर आप फ़ीडबैक भेजते हैं, तो Firebase आपका संदेश और एक गुमनाम खाता आईडी सेव करता है। Android पर Firebase, Google Play की सदस्यता खरीदारी की पुष्टि भी करता है।',
+      AppString.privacyAdMob:
+          'मुफ़्त वर्शन में Google AdMob गैर-वैयक्तिकृत विज्ञापन दिखाता है। विज्ञापन दिखाने और उनका प्रदर्शन मापने के लिए AdMob अनुमानित लोकेशन, विज्ञापनों के साथ इंटरैक्शन और डायग्नोस्टिक डेटा प्रोसेस कर सकता है।',
       AppString.privacyPolicyIntro:
           'यह गोपनीयता नीति सभी प्लेटफॉर्म पर हमारे Water Reminder ऐप के उपयोग पर लागू होती है。\n\nआपकी गोपनीयता हमारे लिए महत्वपूर्ण है। यह नीति बताती है कि ऐप उपयोग करते समय हम आपकी जानकारी को कैसे संभालते हैं।',
       AppString.infoNotCollectTitle: 'जानकारी जो हम एकत्र नहीं करते',
@@ -3585,6 +3699,19 @@ class AppTranslations extends Translations {
       AppString.maxLimit: 'अधिकतम',
     },
     'fa_IR': {
+      AppString.plusOneMonth: '۱ ماه',
+      AppString.plusMonths: '@months ماه',
+      AppString.plusBillingPeriod: 'هر @period',
+      AppString.plusFreeWeek: '۷ روز رایگان',
+      AppString.plusTrialRenewal: '۷ روز رایگان، سپس @price هر @period. تا زمان لغو به‌طور خودکار تمدید می‌شود.',
+      AppString.plusRenewal: '@price هر @period. تا زمان لغو به‌طور خودکار تمدید می‌شود.',
+      AppString.plusCancel: 'از تنظیمات اشتراک فروشگاه لغو کنید.',
+      AppString.plusStartTrial: 'شروع دوره آزمایشی رایگان ۷ روزه',
+      AppString.plusSubscribe: 'اشتراک',
+      AppString.plusRestore: 'بازگردانی خریدها',
+      AppString.plusActive: 'اشتراک فعال است',
+      AppString.plusManage: 'مدیریت',
+      AppString.plusUnavailable: 'طرح‌های اشتراک فعلاً در دسترس نیستند.',
       AppString.waterLogged: 'آب ثبت شد',
       AppString.undoWaterLog: 'واگرد',
       AppString.stopRemindersAtGoal: 'توقف یادآوری‌ها پس از رسیدن به هدف',
@@ -3910,6 +4037,12 @@ class AppTranslations extends Translations {
       AppString.plus30PercentWater: '+30٪ مصرف آب',
       AppString.noReminderSet: 'هیچ یادآوری تنظیم نشده است',
       AppString.tapToAddReminder: 'برای افزودن اولین یادآور، دکمه + را لمس کنید',
+      AppString.privacyLocalData:
+          'سوابق نوشیدن آب، پروفایل آب‌رسانی، اهداف و یادآوری‌هایتان روی دستگاه ذخیره می‌شوند. هنگام به‌روزرسانی از نسخه‌ای قدیمی، برنامه ممکن است داده‌های موجودتان را از Firebase وارد کند.',
+      AppString.privacyFeedbackAndBilling:
+          'اگر بازخورد بفرستید، Firebase پیام شما و یک شناسه حساب ناشناس را ذخیره می‌کند. در اندروید، Firebase خرید اشتراک‌های Google Play را نیز بررسی می‌کند.',
+      AppString.privacyAdMob:
+          'Google AdMob در نسخه رایگان تبلیغات غیرشخصی نمایش می‌دهد. AdMob ممکن است برای نمایش و سنجش تبلیغات، موقعیت تقریبی، تعامل با تبلیغات و داده‌های عیب‌یابی را پردازش کند.',
       AppString.privacyPolicyIntro:
           'این سیاست حفظ حریم خصوصی برای استفاده شما از برنامه Water Reminder در تمامی پلتفرم‌ها اعمال می‌شود.\n\nحریم خصوصی شما برای ما مهم است. این سیاست توضیح می‌دهد که هنگام استفاده از برنامه، چگونه اطلاعات شما را مدیریت می‌کنیم.',
       AppString.infoNotCollectTitle: 'اطلاعاتی که جمع‌آوری نمی‌کنیم',
@@ -4138,6 +4271,19 @@ class AppTranslations extends Translations {
       AppString.mineralWater: 'آب معدنی',
     },
     'ar_SA': {
+      AppString.plusOneMonth: 'شهر واحد',
+      AppString.plusMonths: '@months أشهر',
+      AppString.plusBillingPeriod: 'كل @period',
+      AppString.plusFreeWeek: '٧ أيام مجانًا',
+      AppString.plusTrialRenewal: '٧ أيام مجانًا، ثم @price كل @period. يتجدد تلقائيًا حتى الإلغاء.',
+      AppString.plusRenewal: '@price كل @period. يتجدد تلقائيًا حتى الإلغاء.',
+      AppString.plusCancel: 'ألغِ الاشتراك من إعدادات الاشتراكات في المتجر.',
+      AppString.plusStartTrial: 'ابدأ تجربة مجانية لمدة ٧ أيام',
+      AppString.plusSubscribe: 'اشترك',
+      AppString.plusRestore: 'استعادة المشتريات',
+      AppString.plusActive: 'الاشتراك نشط',
+      AppString.plusManage: 'إدارة',
+      AppString.plusUnavailable: 'خطط الاشتراك غير متاحة حاليًا.',
       AppString.waterLogged: 'تم تسجيل الماء',
       AppString.undoWaterLog: 'تراجع',
       AppString.stopRemindersAtGoal: 'أوقف التذكيرات عند بلوغ هدفي',
@@ -4459,6 +4605,12 @@ class AppTranslations extends Translations {
       AppString.plus30PercentWater: '+30٪ من شرب الماء',
       AppString.noReminderSet: 'لا يوجد تذكير مُعيّن',
       AppString.tapToAddReminder: 'اضغط على زر + لإضافة أول تذكير لك',
+      AppString.privacyLocalData:
+          'تُحفظ سجلات شرب الماء وملف الترطيب والأهداف والتذكيرات على جهازك. عند التحديث من إصدار أقدم، قد يستورد التطبيق بياناتك الحالية من Firebase.',
+      AppString.privacyFeedbackAndBilling:
+          'عند إرسال ملاحظات، يحتفظ Firebase برسالتك ومعرّف حساب مجهول. وعلى Android، يتحقق Firebase أيضًا من مشتريات الاشتراك عبر Google Play.',
+      AppString.privacyAdMob:
+          'يعرض Google AdMob إعلانات غير مخصّصة في النسخة المجانية. وقد يعالج AdMob بيانات مثل الموقع التقريبي والتفاعل مع الإعلانات وبيانات التشخيص لعرض الإعلانات وقياس أدائها.',
       AppString.privacyPolicyIntro:
           'تنطبق سياسة الخصوصية هذه على استخدامك لتطبيق Water Reminder على جميع المنصات.\n\nخصوصيتك مهمة بالنسبة لنا. توضح هذه السياسة كيفية تعاملنا مع معلوماتك عند استخدام التطبيق.',
       AppString.infoNotCollectTitle: 'المعلومات التي لا نجمعها',
@@ -4713,6 +4865,19 @@ class AppTranslations extends Translations {
       AppString.maxLimit: 'حداکثر',
     },
     'ur_PK': {
+      AppString.plusOneMonth: '1 مہینہ',
+      AppString.plusMonths: '@months ماہ',
+      AppString.plusBillingPeriod: 'ہر @period',
+      AppString.plusFreeWeek: '۷ دن مفت',
+      AppString.plusTrialRenewal: '۷ دن مفت، پھر ہر @period @price۔ منسوخی تک خودکار تجدید ہوگی۔',
+      AppString.plusRenewal: 'ہر @period @price۔ منسوخی تک خودکار تجدید ہوگی۔',
+      AppString.plusCancel: 'اپنے اسٹور کی سبسکرپشن ترتیبات میں منسوخ کریں۔',
+      AppString.plusStartTrial: '۷ دن کی مفت آزمائش شروع کریں',
+      AppString.plusSubscribe: 'سبسکرائب کریں',
+      AppString.plusRestore: 'خریداری بحال کریں',
+      AppString.plusActive: 'سبسکرپشن فعال ہے',
+      AppString.plusManage: 'انتظام کریں',
+      AppString.plusUnavailable: 'سبسکرپشن پلان اس وقت دستیاب نہیں ہیں۔',
       AppString.waterLogged: 'پانی درج ہو گیا',
       AppString.undoWaterLog: 'واپس کریں',
       AppString.stopRemindersAtGoal: 'ہدف پورا ہونے پر یاد دہانیاں بند کریں',
@@ -5037,6 +5202,12 @@ class AppTranslations extends Translations {
       AppString.plus30PercentWater: '+30٪ پانی کا اضافہ',
       AppString.noReminderSet: 'کوئی یاد دہانی مقرر نہیں',
       AppString.tapToAddReminder: '+ بٹن دبا کر اپنی پہلی یاد دہانی شامل کریں',
+      AppString.privacyLocalData:
+          'پانی پینے کے ریکارڈ، ہائیڈریشن پروفائل، اہداف اور یاد دہانیاں آپ کے آلے پر محفوظ ہوتی ہیں۔ پرانے ورژن سے اپ ڈیٹ کرنے پر ایپ آپ کا موجودہ ڈیٹا Firebase سے درآمد کر سکتی ہے۔',
+      AppString.privacyFeedbackAndBilling:
+          'اگر آپ رائے بھیجیں تو Firebase آپ کا پیغام اور ایک گمنام اکاؤنٹ شناخت کنندہ محفوظ کرتا ہے۔ Android پر Firebase، Google Play کی سبسکرپشن خریداریوں کی تصدیق بھی کرتا ہے۔',
+      AppString.privacyAdMob:
+          'Google AdMob مفت ورژن میں غیر ذاتی نوعیت کے اشتہارات دکھاتا ہے۔ اشتہارات دکھانے اور ان کی کارکردگی ناپنے کے لیے AdMob اندازاً مقام، اشتہارات کے ساتھ تعامل اور تشخیصی ڈیٹا استعمال کر سکتا ہے۔',
       AppString.privacyPolicyIntro:
           'یہ پرائیویسی پالیسی تمام پلیٹ فارمز پر ہماری Water Reminder ایپ کے استعمال پر لاگو ہوتی ہے۔\n\nآپ کی پرائیویسی ہمارے لیے اہم ہے۔ یہ پالیسی وضاحت کرتی ہے کہ ہم ایپ استعمال کرتے وقت آپ کی معلومات کو کیسے ہینڈل کرتے ہیں۔',
       AppString.infoNotCollectTitle: 'وہ معلومات جو ہم جمع نہیں کرتے',

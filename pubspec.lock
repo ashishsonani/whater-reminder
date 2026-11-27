@@ -25,14 +25,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.0.1"
-  app_tracking_transparency:
-    dependency: "direct main"
-    description:
-      name: app_tracking_transparency
-      sha256: "3a52669c0645ffd7efe9a460047616de3e3f2128338f9ec7cdb681628d36238e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.7"
   archive:
     dependency: transitive
     description:
@@ -337,30 +329,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
-  firebase_analytics:
-    dependency: "direct main"
-    description:
-      name: firebase_analytics
-      sha256: "1f68d8a30265149035e9bb0b73962e43f3bf2debef4a7ae2d1d588361d5858a9"
-      url: "https://pub.dev"
-    source: hosted
-    version: "12.4.2"
-  firebase_analytics_platform_interface:
-    dependency: transitive
-    description:
-      name: firebase_analytics_platform_interface
-      sha256: "65f97fb923f036d487aa95be99eab90e0f8f636e4783c94deeb52c0e6f5dbae7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.0.2"
-  firebase_analytics_web:
-    dependency: transitive
-    description:
-      name: firebase_analytics_web
-      sha256: ec49a95c6abaadbd6a4327cc2680d911f86e62fdf6f2c96a3a326603410e2abf
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.1+8"
   firebase_auth:
     dependency: "direct main"
     description:
@@ -646,7 +614,7 @@ packages:
     source: hosted
     version: "3.3.0"
   in_app_purchase_android:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: in_app_purchase_android
       sha256: b8af1b6f0e57076b5da5ede71e3af2d727017c0416ad2a41017c6ed2b102381d

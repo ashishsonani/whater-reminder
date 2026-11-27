@@ -9,13 +9,36 @@ import 'package:water_intake/services/reminder_schedule.dart';
 import 'package:water_intake/services/reminder_store.dart';
 import 'package:water_intake/services/water_log_store.dart';
 import 'package:water_intake/theme/rewarded_theme.dart';
+import 'package:water_intake/utils/local_storage.dart';
 import 'package:water_intake/view/account/screen/reminder/model/reminder_model.dart';
+import 'package:water_intake/view/walkthrough/controller/walkthrough_controller.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+  });
+
+  test('onboarding saves the profile and goal without a Firebase account', () async {
+    await LocalStorage.init();
+    final controller = WalkthroughController();
+    controller.weight.value = 145;
+    controller.isKg.value = false;
+    controller.waterGoal.value = 72;
+    controller.isMl.value = false;
+
+    await controller.saveHydrationProfile();
+
+    final profile = LocalStorage.readHydrationProfile();
+    expect(profile['weight'], 145);
+    expect(profile['isKg'], false);
+    expect(await LocalStorage.getUserId(), isNull);
+    expect(await LocalStorage.isSetupComplete(), true);
+    final days = await WaterLogStore.instance.read();
+    final today = days[WaterLogStore.dateKey(DateTime.now())]!;
+    expect(today.goal, 72);
+    expect(today.isMl, false);
   });
 
   test(

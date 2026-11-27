@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorage {
@@ -212,7 +214,19 @@ class LocalStorage {
     return _getPrefs.getString(_userIdKey);
   }
 
-  static Future<void> setUserId(String userId) async {
-    await _getPrefs.setString(_userIdKey, userId);
+  static const _hydrationProfileKey = 'hydrationProfile';
+
+  static Map<String, dynamic> readHydrationProfile() {
+    final saved = _getPrefs.getString(_hydrationProfileKey);
+    return saved == null
+        ? <String, dynamic>{}
+        : Map<String, dynamic>.from(jsonDecode(saved) as Map);
+  }
+
+  static Future<void> updateHydrationProfile(Map<String, dynamic> fields) async {
+    final profile = readHydrationProfile()..addAll(fields);
+    if (!await _getPrefs.setString(_hydrationProfileKey, jsonEncode(profile))) {
+      throw StateError('Could not save hydration profile');
+    }
   }
 }

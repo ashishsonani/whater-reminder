@@ -149,6 +149,19 @@ class AppString {
   static const String loggingOvernight = 'Overnight';
   static const String milestoneThemeUnlocked = 'Earned with a 7-day streak';
   static const String milestoneThemeProgress = 'Unlock with a 7-day streak (@days/7).';
+  static const String plusOneMonth = '1 month';
+  static const String plusMonths = '@months months';
+  static const String plusBillingPeriod = 'Every @period';
+  static const String plusFreeWeek = '7 days free';
+  static const String plusTrialRenewal = '7 days free, then @price every @period. Renews automatically until canceled.';
+  static const String plusRenewal = '@price every @period. Renews automatically until canceled.';
+  static const String plusCancel = 'Cancel in your store subscription settings.';
+  static const String plusStartTrial = 'Start 7-day free trial';
+  static const String plusSubscribe = 'Subscribe';
+  static const String plusRestore = 'Restore purchases';
+  static const String plusActive = 'Subscription active';
+  static const String plusManage = 'Manage';
+  static const String plusUnavailable = 'Subscription plans are unavailable right now.';
   static const String rewardedThemeOffer = 'Watch an ad to unlock this theme for 24 hours.';
   static const String watchAdForTheme = 'Watch ad';
   static const String rewardedThemeActiveUntil = 'Active until @date at @time';
@@ -413,6 +426,12 @@ class AppString {
   static const String failedToSendFeedback = 'Failed to send feedback. Please try again.';
 
   // Privacy Policy & Terms
+  static const String privacyLocalData =
+      'Your water logs, hydration profile, goals, and reminders are saved on your device. If you are upgrading from an older version, the app may import your existing data from Firebase.';
+  static const String privacyFeedbackAndBilling =
+      'If you submit feedback, Firebase stores your message and an anonymous account identifier. On Android, Firebase also verifies Google Play subscription purchases.';
+  static const String privacyAdMob =
+      'Google AdMob serves non-personalized ads on the free tier. AdMob may process data such as approximate location, ad interactions, and diagnostics to serve and measure ads.';
   static const String privacyPolicyTitle = 'Privacy Policy';
   static const String privacyPolicyIntro =
       'This Privacy Policy applies to your use of our Water Reminder application on all platforms.\n\nYour privacy is important to us. This policy explains how we handle your information when you use our app.';

@@ -13,7 +13,6 @@ import 'package:water_intake/gen/assets.gen.dart';
 import 'package:water_intake/models/chart_datum.dart';
 import 'package:water_intake/models/history_data.dart';
 import 'package:water_intake/models/stats_data.dart';
-import 'package:water_intake/models/user_model.dart';
 import 'package:water_intake/models/water_record.dart';
 import 'package:water_intake/models/weekly_hydration_recap.dart';
 import 'package:water_intake/theme/rewarded_theme.dart';
@@ -347,64 +346,33 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     }
   }
 
-  void lockAward(String awardId) async {
-    if (!unlockedAwards.contains(awardId)) return;
-
-    unlockedAwards.remove(awardId);
+  void lockAward(String awardId) {
+    if (!unlockedAwards.remove(awardId)) return;
     _celebratedAwards.remove(awardId);
     update();
-
-    // Persist to Firestore
-    try {
-      String? uid = await FirebaseService().getUserId();
-      if (uid != null) {
-        await FirebaseService().firestore.collection('users').doc(uid).update({
-          'awards': unlockedAwards.toList(),
-          'celebratedAwards': _celebratedAwards.toList(),
-        });
-      }
-    } catch (e) {
-      log("Error relocking award: $e");
-    }
+    unawaited(_saveAwards());
   }
 
   final Set<String> _celebratedAwards = {};
 
+  Future<void> _saveAwards() async {
+    try {
+      await LocalStorage.updateHydrationProfile({
+        'awards': unlockedAwards.toList(),
+        'celebratedAwards': _celebratedAwards.toList(),
+      });
+    } catch (error) {
+      log('Could not save awards: $error');
+    }
+  }
+
   Future<void> unlockAward(String awardId, {bool showSheet = true}) async {
-    bool isNew = !unlockedAwards.contains(awardId);
-    log("Unlocking award $awardId... isNew: $isNew, showSheet: $showSheet, celebrated: ${_celebratedAwards.contains(awardId)}");
-
-    if (isNew) {
-      unlockedAwards.add(awardId);
-      update();
-
-      // Persist to Firestore
-      try {
-        String? uid = await FirebaseService().getUserId();
-        if (uid != null) {
-          await FirebaseService().firestore.collection('users').doc(uid).update({'awards': unlockedAwards.toList()});
-        }
-      } catch (e) {
-        log("Error persisting award: $e");
-      }
-    }
-
-    if (showSheet && (isNew || !_celebratedAwards.contains(awardId))) {
-      _celebratedAwards.add(awardId);
-      log("Showing sheet for award $awardId");
-
-      // Persist celebrated status to Firestore
-      try {
-        String? uid = await FirebaseService().getUserId();
-        if (uid != null) {
-          await FirebaseService().firestore.collection('users').doc(uid).update({'celebratedAwards': _celebratedAwards.toList()});
-        }
-      } catch (e) {
-        log("Error persisting celebrated award: $e");
-      }
-
-      showAwardSheet(awardId);
-    }
+    final isNew = unlockedAwards.add(awardId);
+    final shouldCelebrate = showSheet && (isNew || !_celebratedAwards.contains(awardId));
+    if (isNew) update();
+    if (shouldCelebrate) _celebratedAwards.add(awardId);
+    if (isNew || shouldCelebrate) await _saveAwards();
+    if (shouldCelebrate && !isClosed) showAwardSheet(awardId);
   }
 
   void showAwardSheet(String id) {
@@ -647,7 +615,8 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
 
   Future<void> _loadData() async {
     isHomeLoading.value = true;
-    final uid = await FirebaseService().getUserId();
+    final uid = await LocalStorage.getUserId();
+    _loadLocalProfile();
     final today = WaterLogStore.dateKey(DateTime.now());
     final days = await _waterLog.read();
     final dates = days.keys.where((date) => date.compareTo(today) <= 0 && days[date]!.goal > 0).toList()..sort();
@@ -705,23 +674,23 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     update();
   }
 
+  void _loadLocalProfile() {
+    final profile = LocalStorage.readHydrationProfile();
+    isKg.value = profile['isKg'] != false;
+    unlockedAwards.assignAll((profile['awards'] as List?)?.whereType<String>() ?? const []);
+    _celebratedAwards
+      ..clear()
+      ..addAll((profile['celebratedAwards'] as List?)?.whereType<String>() ?? const []);
+  }
+
   Future<void> _loadProfileAndImport(String uid) async {
     try {
-      final userDoc = await FirebaseService().firestore.collection('users').doc(uid).get();
+      await FirebaseService().importLegacyProfile(uid);
       if (isClosed) return;
-      final data = userDoc.data();
-      if (data != null) {
-        final user = UserModel.fromMap(data, userDoc.id);
-        isKg.value = user.isKg;
-        unlockedAwards.assignAll(user.awards);
-        _celebratedAwards.addAll(user.celebratedAwards);
-        if (targetIntake.value == 0 && user.waterGoal > 0) {
-          await _waterLog.seedGoal(user.waterGoal, user.isMl);
-          await _refreshStoredGoal();
-        }
-      }
+      _loadLocalProfile();
+      await _refreshStoredGoal();
     } catch (error) {
-      log('Error loading profile: $error');
+      log('Error importing legacy profile: $error');
     }
 
     try {
@@ -864,25 +833,6 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     }
   }
 
-  Stream<UserModel?>? _userStream;
-  Stream<UserModel?> get userStream {
-    _userStream ??= _createUserStream().asBroadcastStream();
-    return _userStream!;
-  }
-
-  Stream<UserModel?> _createUserStream() async* {
-    String? uid = await FirebaseService().getUserId();
-    if (uid == null) {
-      yield null;
-      return;
-    }
-    yield* FirebaseService().firestore
-        .collection('users')
-        .doc(uid)
-        .snapshots()
-        .map((doc) => doc.exists ? UserModel.fromMap(doc.data()!, doc.id) : null);
-  }
-
   Future<void> deleteRecord(WaterRecord record) async {
     if (isProcessingAnimation) return;
     isProcessingAnimation = true;
@@ -901,14 +851,6 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     await _waterLog.setGoal(newGoal, isMl.value);
     targetIntake.value = newGoal;
     await fetchFullHistory();
-    final uid = await FirebaseService().getUserId();
-    if (uid != null) {
-      try {
-        await FirebaseService().firestore.collection('users').doc(uid).update({'waterGoal': newGoal});
-      } catch (error) {
-        log('Error syncing profile goal: $error');
-      }
-    }
   }
 
   AssetGenImage getIconForType(String? type) {
