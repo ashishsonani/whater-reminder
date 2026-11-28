@@ -16,10 +16,11 @@ class AdService {
   static bool adsEnabled = false; // Fallback to false
   static bool bannerEnabled = false;
   static bool interstitialEnabled = false;
+  static bool appOpenEnabled = false;
   static bool rewardedEnabled = true;
   static InterstitialAd? _interstitialAd;
   static DateTime? _interstitialLoadedAt;
-  static DateTime? _lastInterstitialRequest;
+  static DateTime? _lastFailedInterstitialRequest;
   static bool _isInterstitialLoading = false;
   static bool _isInterstitialShowing = false;
   static bool _isRewardedInProgress = false;
@@ -29,20 +30,27 @@ class AdService {
   static ValueListenable<int> get placementRevision => _placementRevision;
   static final privacyOptionsRequired = ValueNotifier<bool>(false);
   static const _lastInterstitialImpressionKey = 'lastMilestoneAdImpression';
-  static Duration interstitialCooldown = const Duration(hours: 3);
+  static Duration interstitialCooldown = Duration.zero;
   static const _waterLogCountKey = 'waterLogsSinceAdOpportunity';
   static int waterLogsPerAdOpportunity = 5;
 
   static String bannerIdAndroid = '';
   static String interstitialIdAndroid = '';
+  static String appOpenIdAndroid = '';
   static String bannerIdIos = '';
   static String interstitialIdIos = '';
+  static String appOpenIdIos = '';
 
   static String get bannerAdUnitId =>
       Platform.isAndroid ? bannerIdAndroid : bannerIdIos;
 
   static String get interstitialAdUnitId =>
       Platform.isAndroid ? interstitialIdAndroid : interstitialIdIos;
+
+  static String get appOpenAdUnitId =>
+      Platform.isAndroid ? appOpenIdAndroid : appOpenIdIos;
+
+  static final appOpenAdManager = AppOpenAdManager();
 
   static bool _observesPremium = false;
   static bool _consentAllowsAds = false;
@@ -57,6 +65,8 @@ class AdService {
       adsEnabled;
   static bool get canLoadBanner =>
       _canLoadAds && bannerEnabled && bannerAdUnitId.isNotEmpty;
+  static bool get canLoadAppOpen =>
+      _canLoadAds && appOpenEnabled && appOpenAdUnitId.isNotEmpty;
 
   static String? get _rewardedAdUnitId =>
       Platform.isAndroid ? _rewardedIdAndroid : _rewardedIdIos;
@@ -239,9 +249,12 @@ class AdService {
   static void _refreshPlacements() {
     _interstitialAd?.dispose();
     _interstitialAd = null;
-    _lastInterstitialRequest = null;
+    _lastFailedInterstitialRequest = null;
     _placementRevision.value++;
     _loadInterstitial();
+    if (canLoadAppOpen) {
+      appOpenAdManager.loadAd();
+    }
   }
 
   static const String _configCacheKey = 'cached_ads_config_json';
@@ -307,15 +320,17 @@ class AdService {
     return null;
   }
 
-  static (bool, bool, bool, bool, int, int, String, String, String?) get _activeConfig => (
+  static (bool, bool, bool, bool, bool, int, int, String, String, String, String?) get _activeConfig => (
     adsEnabled,
     bannerEnabled,
     interstitialEnabled,
+    appOpenEnabled,
     rewardedEnabled,
     waterLogsPerAdOpportunity,
     interstitialCooldown.inMinutes,
     bannerAdUnitId,
     interstitialAdUnitId,
+    appOpenAdUnitId,
     _rewardedAdUnitId,
   );
 
@@ -324,6 +339,7 @@ class AdService {
     adsEnabled = data['ads_enabled'] == true;
     bannerEnabled = data['banner'] == true;
     interstitialEnabled = data['interstitial'] == true;
+    appOpenEnabled = data['app_open'] == true;
     rewardedEnabled = data['rewarded'] != false;
 
     final interval = data['interstitial_interval'] ?? data['click_count'];
@@ -342,8 +358,10 @@ class AdService {
 
     bannerIdAndroid = _readUnitId(data['banner_id_android']);
     interstitialIdAndroid = _readUnitId(data['interstitial_id_android']);
+    appOpenIdAndroid = _readUnitId(data['app_open_id_android']);
     bannerIdIos = _readUnitId(data['banner_id_ios']);
     interstitialIdIos = _readUnitId(data['interstitial_id_ios']);
+    appOpenIdIos = _readUnitId(data['app_open_id_ios']);
 
     final androidReward = data['rewarded_id_android'];
     _rewardedIdAndroid = androidReward is String && androidReward.trim().isNotEmpty
@@ -396,12 +414,11 @@ class AdService {
         now.difference(loadedAt) < const Duration(hours: 1)) {
       return;
     }
-    final lastRequest = _lastInterstitialRequest;
-    if (lastRequest != null &&
-        now.difference(lastRequest) < const Duration(minutes: 1)) {
+    final lastFailed = _lastFailedInterstitialRequest;
+    if (lastFailed != null &&
+        now.difference(lastFailed) < const Duration(seconds: 15)) {
       return;
     }
-    _lastInterstitialRequest = now;
     _interstitialAd?.dispose();
     _interstitialAd = null;
     _isInterstitialLoading = true;
@@ -413,6 +430,7 @@ class AdService {
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (ad) {
             _isInterstitialLoading = false;
+            _lastFailedInterstitialRequest = null;
             if (revision != _placementRevision.value) {
               ad.dispose();
               _loadInterstitial();
@@ -420,15 +438,18 @@ class AdService {
             }
             _interstitialAd = ad;
             _interstitialLoadedAt = DateTime.now();
+            debugPrint('Interstitial loaded successfully');
           },
           onAdFailedToLoad: (error) {
             _isInterstitialLoading = false;
+            _lastFailedInterstitialRequest = DateTime.now();
             if (revision != _placementRevision.value) _loadInterstitial();
             debugPrint('Interstitial failed to load: $error');
           },
         ),
       ).catchError((Object error) {
         _isInterstitialLoading = false;
+        _lastFailedInterstitialRequest = DateTime.now();
         debugPrint('Interstitial request failed: $error');
       }),
     );
@@ -456,7 +477,8 @@ class AdService {
     if (!_canLoadAds ||
         !interstitialEnabled ||
         _isInterstitialShowing ||
-        _isRewardedInProgress) {
+        _isRewardedInProgress ||
+        appOpenAdManager.isShowingAd) {
       return;
     }
     _isInterstitialShowing = true;
@@ -465,17 +487,35 @@ class AdService {
       final prefs = await SharedPreferences.getInstance();
       final now = DateTime.now();
       final previous = prefs.getInt(_lastInterstitialImpressionKey);
-      if (previous != null &&
-          now.difference(DateTime.fromMillisecondsSinceEpoch(previous)) <
-              interstitialCooldown) {
-        return;
+      if (interstitialCooldown > Duration.zero && previous != null) {
+        final elapsed = now.difference(DateTime.fromMillisecondsSinceEpoch(previous));
+        if (elapsed < interstitialCooldown) {
+          debugPrint('Interstitial suppressed by cooldown: remaining ${interstitialCooldown - elapsed}');
+          return;
+        }
+      }
+
+      // If ad is not ready yet, load on-demand and wait briefly
+      if (_interstitialAd == null ||
+          (_interstitialLoadedAt != null &&
+              now.difference(_interstitialLoadedAt!) >= const Duration(hours: 1))) {
+        _interstitialAd?.dispose();
+        _interstitialAd = null;
+        _lastFailedInterstitialRequest = null;
+        _loadInterstitial();
+
+        final waitStart = DateTime.now();
+        while (_isInterstitialLoading && _interstitialAd == null) {
+          await Future.delayed(const Duration(milliseconds: 100));
+          if (DateTime.now().difference(waitStart) > const Duration(seconds: 4)) {
+            break;
+          }
+        }
       }
 
       final ad = _interstitialAd;
-      if (ad == null ||
-          now.difference(_interstitialLoadedAt!) >= const Duration(hours: 1)) {
-        ad?.dispose();
-        _interstitialAd = null;
+      if (ad == null) {
+        debugPrint('Interstitial ad not ready to show');
         return;
       }
       if (!_canLoadAds ||
@@ -487,6 +527,7 @@ class AdService {
       void finish(InterstitialAd ad) {
         ad.dispose();
         _isInterstitialShowing = false;
+        appOpenAdManager.markAdDismissed();
         _loadInterstitial();
       }
 
@@ -500,7 +541,10 @@ class AdService {
           );
         },
         onAdDismissedFullScreenContent: finish,
-        onAdFailedToShowFullScreenContent: (ad, _) => finish(ad),
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          debugPrint('Interstitial failed to show: $error');
+          finish(ad);
+        },
       );
       try {
         await ad.show();
@@ -527,6 +571,9 @@ class _InterstitialPreloader with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       AdService._loadInterstitial();
+      if (AdService.canLoadAppOpen) {
+        AdService.appOpenAdManager.showAdIfAvailable();
+      }
       final now = DateTime.now();
       if (_lastConfigCheck == null ||
           now.difference(_lastConfigCheck!) > const Duration(minutes: 5)) {
@@ -534,6 +581,144 @@ class _InterstitialPreloader with WidgetsBindingObserver {
         unawaited(AdService.fetchRemoteConfig());
       }
     }
+  }
+}
+
+/// App Open Ad Manager
+class AppOpenAdManager {
+  AppOpenAd? _appOpenAd;
+  bool _isShowingAd = false;
+  bool _isLoading = false;
+  DateTime? _appOpenLoadTime;
+  DateTime? _lastDismissedAt;
+  Completer<bool>? _pendingLoad;
+
+  bool get isShowingAd => _isShowingAd;
+
+  void markAdDismissed() {
+    _lastDismissedAt = DateTime.now();
+  }
+
+  bool get isAdAvailable =>
+      _appOpenAd != null &&
+      _appOpenLoadTime != null &&
+      DateTime.now().difference(_appOpenLoadTime!) < const Duration(hours: 4);
+
+  Future<bool> loadAd() async {
+    if (!AdService.canLoadAppOpen || _isLoading) {
+      if (_isLoading && _pendingLoad != null) {
+        return _pendingLoad!.future;
+      }
+      return isAdAvailable;
+    }
+
+    if (isAdAvailable) return true;
+
+    _isLoading = true;
+    final completer = Completer<bool>();
+    _pendingLoad = completer;
+
+    try {
+      await AppOpenAd.load(
+        adUnitId: AdService.appOpenAdUnitId,
+        request: const AdRequest(nonPersonalizedAds: true),
+        adLoadCallback: AppOpenAdLoadCallback(
+          onAdLoaded: (ad) {
+            _appOpenLoadTime = DateTime.now();
+            _appOpenAd = ad;
+            _isLoading = false;
+            if (!completer.isCompleted) completer.complete(true);
+            debugPrint('AppOpenAd loaded successfully');
+          },
+          onAdFailedToLoad: (error) {
+            _isLoading = false;
+            _appOpenAd = null;
+            if (!completer.isCompleted) completer.complete(false);
+            debugPrint('AppOpenAd failed to load: $error');
+          },
+        ),
+      );
+    } catch (e) {
+      _isLoading = false;
+      if (!completer.isCompleted) completer.complete(false);
+      debugPrint('AppOpenAd load error: $e');
+    }
+
+    return completer.future;
+  }
+
+  Future<void> showAdIfAvailable({Duration? timeout}) async {
+    if (!AdService.canLoadAppOpen) return;
+    if (_isShowingAd ||
+        AdService._isInterstitialShowing ||
+        AdService._isRewardedInProgress) {
+      return;
+    }
+
+    final now = DateTime.now();
+    if (_lastDismissedAt != null &&
+        now.difference(_lastDismissedAt!) < const Duration(seconds: 15)) {
+      return;
+    }
+
+    if (!isAdAvailable) {
+      if (timeout != null && timeout > Duration.zero) {
+        final loaded = await loadAd().timeout(timeout, onTimeout: () => false);
+        if (!loaded || !isAdAvailable) return;
+      } else {
+        unawaited(loadAd());
+        return;
+      }
+    }
+
+    if (_isShowingAd ||
+        AdService._isInterstitialShowing ||
+        AdService._isRewardedInProgress) {
+      return;
+    }
+
+    final ad = _appOpenAd;
+    if (ad == null) return;
+
+    final completer = Completer<void>();
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (ad) {
+        _isShowingAd = true;
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        _isShowingAd = false;
+        _lastDismissedAt = DateTime.now();
+        ad.dispose();
+        _appOpenAd = null;
+        if (!completer.isCompleted) completer.complete();
+        loadAd();
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        _isShowingAd = false;
+        _lastDismissedAt = DateTime.now();
+        ad.dispose();
+        _appOpenAd = null;
+        if (!completer.isCompleted) completer.complete();
+        loadAd();
+      },
+    );
+
+    try {
+      _appOpenAd = null; // Hand over reference
+      await ad.show();
+      await completer.future;
+    } catch (e) {
+      _isShowingAd = false;
+      _lastDismissedAt = DateTime.now();
+      ad.dispose();
+      _appOpenAd = null;
+      loadAd();
+    }
+  }
+
+  void dispose() {
+    _appOpenAd?.dispose();
+    _appOpenAd = null;
   }
 }
 

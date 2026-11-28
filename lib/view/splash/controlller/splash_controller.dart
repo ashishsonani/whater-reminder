@@ -18,9 +18,14 @@ class SplashController extends GetxController {
   void _navigateToNext() async {
     await WidgetsBinding.instance.endOfFrame;
     final minimumSplashTime = Future<void>.delayed(const Duration(seconds: 3));
-    unawaited(AdService.fetchRemoteConfig());
+    await AdService.fetchRemoteConfig();
     await AdService.gatherConsentAndInit();
     await NotificationService().requestPermissions();
+    if (AdService.canLoadAppOpen) {
+      await AdService.appOpenAdManager.showAdIfAvailable(
+        timeout: const Duration(seconds: 4),
+      );
+    }
     await minimumSplashTime;
     if (isClosed) return;
 

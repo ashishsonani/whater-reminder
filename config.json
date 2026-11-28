@@ -2,13 +2,16 @@
   "ads_enabled": true,
   "banner": true,
   "interstitial": true,
+  "app_open": true,
   "rewarded": true,
-  "interstitial_interval": 5,
-  "interstitial_cooldown_minutes": 180,
+  "interstitial_interval": 3,
+  "interstitial_cooldown_minutes": 0,
   "banner_id_android": "ca-app-pub-8708457885343434/2858546284",
+  "app_open_id_android": "ca-app-pub-8708457885343434/2420361348",
   "interstitial_id_android": "ca-app-pub-8708457885343434/6940014680",
   "rewarded_id_android": "ca-app-pub-8708457885343434/5224354917",
   "banner_id_ios": "ca-app-pub-8708457885343434/3980056269",
+  "app_open_id_ios": "ca-app-pub-8708457885343434/1061002044",
   "interstitial_id_ios": "ca-app-pub-8708457885343434/1663637270",
   "rewarded_id_ios": "ca-app-pub-8708457885343434/1712485313"
 }
