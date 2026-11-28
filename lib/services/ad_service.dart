@@ -24,8 +24,8 @@ class AdService {
   static bool _isInterstitialLoading = false;
   static bool _isInterstitialShowing = false;
   static bool _isRewardedInProgress = false;
-  static String? _rewardedIdAndroid;
-  static String? _rewardedIdIos;
+  static String? _rewardedIdAndroid = 'ca-app-pub-8708457885343434/4735745835';
+  static String? _rewardedIdIos = 'ca-app-pub-8708457885343434/6270374696';
   static final _placementRevision = ValueNotifier<int>(0);
   static ValueListenable<int> get placementRevision => _placementRevision;
   static final privacyOptionsRequired = ValueNotifier<bool>(false);
@@ -72,7 +72,8 @@ class AdService {
       Platform.isAndroid ? _rewardedIdAndroid : _rewardedIdIos;
 
   static bool get canOfferThemeReward =>
-      _canLoadAds &&
+      !IAPService.instance.isPremium &&
+      adsEnabled &&
       rewardedEnabled &&
       _rewardedAdUnitId != null &&
       _rewardedAdUnitId!.isNotEmpty;
@@ -81,7 +82,8 @@ class AdService {
     required bool Function() canPresent,
   }) async {
     final adUnitId = _rewardedAdUnitId;
-    if (!canOfferThemeReward ||
+    if (!_canLoadAds ||
+        !canOfferThemeReward ||
         adUnitId == null ||
         _isRewardedInProgress ||
         _isInterstitialShowing) {
@@ -269,9 +271,9 @@ class AdService {
 
   static const String _configCacheKey = 'cached_ads_config_json';
   static const String _remoteConfigUrlApi =
-      'https://api.github.com/repos/ashishsonani/whater-reminder/contents/config.json';
+      'https://api.github.com/repos/ashishsonani/whater-reminder/contents/config.json?ref=ashish';
   static const String _remoteConfigUrlRaw =
-      'https://raw.githubusercontent.com/ashishsonani/whater-reminder/main/config.json';
+      'https://raw.githubusercontent.com/ashishsonani/whater-reminder/ashish/config.json';
 
   static Future<void> fetchRemoteConfig() async {
     final cached = await _loadCachedConfig();
