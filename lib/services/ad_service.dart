@@ -224,7 +224,7 @@ class AdService {
     try {
       _consentAllowsAds = await consent.canRequestAds();
       if (_consentAllowsAds && !_mobileAdsInitialized) {
-        unawaited(_initializeMobileAds());
+        await _initializeMobileAds();
       }
     } catch (error) {
       _consentAllowsAds = false;
