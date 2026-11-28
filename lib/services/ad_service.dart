@@ -164,11 +164,14 @@ class AdService {
       IAPService.instance.premiumAccess.addListener(_refreshPlacements);
     }
     if (IAPService.instance.isPremium) return;
+    final debugSettings = ConsentDebugSettings(
+      testIdentifiers: const ['5F1801239EDBFBDAC66414D585F378C9'],
+    );
     final consent = ConsentInformation.instance;
     final updated = Completer<bool>();
     try {
       consent.requestConsentInfoUpdate(
-        ConsentRequestParameters(),
+        ConsentRequestParameters(consentDebugSettings: debugSettings),
         () => updated.complete(true),
         (error) {
           debugPrint('UMP consent update failed: ${error.message}');
@@ -236,6 +239,13 @@ class AdService {
     _isInitializingMobileAds = true;
     try {
       await MobileAds.instance.initialize();
+      await MobileAds.instance.updateRequestConfiguration(
+        RequestConfiguration(
+          testDeviceIds: const [
+            '5F1801239EDBFBDAC66414D585F378C9', // Samsung SM-G973U test device
+          ],
+        ),
+      );
       _mobileAdsInitialized = true;
       WidgetsBinding.instance.addObserver(_InterstitialPreloader());
       _refreshPlacements();
@@ -336,11 +346,21 @@ class AdService {
 
   static void _applyConfig(Map<String, dynamic> data) {
     final previous = _activeConfig;
-    adsEnabled = data['ads_enabled'] == true;
-    bannerEnabled = data['banner'] == true;
-    interstitialEnabled = data['interstitial'] == true;
-    appOpenEnabled = data['app_open'] == true;
-    rewardedEnabled = data['rewarded'] != false;
+    if (data.containsKey('ads_enabled')) {
+      adsEnabled = data['ads_enabled'] == true;
+    }
+    if (data.containsKey('banner')) {
+      bannerEnabled = data['banner'] == true;
+    }
+    if (data.containsKey('interstitial')) {
+      interstitialEnabled = data['interstitial'] == true;
+    }
+    if (data.containsKey('app_open')) {
+      appOpenEnabled = data['app_open'] == true;
+    }
+    if (data.containsKey('rewarded')) {
+      rewardedEnabled = data['rewarded'] != false;
+    }
 
     final interval = data['interstitial_interval'] ?? data['click_count'];
     if (interval is int && interval > 0) {
@@ -356,21 +376,37 @@ class AdService {
       interstitialCooldown = Duration(minutes: int.parse(cooldownMin));
     }
 
-    bannerIdAndroid = _readUnitId(data['banner_id_android']);
-    interstitialIdAndroid = _readUnitId(data['interstitial_id_android']);
-    appOpenIdAndroid = _readUnitId(data['app_open_id_android']);
-    bannerIdIos = _readUnitId(data['banner_id_ios']);
-    interstitialIdIos = _readUnitId(data['interstitial_id_ios']);
-    appOpenIdIos = _readUnitId(data['app_open_id_ios']);
+    if (data['banner_id_android'] != null) {
+      bannerIdAndroid = _readUnitId(data['banner_id_android']);
+    }
+    if (data['interstitial_id_android'] != null) {
+      interstitialIdAndroid = _readUnitId(data['interstitial_id_android']);
+    }
+    if (data['app_open_id_android'] != null) {
+      appOpenIdAndroid = _readUnitId(data['app_open_id_android']);
+    }
+    if (data['banner_id_ios'] != null) {
+      bannerIdIos = _readUnitId(data['banner_id_ios']);
+    }
+    if (data['interstitial_id_ios'] != null) {
+      interstitialIdIos = _readUnitId(data['interstitial_id_ios']);
+    }
+    if (data['app_open_id_ios'] != null) {
+      appOpenIdIos = _readUnitId(data['app_open_id_ios']);
+    }
 
     final androidReward = data['rewarded_id_android'];
-    _rewardedIdAndroid = androidReward is String && androidReward.trim().isNotEmpty
-        ? androidReward.trim()
-        : null;
+    if (androidReward != null) {
+      _rewardedIdAndroid = androidReward is String && androidReward.trim().isNotEmpty
+          ? androidReward.trim()
+          : null;
+    }
     final iosReward = data['rewarded_id_ios'];
-    _rewardedIdIos = iosReward is String && iosReward.trim().isNotEmpty
-        ? iosReward.trim()
-        : null;
+    if (iosReward != null) {
+      _rewardedIdIos = iosReward is String && iosReward.trim().isNotEmpty
+          ? iosReward.trim()
+          : null;
+    }
 
     if (_activeConfig != previous) _refreshPlacements();
   }
