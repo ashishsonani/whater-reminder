@@ -681,6 +681,8 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
     return Obx(() {
       Widget buildCalendarHeaderTitle() {
         return RichText(
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           text: TextSpan(
             style: GoogleFonts.fraunces(fontSize: 18.sp, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
             children: [
@@ -722,8 +724,12 @@ class _WaterIntakeHistoryViewState extends State<WaterIntakeHistoryView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              buildCalendarHeaderTitle(),
+              Expanded(
+                child: buildCalendarHeaderTitle(),
+              ),
+              SizedBox(width: 8.w),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   GestureDetector(
                     child: Container(
