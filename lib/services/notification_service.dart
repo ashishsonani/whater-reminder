@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -11,10 +11,11 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:water_intake/services/water_log_store.dart';
 import 'package:water_intake/services/reminder_store.dart';
+import 'package:water_intake/services/reminder_schedule.dart';
 import 'package:water_intake/utils/local_storage.dart';
 import 'package:water_intake/view/account/screen/reminder/model/reminder_model.dart';
 
-class NotificationService {
+class NotificationService with WidgetsBindingObserver {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
@@ -23,6 +24,7 @@ class NotificationService {
   final _reminders = ReminderStore.instance;
   Future<void>? _initialization;
   Future<void> _scheduleQueue = Future.value();
+  bool _scheduleQueued = false;
   String? _language;
 
   Future<void> init() => _initialization ??= _initialize();
@@ -74,11 +76,12 @@ class NotificationService {
       await _handleResponse(response);
     }
 
+    WidgetsBinding.instance.addObserver(this);
     _reminders.changes.listen((_) => _queueReschedule());
+    WaterLogStore.instance.changes.listen((_) => _queueReschedule());
     _queueReschedule();
-    FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null) unawaited(_importLegacyReminders(user.uid));
-    });
+    final legacyUid = await LocalStorage.getUserId();
+    if (legacyUid != null) unawaited(_importLegacyReminders(legacyUid));
   }
 
   Future<void> _importLegacyReminders(String uid) async {
@@ -94,9 +97,6 @@ class NotificationService {
             .toList(),
         enabled: profile.data()?['isNotificationEnabled'] != false,
       );
-      if (profile.data()?.containsKey('fcmToken') == true) {
-        await user.update({'fcmToken': FieldValue.delete()});
-      }
     } catch (error) {
       log('Error importing legacy reminders: $error');
     }
@@ -126,11 +126,11 @@ class NotificationService {
       if (response.actionId == 'action_drink_250') {
         await WaterLogStore.instance.add(now, 250, 'Glass');
       } else if (response.actionId == 'action_snooze_10') {
-        if (!await _reminders.isEnabled()) return;
+        if (!await _reminders.isEnabled() || await _skipToday(now)) return;
         await _schedule(
           2147483647,
           tz.TZDateTime.now(tz.local).add(const Duration(minutes: 10)),
-          recurring: false,
+          payload: 'local_snooze',
         );
       }
     } catch (error) {
@@ -144,49 +144,81 @@ class NotificationService {
     await _scheduleQueue;
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _queueReschedule();
+  }
+
+  Future<bool> _skipToday(DateTime now) async {
+    if (await _reminders.isPausedOn(now)) return true;
+    if (!await _reminders.stopsAtGoal()) return false;
+    final day = (await WaterLogStore.instance
+        .read())[WaterLogStore.dateKey(now)];
+    return day?.goalMet ?? false;
+  }
+
   void _queueReschedule() {
+    if (_scheduleQueued) return;
+    _scheduleQueued = true;
     _scheduleQueue = _scheduleQueue
         .then((_) async {
+          _scheduleQueued = false;
           if (!await _reminders.isEnabled()) {
             await _localNotificationsPlugin.cancelAll();
             return;
           }
+          if (!await LocalStorage.isSetupComplete()) return;
 
           final prefs = await SharedPreferences.getInstance();
-          if (!await LocalStorage.isSetupComplete()) return;
-          final desired = <int>{};
+          final now = tz.TZDateTime.now(tz.local);
+          final skipToday = await _skipToday(now);
+          final weekdaysByMinute = <int, Set<int>>{};
           for (final reminder in await _reminders.read()) {
             if (reminder.isEnabled != true) continue;
             for (final time in parseReminderTimes(
               reminder.time,
               reminder.interval,
             )) {
-              desired.add(time.hour * 60 + time.minute);
+              (weekdaysByMinute[time.hour * 60 + time.minute] ??= {}).addAll(
+                reminder.days.days,
+              );
             }
           }
+          final planned = planReminderSlots(
+            weekdaysByMinute,
+            now,
+            skipToday: skipToday,
+          );
+          // iOS limits pending requests. Keep the earliest slots and leave room for snooze.
+          final desired = {
+            for (final slot in Platform.isIOS ? planned.take(63) : planned)
+              slot.id: slot,
+          };
           _language = prefs.getString('selected_language');
           final texts = getNotificationStrings(_language);
           final scheduled = <int>{};
           for (final pending
               in await _localNotificationsPlugin
                   .pendingNotificationRequests()) {
-            if (pending.payload == 'local_snooze') continue;
-            if (pending.payload == 'device_reminder' &&
-                desired.contains(pending.id)) {
-              if (pending.title == texts['title'] &&
-                  pending.body == texts['body']) {
-                scheduled.add(pending.id);
-              }
+            if (pending.payload == 'local_snooze' && !skipToday) continue;
+            final slot = desired[pending.id];
+            if (slot != null &&
+                pending.payload == 'reminder:${slot.key}' &&
+                pending.title == texts['title'] &&
+                pending.body == texts['body']) {
+              scheduled.add(pending.id);
             } else {
               await _localNotificationsPlugin.cancel(id: pending.id);
             }
           }
-          for (final minute in desired.difference(scheduled)) {
+          for (final slot in desired.values) {
+            if (scheduled.contains(slot.id)) continue;
             try {
               await _schedule(
-                minute,
-                _nextInstanceOfTime(minute ~/ 60, minute % 60),
-                recurring: true,
+                slot.id,
+                slot.date,
+                repeat: slot.repeat,
+                payload: 'reminder:${slot.key}',
               );
             } catch (error) {
               log('Error scheduling local reminder: $error');
@@ -201,7 +233,8 @@ class NotificationService {
   Future<void> _schedule(
     int id,
     tz.TZDateTime date, {
-    required bool recurring,
+    DateTimeComponents? repeat,
+    required String payload,
   }) async {
     final texts = getNotificationStrings(_language);
     final android = _localNotificationsPlugin
@@ -243,8 +276,8 @@ class NotificationService {
       androidScheduleMode: exact
           ? AndroidScheduleMode.exactAllowWhileIdle
           : AndroidScheduleMode.inexactAllowWhileIdle,
-      matchDateTimeComponents: recurring ? DateTimeComponents.time : null,
-      payload: recurring ? 'device_reminder' : 'local_snooze',
+      matchDateTimeComponents: repeat,
+      payload: payload,
     );
   }
 
@@ -409,28 +442,5 @@ class NotificationService {
 
   TimeOfDay? parseReminderTime(String? timeStr) {
     return parseSingleTime(timeStr ?? '');
-  }
-
-  tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      minute,
-    );
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day + 1,
-        hour,
-        minute,
-      );
-    }
-    return scheduledDate;
   }
 }

@@ -1,11 +1,7 @@
-import 'package:water_intake/services/notification_service.dart';
 import 'package:water_intake/services/water_log_store.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:water_intake/route/route.dart';
-import 'package:water_intake/services/firebase_service.dart';
 import 'package:water_intake/utils/local_storage.dart';
 
 class WalkthroughController extends GetxController {
@@ -105,16 +101,20 @@ class WalkthroughController extends GetxController {
 
     tempWaterGoal.value = waterGoal.value;
 
-    // Store data in Firebase while loader is displayed
-    saveUserDataToFirebase(shouldNavigate: false);
-
-    for (int i = 1; i <= 100; i++) {
-      await Future.delayed(const Duration(milliseconds: 20));
-      progressValue.value = i;
+    try {
+      await saveHydrationProfile();
+      for (int i = 1; i <= 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        progressValue.value = i;
+      }
+      isPlanCreated.value = true;
+      Get.offNamed(AppRoutes.goal);
+    } catch (error) {
+      debugPrint('Could not save hydration setup: $error');
+      Get.snackbar('Error', 'Failed to save your data. Please try again.');
+    } finally {
+      isCreatingPlan.value = false;
     }
-    isCreatingPlan.value = false;
-    isPlanCreated.value = true;
-    Get.offNamed(AppRoutes.goal);
   }
 
   void toggleGoalUnit(bool isMlUnit) {
@@ -334,79 +334,23 @@ class WalkthroughController extends GetxController {
     selectedClimate.value = climate;
   }
 
-  var isSaving = false.obs;
-
-  Future<void> saveUserDataToFirebase({bool shouldNavigate = true}) async {
-    isSaving.value = true;
-    try {
-      // 1. Get UID from Service (Check if already logged in or stored in LocalStorage)
-      String? uid = await FirebaseService().getUserId();
-
-      if (uid == null) {
-        print("No UID found, starting anonymous sign-in...");
-        UserCredential userCredential = await FirebaseService().auth.signInAnonymously();
-        uid = userCredential.user!.uid;
-        print("Successfully signed in. UID: $uid");
-      } else {
-        print("Using existing UID: $uid");
-      }
-
-      // 2. Store ID in Preference
-      await LocalStorage.setUserId(uid);
-
-      // 3. Prepare Data
-      Map<String, dynamic> userData = {
-        'uid': uid,
-        'gender': selectedGender.value,
-        'weight': weight.value,
-        'isKg': isKg.value,
-        'age': age.value,
-        'wakeUpTime': '${wakeUpHour.value}:${wakeUpMinute.value.toString().padLeft(2, '0')} ${isAm.value ? 'AM' : 'PM'}',
-        'bedTime': '${bedTimeHour.value}:${bedTimeMinute.value.toString().padLeft(2, '0')} ${isBedTimeAm.value ? 'AM' : 'PM'}',
-        'activityLevel': selectedActivity.value,
-        'climate': selectedClimate.value,
-        'waterGoal': waterGoal.value,
-        'isMl': isMl.value,
-        'updatedAt': FieldValue.serverTimestamp(),
-      };
-
-      // 4. Store in Firestore
-      print("Saving data to Firestore...");
-      await FirebaseService().firestore.collection('users').doc(uid).set(userData, SetOptions(merge: true));
-      print("Data successfully saved to Firestore!");
-
-      // Persist initial settings for on-device logging.
-      await WaterLogStore.instance.setGoal(waterGoal.value, isMl.value);
-      await LocalStorage.setSetupComplete(true);
-      await NotificationService().refreshReminderSchedule();
-      await LocalStorage.setIntakeUnit(isMl.value ? 'ml' : 'oz');
-
-      // 6. Navigate
-      if (shouldNavigate) {
-        Get.offAllNamed(AppRoutes.addReminder);
-      }
-    } catch (e) {
-      debugPrint("Error saving user data: $e");
-      Get.snackbar("Error", "Failed to save your data. Please try again.");
-    } finally {
-      isSaving.value = false;
-    }
+  Future<void> saveHydrationProfile() async {
+    await LocalStorage.updateHydrationProfile({
+      'gender': selectedGender.value,
+      'weight': weight.value,
+      'isKg': isKg.value,
+      'age': age.value,
+      'wakeUpTime': '${wakeUpHour.value}:${wakeUpMinute.value.toString().padLeft(2, '0')} ${isAm.value ? 'AM' : 'PM'}',
+      'bedTime': '${bedTimeHour.value}:${bedTimeMinute.value.toString().padLeft(2, '0')} ${isBedTimeAm.value ? 'AM' : 'PM'}',
+      'activityLevel': selectedActivity.value,
+      'climate': selectedClimate.value,
+    });
+    await saveWaterGoal();
+    await LocalStorage.setSetupComplete(true);
   }
 
-  Future<void> updateWaterGoalInFirebase() async {
-    try {
-      await WaterLogStore.instance.setGoal(waterGoal.value, isMl.value);
-      await LocalStorage.setIntakeUnit(isMl.value ? 'ml' : 'oz');
-      String? uid = await FirebaseService().getUserId();
-      if (uid != null) {
-        await FirebaseService().firestore.collection('users').doc(uid).update({
-          'waterGoal': waterGoal.value,
-          'isMl': isMl.value,
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      }
-    } catch (e) {
-      debugPrint("Error updating water goal: $e");
-    }
+  Future<void> saveWaterGoal() async {
+    await WaterLogStore.instance.setGoal(waterGoal.value, isMl.value);
+    await LocalStorage.setIntakeUnit(isMl.value ? 'ml' : 'oz');
   }
 }

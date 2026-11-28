@@ -456,13 +456,11 @@ class _StarRatingDialogState extends State<StarRatingDialog> {
 
     setState(() => _isSubmitting = true);
     try {
-      final uid = await FirebaseService().getUserId();
+      final user = await FirebaseService().authenticate();
       final packageInfo = await PackageInfo.fromPlatform();
-      final openCount = await LocalStorage.getAppOpenCount();
 
       await FirebaseService().firestore.collection('feedback').add({
-        'uid': uid ?? 'anonymous',
-        'session_count': openCount,
+        'uid': user.uid,
         'rating': _selectedStar,
         'comment': _commentController.text.trim(),
         'app_version': packageInfo.version,

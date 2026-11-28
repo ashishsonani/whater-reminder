@@ -11,6 +11,7 @@ import 'package:water_intake/theme/app_colors.dart';
 import '../../../../utils/app_strings.dart';
 import 'package:water_intake/theme/app_text_styles.dart';
 import 'controller/drink_reminders_controller.dart';
+import 'model/reminder_model.dart';
 
 class DrinkRemindersScreen extends StatelessWidget {
   const DrinkRemindersScreen({super.key});
@@ -34,6 +35,26 @@ class DrinkRemindersScreen extends StatelessWidget {
           children: [
             SizedBox(height: 12.h),
             _buildMasterToggle(controller),
+            const SizedBox(height: 8),
+            Card(
+              color: AppColors.card,
+              child: Obx(
+                () => Column(
+                  children: [
+                    SwitchListTile(
+                      title: Text(AppString.stopRemindersAtGoal.tr),
+                      value: controller.stopsAtGoal.value,
+                      onChanged: controller.setStopsAtGoal,
+                    ),
+                    SwitchListTile(
+                      title: Text(AppString.pauseRemindersToday.tr),
+                      value: controller.pausedToday.value,
+                      onChanged: controller.setPausedToday,
+                    ),
+                  ],
+                ),
+              ),
+            ),
             SizedBox(height: 16.h),
             _buildRemindersCard(context, controller),
             SizedBox(height: 40.h),
@@ -134,7 +155,10 @@ class DrinkRemindersScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final item = controller.reminders[index];
                       return ReminderItem(
+                        key: ValueKey(item.id),
                         reminder: item,
+                        onDaysChanged: (days) =>
+                            controller.setReminderDays(item.id, days),
                         onToggle: (val) => controller.toggleReminder(index),
                         onDelete: () => controller.deleteReminder(index),
                       );
@@ -153,7 +177,10 @@ class DrinkRemindersScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Assets.images.png.time.image(scale: 3.1 / 1.sp, color: Color(0xff333B47)),
+          Assets.images.png.time.image(
+            scale: 3.1 / 1.sp,
+            color: Color(0xff333B47),
+          ),
           SizedBox(height: 2.h),
           Text(
             AppString.noReminderSet.tr,
@@ -547,13 +574,15 @@ class DrinkRemindersScreen extends StatelessWidget {
 }
 
 class ReminderItem extends StatefulWidget {
-  final reminder;
+  final Reminder reminder;
+  final ValueChanged<ReminderDays> onDaysChanged;
   final Function(bool) onToggle;
   final VoidCallback onDelete;
 
   const ReminderItem({
     super.key,
     required this.reminder,
+    required this.onDaysChanged,
     required this.onToggle,
     required this.onDelete,
   });
@@ -564,6 +593,12 @@ class ReminderItem extends StatefulWidget {
 
 class _ReminderItemState extends State<ReminderItem> {
   double offset = 0.0;
+
+  String _dayLabel(ReminderDays days) => switch (days) {
+    ReminderDays.everyDay => AppString.everyDay.tr,
+    ReminderDays.weekdays => AppString.weekdays.tr,
+    ReminderDays.weekends => AppString.weekends.tr,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -637,33 +672,68 @@ class _ReminderItemState extends State<ReminderItem> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isSwiped
-                          ? (amPm.isNotEmpty ? amPm : amPmPart)
-                          : finalTimeDisplay,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: AppFonts.lato,
-                        color: const Color(0xff212529),
-                      ),
-                    ),
-                    if (displayInterval != null &&
-                        !isSwiped &&
-                        displayInterval.isNotEmpty)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        displayInterval,
+                        isSwiped
+                            ? (amPm.isNotEmpty ? amPm : amPmPart)
+                            : finalTimeDisplay,
                         style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w400,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
                           fontFamily: AppFonts.lato,
-                          color: const Color(0xff8596AB),
+                          color: const Color(0xff212529),
                         ),
                       ),
-                  ],
+                      if (displayInterval != null &&
+                          !isSwiped &&
+                          displayInterval.isNotEmpty)
+                        Text(
+                          displayInterval,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: AppFonts.lato,
+                            color: const Color(0xff8596AB),
+                          ),
+                        ),
+                      if (!isSwiped)
+                        PopupMenuButton<ReminderDays>(
+                          tooltip: _dayLabel(widget.reminder.days),
+                          initialValue: widget.reminder.days,
+                          onSelected: widget.onDaysChanged,
+                          itemBuilder: (_) => [
+                            for (final days in ReminderDays.values)
+                              PopupMenuItem(
+                                value: days,
+                                child: Text(_dayLabel(days)),
+                              ),
+                          ],
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    _dayLabel(widget.reminder.days),
+                                    style: const TextStyle(
+                                      color: AppColors.teal,
+                                    ),
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.expand_more,
+                                  size: 16,
+                                  color: AppColors.teal,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
                 _CommonSwitch(
                   value: widget.reminder.isEnabled ?? false,

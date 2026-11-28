@@ -37,18 +37,15 @@ class FeedbackController extends GetxController {
     isLoading.value = true;
 
     try {
-      String? uid = await FirebaseService().getUserId();
+      final user = await FirebaseService().authenticate();
       final packageInfo = await PackageInfo.fromPlatform();
 
       await FirebaseService().firestore.collection('feedback').add({
-        'uid': uid ?? 'anonymous',
+        'uid': user.uid,
         'topic': selectedTopic.value.toLowerCase(),
         'feedback': feedbackDetailController.text.trim(),
         'app_version': packageInfo.version,
         'timestamp': FieldValue.serverTimestamp(),
-        // Note: Image upload to Storage could be added here if needed,
-        // but for now we'll store the local path or skip if Storage is not set up.
-        'image_path_local': feedbackImage.value,
       });
 
       Get.back(); // Close feedback screen
