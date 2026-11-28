@@ -42,7 +42,7 @@ class IAPService extends ChangeNotifier with WidgetsBindingObserver {
   static final instance = IAPService._();
   static const enabled = bool.fromEnvironment(
     'HYDRATION_PLUS_ENABLED',
-    defaultValue: !kReleaseMode,
+    defaultValue: true,
   );
   static const _androidId = 'water_premium';
   static const _androidPlans = {
