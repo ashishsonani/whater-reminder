@@ -811,7 +811,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
         messenger?.hideCurrentSnackBar();
         messenger?.showSnackBar(SnackBar(
           content: Text(confirmation ?? AppString.waterLogged.tr),
-          action: SnackBarAction(label: AppString.undoWaterLog.tr, onPressed: () => undoWaterLog(now, id)),
+          duration: const Duration(seconds: 2),
         ));
       }
       checkAndUnlockAwards(showSheet: false);
@@ -1063,17 +1063,13 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
                       ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () => Get.back(result: false),
-                    child: Text(AppString.undoWaterLog.tr),
-                  ),
                 ],
               ),
             ),
           );
         },
       ),
-      barrierDismissible: false,
+      barrierDismissible: true,
     );
   }
 }
